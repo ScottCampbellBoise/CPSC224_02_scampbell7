@@ -30,9 +30,11 @@ public class Convert {
 				showInches(meters);
 			} else if (choice == 3) {
 				showFeet(meters);
-			} else {
+			} else if (choice == 4) {
 				isRunning = false;
 				System.out.println("Goodbye! Thanks for using the converter!");
+			} else {
+				System.out.println("Error! Unknown command given ( " + choice + " ).");
 			}
 
 			System.out.print("\n\n");
