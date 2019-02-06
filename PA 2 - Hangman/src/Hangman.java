@@ -59,19 +59,12 @@ public class Hangman {
 		//Play the game 
 		
 		if(option == 0) // Quit game
-		{
 			JOptionPane.showMessageDialog(null, "Goodbye! Thanks for playing!");
-			System.exit(0);
-		} else {
-			String enteredWord;
-			
-			if(option == 1) { // Enter own word
-				enteredWord = getWordFromUser();
-			} else { // get random word
-				enteredWord = getRandomWord();
-			}
-			
-			return enteredWord;
+		else {			
+			if(option == 1)
+				return getWordFromUser();
+			else
+				return getRandomWord();
 		}
 		return null;
 	}
