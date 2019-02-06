@@ -158,7 +158,7 @@ public class Hangman {
 			for(int k = 0; k < leftPad; k++)
 			{
 				 title = " " + title;
-				 starHeader = " " + title;
+				 starHeader = " " + starHeader;
 				 dotHeader = " " + dotHeader;
 			}
 			
