@@ -18,7 +18,6 @@ kitten
 ears
 blocks
 caterpillar
-bunk bed
 daisy
 sunglasses
 cloak
@@ -31,7 +30,6 @@ driveway
 download
 houseboat
 weather
-time machine
 season
 pocket
 attack
