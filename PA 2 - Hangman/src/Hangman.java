@@ -54,10 +54,6 @@ public class Hangman {
 		String body = "Select an option from below to get started!";
 		int option = JOptionPane.showOptionDialog(null, body, title, JOptionPane.INFORMATION_MESSAGE, 0, new ImageIcon("icon.png"), buttons, buttons[0]);
 	
-		//Check if quit
-		//Get the word -> by input doalog or file
-		//Play the game 
-		
 		if(option == 0) // Quit game
 			JOptionPane.showMessageDialog(null, "Goodbye! Thanks for playing!");
 		else {			
