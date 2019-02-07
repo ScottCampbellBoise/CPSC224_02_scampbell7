@@ -1,6 +1,14 @@
+/**
+ * Runs the Hangman game, using JDialogBoxes to interface with the user. 
+ * Allows for a user selected word, or for a random word to be used.
+ * 
+ * @Authors: Scott Campbell & Arron Cushing
+ * @Version: 7 February 2019 - Assignment 2
+ * @file: Hangman.java
+ */
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
@@ -14,36 +22,43 @@ public class Hangman {
 		new Hangman();
 	}
 	
+	//Runs the hangman game 
+	//@pre
+	//@post
+	//@param
 	public Hangman()
 	{
-		importWords(filePath);
+		importWords(filePath); // Import the 'random' words from a file
 		
-		String word = displayMenu();		
-		String guessedChars = "";
-		int numStrikes = 0;
+		String word = displayMenu(); // Get the word to be used from the user		
+		String guessedChars = ""; // Set a string to hold all of the characters the user has guessed
+		int numStrikes = 0; // record the number of strikes the user has
 		
-		while(numStrikes <= 6 && word != null)
+		while(numStrikes <= 6 && word != null) 
 		{
-			String enteredChar = displayHangman(word, guessedChars, numStrikes);
+			String enteredChar = displayHangman(word, guessedChars, numStrikes); // Get the guessed character from the player
 						
 			if(enteredChar == null) {
-				System.exit(0);
-			} else if(enteredChar.equals("*")) {
+				System.exit(0); // if word is null, exit the game.
+			} else if(enteredChar.equals("*")) { // if an asterisk, restart the game by going back to main menu
 					word = displayMenu();
 					guessedChars = "";
 					numStrikes = 0;
 			} else {
-				guessedChars += enteredChar;
-				if(!word.contains(""+enteredChar))
+				guessedChars += enteredChar; // add the guessed character to the list
+				if(!word.contains(""+enteredChar)) // if the character is not in the word, increment the strikes
 					numStrikes++;
 			}
 		}
 	}
 	
-	// Displays 3 options - rand word, user-spec. word, exit 
+	//@pre
+	//@post
+	//@param
+	//@return
 	public String displayMenu()
 	{
-		String[] buttons = {"Exit Game", "Enter your own Word", "Use Random Word"};
+		String[] buttons = {"Exit Game", "Enter your own Word", "Use Random Word"}; // different options for main menu
 		String title = "Hangman Main Menu";
 		String body = "Select an option from below to get started!";
 		int option = JOptionPane.showOptionDialog(null, body, title, JOptionPane.INFORMATION_MESSAGE, 0, new ImageIcon("icon.png"), buttons, buttons[0]);
@@ -51,44 +66,64 @@ public class Hangman {
 		if(option == 0) // Quit game
 			JOptionPane.showMessageDialog(null, "Goodbye! Thanks for playing!");
 		else {			
-			if(option == 1)
+			if(option == 1) // Ask for a word from the user
 				return getWordFromUser();
-			else if (option == 2)
+			else if (option == 2) // Get a word from the random word list
 				return getRandomWord();
-			else
+			else // Quit the game (exit button pressed)
 				System.exit(0);
 		}
 		return null;
 	}
 	
+	//@pre
+	//@post
+	//@param
+	//@return
 	public String getRandomWord()
 	{
-		int position = (int)(Math.random()*words.length);
-		return words[position];
+		int position = (int)(Math.random()*words.length); // Generate a random position to get the word from
+		return words[position]; // return the word from the array
 	}
 	
+	//@pre
+	//@post
+	//@param
+	//@return
 	public String getWordFromUser()
 	{
 		return JOptionPane.showInputDialog("Please enter a single word for the game:");
 	}
 	
+	//@pre
+	//@post
+	//@param
+	//@return
 	public void importWords(String filePath)
 	{
-		String allWords = readFile(filePath);
-		this.words = allWords.split("\n");
+		String allWords = readFile(filePath); // get all words as single String
+		this.words = allWords.split("\n"); // put each word into a spot in an array
 	}
 	
+	//@pre
+	//@post
+	//@param
+	//@return
 	public String readFile(String filePath)
 	{
 		try
 		{
-			return new String (Files.readAllBytes( Paths.get(filePath)));
+			return new String (Files.readAllBytes( Paths.get(filePath))); // return the entire file as a single string
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(null,"Error reading words from the file " + filePath+ " ...");
 			return null;
 		}
 	}
 	
+	//@pre
+	//@post
+	//@param
+	//@return
 	public boolean checkWord(String word)
 	{
 		boolean isValid = true;
@@ -103,6 +138,10 @@ public class Hangman {
 		return isValid;
 	}
 	
+	//@pre
+	//@post
+	//@param
+	//@return
 	public String displayHangman(String word, String guessedChars, int numStrikes)
 	{		
 		String guessedWord = 	"\t";
@@ -111,7 +150,7 @@ public class Hangman {
 		String dotHeader = 		"\t------------\t";
 		String guessedHeader = 	"\tUsed Letters\t";
 		String usedLetters = 	"\t";
-		String iconPath = "strike" + numStrikes + ".png";
+		String iconPath = "icons/strike" + numStrikes + ".png";
 		
 		guessedWord = parseWordToDisplay(word, guessedWord, guessedChars);
 		usedLetters = parseUsedLettersToDisplay(word, usedLetters, guessedChars);
@@ -148,15 +187,19 @@ public class Hangman {
 			return response;
 		} else if(numStrikes < 6 && wordFound(word, guessedChars)) {
 			String message = title + "\n" + starHeader + "\n" + dotHeader + "\n" + word + "\n" + dotHeader + "\n\n" + guessedHeader + "\n" + usedLetters + "\n" + starHeader;
-			JOptionPane.showMessageDialog(null, message, "Congratulations!", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("happy.png"));
+			JOptionPane.showMessageDialog(null, message, "Congratulations!", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("icons/happy.png"));
 			return "*";
 		} else { //Striked out
 			String message = title + "\n" + starHeader + "\n" + dotHeader + "\n" + word + "\n" + dotHeader + "\n\n" + guessedHeader + "\n" + usedLetters + "\n" + starHeader;
-			JOptionPane.showMessageDialog(null, message, "You Struck Out!", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("strike6.png"));
+			JOptionPane.showMessageDialog(null, message, "You Struck Out!", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("icons/strike6.png"));
 			return "*";
 		}
 	}
 	
+	//@pre
+	//@post
+	//@param
+	//@return
 	boolean wordFound(String word, String guessedChars)
 	{
 		boolean isFound = true;
@@ -169,6 +212,11 @@ public class Hangman {
 		}
 		return isFound;
 	}
+	
+	//@pre
+	//@post
+	//@param
+	//@return
 	String parseUsedLettersToDisplay(String word, String usedLetters, String guessedChars)
 	{
 		for(int k = 0; k < guessedChars.length(); k++)
@@ -181,6 +229,10 @@ public class Hangman {
 		return (usedLetters + "\t");
 	}
 	
+	//@pre
+	//@post
+	//@param
+	//@return
 	String parseWordToDisplay(String word, String guessedWord, String guessedChars)
 	{
 		for(int k = 0; k < word.length(); k++)
@@ -191,11 +243,14 @@ public class Hangman {
 			} else {
 				 guessedWord += " _ "; 
 			}
-			
 		}
 		return (guessedWord + "\t");
 	}
 	
+	//@pre
+	//@post
+	//@param
+	//@return
 	String pad(String original, int leftPad, int rightPad)
 	{
 		for(int k = 0; k < leftPad; k++)
