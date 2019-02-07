@@ -24,25 +24,25 @@ public class Hangman {
 	{
 		importWords(filePath);
 		
-		String word = displayMenu();
+		String word = displayMenu();		
 		String guessedChars = "";
 		int numStrikes = 0;
 		
 		while(numStrikes <= 6 && word != null)
 		{
-			String enteredChar = displayHangman(word,guessedChars, numStrikes);
-			if(enteredChar != null)
-			{
+			String enteredChar = displayHangman(word, guessedChars, numStrikes);
+						
+			if(enteredChar == null) {
+				System.exit(0);
+			} else if(enteredChar.equals("*")) {
+					word = displayMenu();
+					guessedChars = "";
+					numStrikes = 0;
+			} else {
 				guessedChars += enteredChar;
-				
 				if(!word.contains(""+enteredChar))
 					numStrikes++;
-			} else {
-				word = displayMenu();
-				guessedChars = "";
-				numStrikes = 0;
 			}
-			
 		}
 	}
 	
@@ -59,8 +59,10 @@ public class Hangman {
 		else {			
 			if(option == 1)
 				return getWordFromUser();
-			else
+			else if (option == 2)
 				return getRandomWord();
+			else
+				System.exit(0);
 		}
 		return null;
 	}
@@ -108,7 +110,7 @@ public class Hangman {
 	}
 	
 	public String displayHangman(String word, String guessedChars, int numStrikes)
-	{	
+	{		
 		String guessedWord = 	"\t";
 		String title = 			"\t**Hang-man**\t";
 		String starHeader = 	"\t****************\t";
@@ -139,22 +141,39 @@ public class Hangman {
 			guessedHeader = pad(guessedHeader, leftPad, rightPad);
 		}
 		
-		if(numStrikes < 6)
+		if(numStrikes < 6 && !wordFound(word, guessedChars))
 		{
 			String message = title + "\n" + starHeader + "\n" + dotHeader + "\n" + guessedWord + "\n" + dotHeader + "\n\n" + guessedHeader + "\n" + usedLetters + "\n" + starHeader;
 			String response = (String) JOptionPane.showInputDialog(null, message, "Hang Man", 0, new ImageIcon(iconPath), null, null);
 			
-			while(response != null && response.length() > 1 && !checkWord(response))
+			while(response != null && response.length() != 1 && !checkWord(response))
 			{
 				response = JOptionPane.showInputDialog(null, "Please enter a single valid character!");
 			}
 		
 			return response;
+		} else if(numStrikes < 6 && wordFound(word, guessedChars)) {
+			String message = title + "\n" + starHeader + "\n" + dotHeader + "\n" + word + "\n" + dotHeader + "\n\n" + guessedHeader + "\n" + usedLetters + "\n" + starHeader;
+			JOptionPane.showMessageDialog(null, message, "Congratulations!", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("happy.png"));
+			return "*";
 		} else { //Striked out
 			String message = title + "\n" + starHeader + "\n" + dotHeader + "\n" + word + "\n" + dotHeader + "\n\n" + guessedHeader + "\n" + usedLetters + "\n" + starHeader;
 			JOptionPane.showMessageDialog(null, message, "You Struck Out!", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("strike6.png"));
-			return null;
+			return "*";
 		}
+	}
+	
+	boolean wordFound(String word, String guessedChars)
+	{
+		boolean isFound = true;
+		for(int k = 0; k < word.length(); k++)
+		{
+			if(!guessedChars.contains(word.substring(k, k+1)))
+			{
+				isFound = false;
+			}
+		}
+		return isFound;
 	}
 	
 	String parseUsedLettersToDisplay(String word, String usedLetters, String guessedChars)
