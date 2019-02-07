@@ -6,12 +6,6 @@ import javax.swing.JOptionPane;
 
 public class Hangman {
 	
-	//TO DO:
-	/**
-	 * Check if word is complete
-	 * Way to end the game
-	 */
-	
 	final String filePath = "words.txt";
 	String[] words;
 
@@ -175,7 +169,6 @@ public class Hangman {
 		}
 		return isFound;
 	}
-	
 	String parseUsedLettersToDisplay(String word, String usedLetters, String guessedChars)
 	{
 		for(int k = 0; k < guessedChars.length(); k++)
