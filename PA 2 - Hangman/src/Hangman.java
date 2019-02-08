@@ -153,6 +153,7 @@ public class Hangman {
 		String usedLetters = 	"\t";
 		String iconPath = "icons/strike" + numStrikes + ".png";
 
+		//Prepare the strings for a clean display
 		guessedWord = parseWordToDisplay(word, guessedWord, guessedChars);
 		usedLetters = parseUsedLettersToDisplay(word, usedLetters, guessedChars);
 
