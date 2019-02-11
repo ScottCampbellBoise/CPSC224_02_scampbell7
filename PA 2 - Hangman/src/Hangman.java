@@ -2,8 +2,8 @@
  * Runs the Hangman game, using JDialogBoxes to interface with the user.
  * Allows for a user selected word, or for a random word to be used.
  *
- * @Authors: Scott Campbell & Arron Cushing
- * @Version: 7 February 2019 - Assignment 2
+ * @Authors: Scott Campbell & Arron Cushing (GitHub repo: CPSC224_02_scampbell7/PA 2 - Hangman)
+ * @Version: 10 February 2019 - Assignment 2
  * @file: Hangman.java
  */
 
