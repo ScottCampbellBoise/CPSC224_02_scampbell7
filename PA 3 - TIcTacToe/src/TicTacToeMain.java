@@ -7,7 +7,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -15,6 +14,11 @@ import java.awt.event.ActionListener;
 
 public class TicTacToeMain extends JFrame
 {
+	GamePanel gamePanel;
+	PlayerPanel player1 = new PlayerPanel("Player 1 (X):");
+	PlayerPanel player2 = new PlayerPanel("Player 2 (O):");
+	MenuPanel menu = new MenuPanel();		
+	BoardPanel board = new BoardPanel();
 	
 	public static void main(String[] args)
 	{
@@ -25,22 +29,11 @@ public class TicTacToeMain extends JFrame
 	{
 		setTitle("Tic Tac Toe");
 		setSize(500,500);
+		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		JPanel menu = new MenuPanel();
-		JPanel player1Panel = new PlayerPanel("Player 1 (X):");
-		JPanel player2Panel = new PlayerPanel("Player 2 (O):");
-		JPanel board = new BoardPanel();
-		
-		JPanel players = new JPanel();
-		players.setLayout(new FlowLayout(FlowLayout.CENTER));
-		players.add(player1Panel);
-		players.add(player2Panel);
-		
-		setLayout(new BorderLayout());
-		add(players, BorderLayout.NORTH);
-		add(board, BorderLayout.CENTER);
-		add(menu, BorderLayout.SOUTH);
+
+		gamePanel = new GamePanel(player1, player2, menu, board);	
+		add(gamePanel);
 		
 		//TO DO:
 		/**
@@ -52,6 +45,34 @@ public class TicTacToeMain extends JFrame
 		setVisible(true);
 	}
 	
+	public class GamePanel extends JPanel
+	{
+		public JPanel players;
+		
+		public JPanel player1Panel;
+		public JPanel player2Panel;
+		public JPanel menuPanel;
+		public JPanel boardPanel;
+		
+		public GamePanel(JPanel player1Panel, JPanel player2Panel, JPanel menuPanel, JPanel boardPanel)
+		{
+			this.player1Panel = player1Panel;
+			this.player2Panel = player2Panel;
+			this.menuPanel = menuPanel;
+			this.boardPanel = boardPanel;
+			
+			players = new JPanel();
+			players.setLayout(new FlowLayout(FlowLayout.CENTER));
+			players.add(player1Panel);
+			players.add(player2Panel);
+			
+			setLayout(new BorderLayout());
+			add(players, BorderLayout.NORTH);
+			add(boardPanel, BorderLayout.CENTER);
+			add(menuPanel, BorderLayout.SOUTH);
+		}
+	}
+	
 	public class MenuPanel extends JPanel
 	{
 		private JPanel buttonPanel;
@@ -60,7 +81,6 @@ public class TicTacToeMain extends JFrame
 		private JButton newGameButton;
 		private JButton resetButton;
 		private JButton exitButton;
-		
 		private JLabel statusLabel;
 		
 		MenuPanel()
@@ -117,7 +137,6 @@ public class TicTacToeMain extends JFrame
 				public void actionPerformed(ActionEvent e)
 				{
 					name = nameField.getText();
-					nameField.setText(name); // Might not need this...
 				}
 			});
 			
@@ -143,11 +162,6 @@ public class TicTacToeMain extends JFrame
 		public void addLoss() { losses++; lossesLabel.setText(""+losses); }
 	}
 	
-	/**
-	 * This panel class holds the 3x3
-	 * 
-	 * Should use the GridLayout 
-	 */
 	public class BoardPanel extends JPanel
 	{
 		
@@ -170,7 +184,6 @@ public class TicTacToeMain extends JFrame
 				}
 			}
 		}
-		
 		private void fillButtonGrid()
 		{
 			buttonGrid = new JButton[3][3];
@@ -193,19 +206,17 @@ public class TicTacToeMain extends JFrame
 		}
 	}
 
-	public class PlayerActionListener implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			
-		}
-	}
-
 	public class MenuButtonListener implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			
+			if(e.getSource() == menu.exitButton) { // Exit Game
+				
+			} else if (e.getSource() == menu.resetButton) { // Reset Game
+				
+			} else if (e.getSource() == menu.newGameButton) { // New Game
+				
+			}
 		}
 	}
 }
