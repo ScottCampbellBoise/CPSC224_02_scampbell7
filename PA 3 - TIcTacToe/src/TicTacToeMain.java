@@ -2,6 +2,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 import javax.swing.JButton;
 
 import java.awt.GridLayout;
@@ -29,7 +30,8 @@ public class TicTacToeMain extends JFrame
 		 * Check implementation
 		 */
 		
-		setVisible(true);	
+		setVisible(true);
+		repaint();
 	}
 	
 	/**
@@ -60,15 +62,13 @@ public class TicTacToeMain extends JFrame
 		}
 	}
 
-	/**
-	 * This Panel Class holds the information for ONE Player 
-	 * 
-	 * Uses the GridLayout to align the elements
-	 */
 	public class PlayerPanel extends JPanel
 	{
 		private JTextField nameField;
-		private JLabel nameLabel;
+		private JLabel nameTitleLabel;
+		private JLabel winsTitleLabel;
+		private JLabel lossesTitleLabel;
+
 		private JLabel winsLabel;
 		private JLabel lossesLabel;
 		
@@ -76,15 +76,44 @@ public class TicTacToeMain extends JFrame
 		private int wins;
 		private int losses;
 		
-		PlayerPanel()
+		PlayerPanel(String playerNumberString)
 		{
-			//Should use a grid layout...
+			nameTitleLabel = new JLabel("Name:");
+			winsTitleLabel = new JLabel("Wins:");
+			lossesTitleLabel = new JLabel("Losses:");
+			
+			winsLabel = new JLabel("0");
+			lossesLabel = new JLabel("0");
+			
+			nameField = new JTextField(8);
+			nameField.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e)
+				{
+					name = nameField.getText();
+					nameField.setText(name); // Might not need this...
+				}
+			});
+			
 			setLayout(new GridLayout(3,2));
+			
+			TitledBorder border = new TitledBorder(playerNumberString);
+			border.setTitleJustification(TitledBorder.LEFT);
+		    border.setTitlePosition(TitledBorder.TOP);
+		    setBorder(border);
+			
+			add(nameTitleLabel);
+			add(nameField);
+			add(winsTitleLabel);
+			add(winsLabel);
+			add(lossesTitleLabel);
+			add(lossesLabel);
 		}
 		
 		public String getName() { return name; }
 		public int getWins() { return wins; }
 		public int getLosses() { return losses; }
+		public void addWin() { wins++; winsLabel.setText(""+wins); }
+		public void addLoss() { losses++; lossesLabel.setText(""+losses); }
 	}
 	
 	/**
