@@ -122,6 +122,7 @@ public class TicTacToeMain extends JFrame
 		private String name;
 		private int wins;
 		private int losses;
+		private String playerID;
 		
 		PlayerPanel(String playerNumberString)
 		{
@@ -132,11 +133,18 @@ public class TicTacToeMain extends JFrame
 			winsLabel = new JLabel("0");
 			lossesLabel = new JLabel("0");
 			
+			playerID = playerNumberString.substring(0,playerNumberString.length() - 5);
+
 			nameField = new JTextField(8);
+			nameField.setText(playerID);
 			nameField.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e)
 				{
 					name = nameField.getText();
+					if(name.length() < 1) {name = playerID;}
+					nameField.setText(name);
+					
+					System.out.println("Updated Player name to: "+name);
 				}
 			});
 			
