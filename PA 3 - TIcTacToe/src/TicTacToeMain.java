@@ -3,8 +3,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,6 +27,21 @@ public class TicTacToeMain extends JFrame
 		setSize(500,500);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		JPanel menu = new MenuPanel();
+		JPanel player1Panel = new PlayerPanel("Player 1 (X):");
+		JPanel player2Panel = new PlayerPanel("Player 2 (O):");
+		JPanel board = new BoardPanel();
+		
+		JPanel players = new JPanel();
+		players.setLayout(new FlowLayout(FlowLayout.CENTER));
+		players.add(player1Panel);
+		players.add(player2Panel);
+		
+		setLayout(new BorderLayout());
+		add(players, BorderLayout.NORTH);
+		add(board, BorderLayout.CENTER);
+		add(menu, BorderLayout.SOUTH);
+		
 		//TO DO:
 		/**
 		 * Add functionality to all Panel Classes
@@ -31,18 +50,12 @@ public class TicTacToeMain extends JFrame
 		 */
 		
 		setVisible(true);
-		repaint();
 	}
 	
-	/**
-	 * This Panel Class holds the bottom row of Buttons as well as the 
-	 * JLabel that indicates who's turn it is and other info
-	 * 
-	 * Should use the BorderLayout (North and South)
-	 */
 	public class MenuPanel extends JPanel
 	{
 		private JPanel buttonPanel;
+		private JPanel labelPanel;
 		
 		private JButton newGameButton;
 		private JButton resetButton;
@@ -52,14 +65,28 @@ public class TicTacToeMain extends JFrame
 		
 		MenuPanel()
 		{
-			//button panel should use the predefined flow layout
-			//The class panel should use border layout (North and South)
+			newGameButton = new JButton("New Game");
+			resetButton = new JButton("Reset");
+			exitButton = new JButton("Exit");
+			
+			statusLabel = new JLabel("Welcome to Tic Tac Toe!");
+			
+			buttonPanel = new JPanel();
+			buttonPanel.add(newGameButton);
+			buttonPanel.add(resetButton);
+			buttonPanel.add(exitButton);
+			
+			labelPanel = new JPanel();
+			labelPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			labelPanel.setBorder(BorderFactory.createEtchedBorder());
+			labelPanel.add(statusLabel);
+
+			setLayout(new BorderLayout());
+			add(buttonPanel, BorderLayout.NORTH);
+			add(labelPanel, BorderLayout.SOUTH);
 		}
 		
-		void setStatus()
-		{
-			
-		}
+		void setStatus(String message) { statusLabel.setText(message); }
 	}
 
 	public class PlayerPanel extends JPanel
