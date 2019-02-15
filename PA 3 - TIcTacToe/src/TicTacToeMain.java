@@ -20,6 +20,11 @@ public class TicTacToeMain extends JFrame
 	MenuPanel menu = new MenuPanel();		
 	BoardPanel board = new BoardPanel();
 	
+	char boardStatus[][];
+	boolean isPlayer1Turn;
+	boolean gameInProgress;
+	
+	
 	public static void main(String[] args)
 	{
 		new TicTacToeMain();
@@ -37,9 +42,28 @@ public class TicTacToeMain extends JFrame
 		
 		//TO DO:
 		/**
-		 * Add functionality to all Panel Classes
-		 * Add all instances of Panel Classes to a main Panel
-		 * Check implementation
+		 * Arron:
+		 * 
+		 * make a function to check if there is a win. Takes a 2D array as arg
+		 * 
+		 * setButtonCharacter(char c, int row, int col)
+		 * 
+		 * public boolean isValidSpot(int row, int col)
+		 * 
+		 * implement reset button - MenuButtonListener
+		 * 		Confirmation Dialog Box
+		 * 		reset stats, AND names, AND Buttons
+		 * 	
+		 * 
+		 * Scott:
+		 * 	
+		 * implement new game button - MenuButtonListener
+		 * 		enable board, disable player text fields
+		 * 
+		 * implement exit button - MenuButtonListener
+		 * 		close the window
+		 * 
+		 * CHECK IF PLAYER NAME IMP. IS OK
 		 */
 		
 		setVisible(true);
@@ -89,7 +113,7 @@ public class TicTacToeMain extends JFrame
 			resetButton = new JButton("Reset");
 			exitButton = new JButton("Exit");
 			
-			statusLabel = new JLabel("Welcome to Tic Tac Toe!");
+			statusLabel = new JLabel("Welcome to Tic-Tac-Toe!");
 			
 			buttonPanel = new JPanel();
 			buttonPanel.add(newGameButton);
@@ -106,7 +130,7 @@ public class TicTacToeMain extends JFrame
 			add(labelPanel, BorderLayout.SOUTH);
 		}
 		
-		void setStatus(String message) { statusLabel.setText(message); }
+		public void setStatus(String message) { statusLabel.setText(message); }
 	}
 
 	public class PlayerPanel extends JPanel
@@ -143,8 +167,6 @@ public class TicTacToeMain extends JFrame
 					name = nameField.getText();
 					if(name.length() < 1) {name = playerID;}
 					nameField.setText(name);
-					
-					System.out.println("Updated Player name to: "+name);
 				}
 			});
 			
@@ -168,20 +190,31 @@ public class TicTacToeMain extends JFrame
 		public int getLosses() { return losses; }
 		public void addWin() { wins++; winsLabel.setText(""+wins); }
 		public void addLoss() { losses++; lossesLabel.setText(""+losses); }
+		public void reset() { name = playerID; wins = 0; losses = 0; }
+		public void enableEditing() { nameField.setEnabled(true); }
+		public void disableEditing() { nameField.setEnabled(false); }
 	}
 	
 	public class BoardPanel extends JPanel
 	{
-		
 		public JButton[][] buttonGrid;
 
 		BoardPanel()
 		{
-			fillButtonGrid(); //Fills the array with the appropriate buttons
+			fillButtonGrid();
 			setLayout(new GridLayout(3,3));
 			fillPanel();
+			setEditable(false);
 		}
 		
+		public boolean isValidSpot(int row, int col)
+		{
+			return true;
+		}
+		public void setButtonCharacter(char c, int row, int col)
+		{
+			
+		}
 		private void fillPanel()
 		{
 			for(int row = 0; row < 3; row++)
@@ -201,6 +234,16 @@ public class TicTacToeMain extends JFrame
 				{
 					buttonGrid[row][col] = new JButton("");
 					buttonGrid[row][col].addActionListener(new BoardButtonListener());
+				}
+			}
+		}
+		public void setEditable(boolean isEditable)
+		{
+			for(int row = 0; row < 3; row++)
+			{
+				for(int col = 0; col < 3; col++) 
+				{
+					buttonGrid[row][col].setEnabled(isEditable);
 				}
 			}
 		}
