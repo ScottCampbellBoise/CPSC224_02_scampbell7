@@ -1,5 +1,6 @@
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
@@ -21,9 +22,8 @@ public class TicTacToeMain extends JFrame
 	BoardPanel board = new BoardPanel();
 	
 	char boardStatus[][];
-	boolean isPlayer1Turn;
 	boolean gameInProgress;
-	
+	boolean isPlayer1Turn;
 	
 	public static void main(String[] args)
 	{
@@ -57,16 +57,44 @@ public class TicTacToeMain extends JFrame
 		 * 
 		 * Scott:
 		 * 	
-		 * implement new game button - MenuButtonListener
+		 * implement new game button - MenuButtonListener		DONE
 		 * 		enable board, disable player text fields
 		 * 
-		 * implement exit button - MenuButtonListener
+		 * implement exit button - MenuButtonListener			DONE
 		 * 		close the window
 		 * 
 		 * CHECK IF PLAYER NAME IMP. IS OK
 		 */
 		
 		setVisible(true);
+	}
+	
+	public void startNewGame()
+	{
+		// Start a new game and update all information
+		gameInProgress = true;
+		boardStatus = new char[3][3];
+		
+		//Clear the board status array
+		for(int row = 0; row < 3; row++) {
+			for(int col = 0; col < 3; col++) {
+				boardStatus[row][col] = ' '; // Empty spot character
+			}
+		}
+				
+		/*
+		while(gameInProgress)
+		{
+			//Player 1's Turn
+			isPlayer1Turn = true;
+			menu.setStatus(player1.getName() + "'s turn.");
+			//Wait for a button to be selected
+			
+			//Player 2's turn
+			isPlayer1Turn = false;
+			menu.setStatus(player2.getName() + "'s turn.");
+			//Wait for a button to be selected
+		} */
 	}
 	
 	public class GamePanel extends JPanel
@@ -113,6 +141,10 @@ public class TicTacToeMain extends JFrame
 			resetButton = new JButton("Reset");
 			exitButton = new JButton("Exit");
 			
+			newGameButton.addActionListener(new MenuButtonListener());
+			resetButton.addActionListener(new MenuButtonListener());
+			exitButton.addActionListener(new MenuButtonListener());
+			
 			statusLabel = new JLabel("Welcome to Tic-Tac-Toe!");
 			
 			buttonPanel = new JPanel();
@@ -130,7 +162,7 @@ public class TicTacToeMain extends JFrame
 			add(labelPanel, BorderLayout.SOUTH);
 		}
 		
-		public void setStatus(String message) { statusLabel.setText(message); }
+		public void setStatus(String message) { statusLabel.setText(message); repaint(); }
 	}
 
 	public class PlayerPanel extends JPanel
@@ -185,7 +217,12 @@ public class TicTacToeMain extends JFrame
 			add(lossesLabel);
 		}
 		
-		public String getName() { return name; }
+		public String getName() 
+		{ 
+			if(name != null)
+				return name; 
+			return playerID;
+		}
 		public int getWins() { return wins; }
 		public int getLosses() { return losses; }
 		public void addWin() { wins++; winsLabel.setText(""+wins); }
@@ -247,6 +284,16 @@ public class TicTacToeMain extends JFrame
 				}
 			}
 		}
+		public void resetButtons()
+		{
+			for(int row = 0; row < 3; row++)
+			{
+				for(int col = 0; col < 3; col++) 
+				{
+					buttonGrid[row][col].setText(" ");
+				}
+			}
+		}
 	}
 	
 	public class BoardButtonListener implements ActionListener
@@ -262,11 +309,18 @@ public class TicTacToeMain extends JFrame
 		public void actionPerformed(ActionEvent e)
 		{
 			if(e.getSource() == menu.exitButton) { // Exit Game
-				
+				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to quit the game?", "Warning - You are about to exit out of the game!",
+				        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					System.exit(0);
+				}
 			} else if (e.getSource() == menu.resetButton) { // Reset Game
 				
 			} else if (e.getSource() == menu.newGameButton) { // New Game
-				
+				board.resetButtons();
+				board.setEditable(true);
+				player1.disableEditing();
+				player2.disableEditing();
+				startNewGame();
 			}
 		}
 	}
