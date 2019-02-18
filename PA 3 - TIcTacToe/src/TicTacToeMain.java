@@ -1,5 +1,6 @@
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
@@ -69,6 +70,21 @@ public class TicTacToeMain extends JFrame
 		setVisible(true);
 	}
 	
+	public void startNewGame()
+	{
+		boardStatus = new char[3][3];
+		for(int row = 0; row < 3; row++) {
+			for(int col = 0; col < 3; col++) {
+				boardStatus[row][col] = ' ';
+			}
+		}
+		
+		isPlayer1Turn = true;
+		gameInProgress = true;
+		
+		menu.setStatus(player1.getName() + "'s turn.");
+	}
+	
 	public class GamePanel extends JPanel
 	{
 		public JPanel players;
@@ -112,6 +128,10 @@ public class TicTacToeMain extends JFrame
 			newGameButton = new JButton("New Game");
 			resetButton = new JButton("Reset");
 			exitButton = new JButton("Exit");
+			
+			newGameButton.addActionListener(new MenuButtonListener());
+			resetButton.addActionListener(new MenuButtonListener());
+			exitButton.addActionListener(new MenuButtonListener());
 			
 			statusLabel = new JLabel("Welcome to Tic-Tac-Toe!");
 			
@@ -158,14 +178,15 @@ public class TicTacToeMain extends JFrame
 			lossesLabel = new JLabel("0");
 			
 			playerID = playerNumberString.substring(0,playerNumberString.length() - 5);
-
+			name = playerID;
+			
 			nameField = new JTextField(8);
 			nameField.setText(playerID);
 			nameField.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e)
 				{
 					name = nameField.getText();
-					if(name.length() < 1) {name = playerID;}
+					if(name.length() < 1) { name = playerID; }
 					nameField.setText(name);
 				}
 			});
@@ -247,6 +268,16 @@ public class TicTacToeMain extends JFrame
 				}
 			}
 		}
+		public void resetButtons()
+		{
+			for(int row = 0; row < 3; row++)
+			{
+				for(int col = 0; col < 3; col++) 
+				{
+					buttonGrid[row][col].setText(" ");
+				}
+			}
+		}
 	}
 	
 	public class BoardButtonListener implements ActionListener
@@ -262,11 +293,19 @@ public class TicTacToeMain extends JFrame
 		public void actionPerformed(ActionEvent e)
 		{
 			if(e.getSource() == menu.exitButton) { // Exit Game
-				
+				if (JOptionPane.showConfirmDialog(null, "You are about to exit the game. Are you sure?", "Warning",
+				        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				    System.exit(0);
+				}
 			} else if (e.getSource() == menu.resetButton) { // Reset Game
 				
 			} else if (e.getSource() == menu.newGameButton) { // New Game
-				
+				board.setEditable(true);
+				board.resetButtons();
+				player1.disableEditing();
+				player2.disableEditing();
+				repaint();
+				startNewGame();
 			}
 		}
 	}
