@@ -1,7 +1,7 @@
 
 /*
  * Homework #1
- * Due Date: Tuesday, January 29th
+ * Due Date: Thursday, January 31st
  * Names: Scott Campbell & Arron Cushing
  */
 

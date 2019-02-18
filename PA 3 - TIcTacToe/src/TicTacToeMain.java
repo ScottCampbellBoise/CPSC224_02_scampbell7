@@ -190,14 +190,15 @@ public class TicTacToeMain extends JFrame
 			lossesLabel = new JLabel("0");
 			
 			playerID = playerNumberString.substring(0,playerNumberString.length() - 5);
-
+			name = playerID;
+			
 			nameField = new JTextField(8);
 			nameField.setText(playerID);
 			nameField.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e)
 				{
 					name = nameField.getText();
-					if(name.length() < 1) {name = playerID;}
+					if(name.length() < 1) { name = playerID; }
 					nameField.setText(name);
 				}
 			});
@@ -312,7 +313,7 @@ public class TicTacToeMain extends JFrame
 				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to quit the game?", "Warning - You are about to exit out of the game!",
 				        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 					System.exit(0);
-				}
+
 			} else if (e.getSource() == menu.resetButton) { // Reset Game
 				
 			} else if (e.getSource() == menu.newGameButton) { // New Game
@@ -320,8 +321,10 @@ public class TicTacToeMain extends JFrame
 				board.setEditable(true);
 				player1.disableEditing();
 				player2.disableEditing();
+				repaint();
 				startNewGame();
 			}
 		}
+	}
 	}
 }
