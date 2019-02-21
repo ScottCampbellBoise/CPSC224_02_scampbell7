@@ -24,6 +24,7 @@ public class TicTacToeMain extends JFrame
 	char boardStatus[][];
 	boolean gameInProgress;
 	boolean isPlayer1Turn;
+	public JButton[][] buttonGrid;
 	
 	public static void main(String[] args)
 	{
@@ -45,10 +46,6 @@ public class TicTacToeMain extends JFrame
 		 * Arron:
 		 * 
 		 * make a function to check if there is a win. Takes a 2D array as arg
-		 * 
-		 * setButtonCharacter(char c, int row, int col)
-		 * 
-		 * public boolean isValidSpot(int row, int col)
 		 * 
 		 * implement reset button - MenuButtonListener
 		 * 		Confirmation Dialog Box
@@ -134,6 +131,7 @@ public class TicTacToeMain extends JFrame
 		private JButton resetButton;
 		private JButton exitButton;
 		private JLabel statusLabel;
+		
 		
 		MenuPanel()
 		{
@@ -235,7 +233,7 @@ public class TicTacToeMain extends JFrame
 	
 	public class BoardPanel extends JPanel
 	{
-		public JButton[][] buttonGrid;
+		
 
 		BoardPanel()
 		{
@@ -247,11 +245,26 @@ public class TicTacToeMain extends JFrame
 		
 		public boolean isValidSpot(int row, int col)
 		{
-			return true;
+			return (boardStatus[row][col] == ' ');
 		}
 		public void setButtonCharacter(char c, int row, int col)
 		{
-			
+			if(!isValidSpot(row, col))
+			{
+				if(isPlayer1Turn)
+				{
+					boardStatus[row][col] = 'x';
+					isPlayer1Turn = false;
+				}
+				else
+				{
+					boardStatus[row][col] = 'o';
+					isPlayer1Turn = true;
+				}
+			}
+			else {
+				System.out.println("not valid");
+			}
 		}
 		private void fillPanel()
 		{
@@ -300,8 +313,25 @@ public class TicTacToeMain extends JFrame
 	public class BoardButtonListener implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
-		{
+		{	
+			String actionCommand = e.getActionCommand();
 			
+			if(actionCommand.equals(" "))
+			{
+				for(int row = 0; row < 3; row++)
+				{
+					for(int col = 0; col < 3; col++)
+					{
+						if(e.getSource() == buttonGrid[row][col])
+						{
+							if(isPlayer1Turn)
+								buttonGrid[row][col].setText("x");
+							else
+								buttonGrid[row][col].setText("o");
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -315,6 +345,7 @@ public class TicTacToeMain extends JFrame
 					System.exit(0);
 
 			} else if (e.getSource() == menu.resetButton) { // Reset Game
+
 				
 			} else if (e.getSource() == menu.newGameButton) { // New Game
 				board.resetButtons();
