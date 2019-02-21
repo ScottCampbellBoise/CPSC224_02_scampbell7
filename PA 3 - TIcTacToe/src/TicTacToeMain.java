@@ -38,15 +38,6 @@ public class TicTacToeMain extends JFrame
 
 		gamePanel = new GamePanel(player1, player2, menu, board);
 		add(gamePanel);
-
-		//TO DO:
-		/**
-		 * Arron:
-		 *
-		 * implement reset button - MenuButtonListener
-		 * 		Confirmation Dialog Box
-		 * 		reset stats, AND names, AND Buttons
-		 */
 		
 		revalidate();
 		repaint();
@@ -279,7 +270,7 @@ public class TicTacToeMain extends JFrame
 			boolean player1PosFilled = true;
 			boolean player2PosFilled = true;
 			
-			for(int row = 2; row > 0; row--)
+			for(int row = 2; row >= 0; row--)
 			{
 				if(buttonGrid[row][row].getText().equals("x"))
 				{
