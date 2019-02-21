@@ -21,10 +21,8 @@ public class TicTacToeMain extends JFrame
 	MenuPanel menu = new MenuPanel();
 	BoardPanel board = new BoardPanel();
 
-	char boardStatus[][];
 	boolean gameInProgress;
 	boolean isPlayer1Turn;
-	public JButton[][] buttonGrid;
 
 	public static void main(String[] args)
 	{
@@ -45,53 +43,14 @@ public class TicTacToeMain extends JFrame
 		/**
 		 * Arron:
 		 *
-		 * make a function to check if there is a win. Takes a 2D array as arg
-		 *
 		 * implement reset button - MenuButtonListener
 		 * 		Confirmation Dialog Box
 		 * 		reset stats, AND names, AND Buttons
-		 *
-		 *
-		 * Scott:
-		 *
-		 * implement new game button - MenuButtonListener		DONE
-		 * 		enable board, disable player text fields
-		 *
-		 * implement exit button - MenuButtonListener			DONE
-		 * 		close the window
-		 *
-		 * CHECK IF PLAYER NAME IMP. IS OK
 		 */
-
+		
+		revalidate();
+		repaint();
 		setVisible(true);
-	}
-
-	public void startNewGame()
-	{
-		// Start a new game and update all information
-		gameInProgress = true;
-		boardStatus = new char[3][3];
-
-		//Clear the board status array
-		for(int row = 0; row < 3; row++) {
-			for(int col = 0; col < 3; col++) {
-				boardStatus[row][col] = ' '; // Empty spot character
-			}
-		}
-
-		/*
-		while(gameInProgress)
-		{
-			//Player 1's Turn
-			isPlayer1Turn = true;
-			menu.setStatus(player1.getName() + "'s turn.");
-			//Wait for a button to be selected
-
-			//Player 2's turn
-			isPlayer1Turn = false;
-			menu.setStatus(player2.getName() + "'s turn.");
-			//Wait for a button to be selected
-		} */
 	}
 
 	public class GamePanel extends JPanel
@@ -127,10 +86,10 @@ public class TicTacToeMain extends JFrame
 		private JPanel buttonPanel;
 		private JPanel labelPanel;
 
-		private JButton newGameButton;
-		private JButton resetButton;
-		private JButton exitButton;
-		private JLabel statusLabel;
+		public JButton newGameButton;
+		public JButton resetButton;
+		public JButton exitButton;
+		public JLabel statusLabel;
 
 
 		MenuPanel()
@@ -226,15 +185,15 @@ public class TicTacToeMain extends JFrame
 		public int getLosses() { return losses; }
 		public void addWin() { wins++; winsLabel.setText(""+wins); }
 		public void addLoss() { losses++; lossesLabel.setText(""+losses); }
-		public void reset() { name = playerID; wins = 0; losses = 0; }
+		public void reset() { name = playerID; wins = 0; losses = 0; winsLabel.setText(""+wins); lossesLabel.setText(""+losses);}
 		public void enableEditing() { nameField.setEnabled(true); }
 		public void disableEditing() { nameField.setEnabled(false); }
 	}
 
 	public class BoardPanel extends JPanel
 	{
-
-
+		public JButton[][] buttonGrid;
+		
 		BoardPanel()
 		{
 			fillButtonGrid();
@@ -243,28 +202,114 @@ public class TicTacToeMain extends JFrame
 			setEditable(false);
 		}
 
-		public boolean isValidSpot(int row, int col)
+		public boolean gameIsWon()
 		{
-			return (boardStatus[row][col] == ' ');
-		}
-		public void setButtonCharacter(char c, int row, int col)
-		{
-			if(!isValidSpot(row, col))
+			//Checking across rows
+			boolean player1RowFilled = true;
+			boolean player2RowFilled = true;
+			
+			for(int row = 0; row < 3; row++)
 			{
-				if(isPlayer1Turn)
+				for(int col = 0; col < 3; col++)
 				{
-					boardStatus[row][col] = 'x';
-					isPlayer1Turn = false;
+					if(buttonGrid[row][col].getText().equals("x"))
+					{
+						player2RowFilled = false;
+					} else if (buttonGrid[row][col].getText().equals("o")) {
+						player1RowFilled = false;
+					} else {
+						player1RowFilled = false;
+						player2RowFilled = false;
+					}
 				}
-				else
-				{
-					boardStatus[row][col] = 'o';
-					isPlayer1Turn = true;
+				if(player1RowFilled || player2RowFilled) {
+					return true;
+				} else {
+					player1RowFilled = true;
+					player2RowFilled = true;
 				}
 			}
-			else {
-				System.out.println("not valid");
+			
+			//Checking the columns
+			boolean player1ColFilled = true;
+			boolean player2ColFilled = true;
+			
+			for(int col = 0; col < 3; col++)
+			{
+				for(int row = 0; row < 3; row++)
+				{
+					if(buttonGrid[row][col].getText().equals("x"))
+					{
+						player2ColFilled = false;
+					} else if (buttonGrid[row][col].getText().equals("o")) {
+						player1ColFilled = false;
+					} else {
+						player1ColFilled = false;
+						player2ColFilled = false;
+					}
+				}
+				if(player1ColFilled || player2ColFilled) {
+					return true;
+				} else {
+					player1ColFilled = true;
+					player2ColFilled = true;
+				}
 			}
+			
+			//Checking the negative diagonal
+			boolean player1NegFilled = true;
+			boolean player2NegFilled = true;
+			
+			for(int row = 0; row < 3; row++)
+			{
+				if(buttonGrid[row][row].getText().equals("x"))
+				{
+					player2NegFilled = false;
+				} else if (buttonGrid[row][row].getText().equals("o")) {
+					player1NegFilled = false;
+				} else {
+					player1NegFilled = false;
+					player2NegFilled = false;
+				}
+			}
+			if(player1NegFilled || player2NegFilled)
+				return true;
+			
+			//Checking the negative diagonal
+			boolean player1PosFilled = true;
+			boolean player2PosFilled = true;
+			
+			for(int row = 2; row > 0; row--)
+			{
+				if(buttonGrid[row][row].getText().equals("x"))
+				{
+					player2PosFilled = false;
+				} else if (buttonGrid[row][row].getText().equals("o")) {
+					player1PosFilled = false;
+				} else {
+					player1PosFilled = false;
+					player2PosFilled = false;
+				}
+			}
+			if(player1PosFilled || player2PosFilled)
+				return true;
+			
+			return false;
+		}
+		public boolean isDraw()
+		{
+			boolean allSelected = true;
+			for(int row  = 0; row < 3; row++)
+			{
+				for(int col = 0; col < 3; col++) 
+				{
+					if(!buttonGrid[row][col].getText().equals("x") && !buttonGrid[row][col].getText().equals("o"))
+					{
+						allSelected = false;
+					}
+				}
+			}
+			return allSelected;
 		}
 		private void fillPanel()
 		{
@@ -316,18 +361,54 @@ public class TicTacToeMain extends JFrame
 		{
 			String actionCommand = e.getActionCommand();
 
-			if(actionCommand.equals(" "))
+			if(actionCommand.equals(" ")) // make sure it is a valid spot
 			{
 				for(int row = 0; row < 3; row++)
 				{
 					for(int col = 0; col < 3; col++)
 					{
-						if(e.getSource() == buttonGrid[row][col])
+						if(e.getSource() == board.buttonGrid[row][col]) // get the button that was pressed
 						{
 							if(isPlayer1Turn)
-								buttonGrid[row][col].setText("x");
+							{
+								board.buttonGrid[row][col].setText("x");
+								//Check if a win
+								if(board.gameIsWon())
+								{
+									menu.setStatus(player1.getName() + " has won the game!!!");
+									//Update scoreboards and disable buttons
+									board.setEditable(false);
+									player1.addWin();
+									player2.addLoss();
+								} else if(board.isDraw()) {
+									menu.setStatus("Draw!");
+									board.setEditable(false);
+								} else {
+									//switch the state to be player 2's turn
+									menu.setStatus(player2.getName() + "'s turn.");
+									isPlayer1Turn = false;
+								}
+							}
 							else
-								buttonGrid[row][col].setText("o");
+							{
+								board.buttonGrid[row][col].setText("o");
+								//Check if a win
+								if(board.gameIsWon())
+								{
+									menu.setStatus(player2.getName() + " has won the game!!!");
+									//Update scoreboards and disable buttons
+									board.setEditable(false);
+									player2.addWin();
+									player1.addLoss();
+								} else if(board.isDraw()) {
+									menu.setStatus("Draw!");
+									board.setEditable(false);
+								} else {
+									//switch the state to be player 2's turn
+									menu.setStatus(player1.getName() + "'s turn.");
+									isPlayer1Turn = true;
+								}
+							}
 						}
 					}
 				}
@@ -340,22 +421,30 @@ public class TicTacToeMain extends JFrame
 		public void actionPerformed(ActionEvent e)
 		{
 			if(e.getSource() == menu.exitButton) { // Exit Game
-				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to quit the game?", "Warning - You are about to exit out of the game!",
-				        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to quit the game?", "Warning - You are about to exit out of the game!", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) 
+				{
 					System.exit(0);
-
+				}
 			} else if (e.getSource() == menu.resetButton) { // Reset Game
-
-
+				if (JOptionPane.showConfirmDialog(null, "This will end the game and set the win/loss stats to 0. Are you sure?", "Warning - You are about to reset the game", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) 
+				{
+					player1.reset();
+					player2.reset();
+					player1.enableEditing();
+					player2.enableEditing();
+					board.resetButtons();
+					board.setEditable(false);
+					menu.setStatus("Welcome to Tic Tac Toe!");
+				}
 			} else if (e.getSource() == menu.newGameButton) { // New Game
 				board.resetButtons();
 				board.setEditable(true);
 				player1.disableEditing();
 				player2.disableEditing();
-				repaint();
-				startNewGame();
+				
+				isPlayer1Turn = true;
+				menu.setStatus(player1.getName() + "'s turn.");
 			}
 		}
-	}
 	}
 }
