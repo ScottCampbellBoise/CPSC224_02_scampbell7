@@ -70,7 +70,7 @@ public class GamePanel extends JPanel
 		public void runGame(int row, int col)
 		{
 			if(isPlayer1Turn) {
-				board.buttonGrid[row][col].setText("x");
+				board.setButton(row, col, 'x');
 				//Check if a win
 				if(board.gameIsWon())
 				{
@@ -88,7 +88,7 @@ public class GamePanel extends JPanel
 					isPlayer1Turn = false;
 				}
 			} else {
-				board.buttonGrid[row][col].setText("o");
+				board.setButton(row, col, 'o');
 				//Check if a win
 				if(board.gameIsWon())
 				{

@@ -2,6 +2,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
@@ -10,6 +11,7 @@ public class BoardPanel extends JPanel
 	private GamePanel masterPanel;
 	
 	public JButton[][] buttonGrid;
+	public char[][] logicGrid;
 		
 	public BoardPanel()
 	{		
@@ -19,10 +21,20 @@ public class BoardPanel extends JPanel
 		setEditable(false);
 	}
 
+	public void setButton(int row, int col, char c)
+	{
+		if(c == 'x') {
+			buttonGrid[row][col].setIcon(new ImageIcon("x_icon.png"));
+			logicGrid[row][col] = 'x';
+		} else {
+			buttonGrid[row][col].setIcon(new ImageIcon("o_icon.png"));
+			logicGrid[row][col] = 'o';
+		}
+	}
 	public void setMasterPanel(GamePanel masterPanel) { this.masterPanel = masterPanel; }
 	public boolean gameIsWon()
-		{
-			//Checking across rows
+	{
+		//Checking across rows
 		boolean player1RowFilled = true;
 		boolean player2RowFilled = true;
 		
@@ -30,10 +42,10 @@ public class BoardPanel extends JPanel
 		{
 			for(int col = 0; col < 3; col++)
 			{
-				if(buttonGrid[row][col].getText().equals("x"))
+				if(logicGrid[row][col] == 'x')
 				{
 					player2RowFilled = false;
-				} else if (buttonGrid[row][col].getText().equals("o")) {
+				} else if (logicGrid[row][col] == 'o') {
 					player1RowFilled = false;
 				} else {
 					player1RowFilled = false;
@@ -56,10 +68,10 @@ public class BoardPanel extends JPanel
 		{
 			for(int row = 0; row < 3; row++)
 			{
-				if(buttonGrid[row][col].getText().equals("x"))
+				if(logicGrid[row][col] == 'x')
 				{
 					player2ColFilled = false;
-				} else if (buttonGrid[row][col].getText().equals("o")) {
+				} else if (logicGrid[row][col] == 'o') {
 					player1ColFilled = false;
 				} else {
 					player1ColFilled = false;
@@ -80,10 +92,10 @@ public class BoardPanel extends JPanel
 		
 		for(int row = 0; row < 3; row++)
 		{
-			if(buttonGrid[row][row].getText().equals("x"))
+			if(logicGrid[row][row] == 'x')
 			{
 				player2NegFilled = false;
-			} else if (buttonGrid[row][row].getText().equals("o")) {
+			} else if (logicGrid[row][row] == 'o') {
 				player1NegFilled = false;
 			} else {
 				player1NegFilled = false;
@@ -99,10 +111,10 @@ public class BoardPanel extends JPanel
 		
 		for(int row = 2; row >= 0; row--)
 		{
-			if(buttonGrid[row][row].getText().equals("x"))
+			if(logicGrid[row][row] == 'x')
 			{
 				player2PosFilled = false;
-			} else if (buttonGrid[row][row].getText().equals("o")) {
+			} else if (logicGrid[row][row] == 'o') {
 				player1PosFilled = false;
 			} else {
 				player1PosFilled = false;
@@ -121,7 +133,7 @@ public class BoardPanel extends JPanel
 		{
 			for(int col = 0; col < 3; col++) 
 			{
-				if(!buttonGrid[row][col].getText().equals("x") && !buttonGrid[row][col].getText().equals("o"))
+				if(logicGrid[row][col] != 'x' && logicGrid[row][col] != 'o')
 				{
 					allSelected = false;
 				}
@@ -142,12 +154,14 @@ public class BoardPanel extends JPanel
 	private void fillButtonGrid()
 	{
 		buttonGrid = new JButton[3][3];
+		logicGrid = new char[3][3];
 		for(int row = 0; row < 3; row++)
 		{
 			for(int col = 0; col < 3; col++)
 			{
 				buttonGrid[row][col] = new JButton("");
 				buttonGrid[row][col].addActionListener(new BoardButtonListener());
+				logicGrid[row][col] = ' ';
 			}
 		}
 	}
@@ -168,6 +182,7 @@ public class BoardPanel extends JPanel
 			for(int col = 0; col < 3; col++)
 			{
 				buttonGrid[row][col].setText(" ");
+				logicGrid[row][col] = ' ';
 			}
 		}
 	}
@@ -177,17 +192,10 @@ public class BoardPanel extends JPanel
 		public void actionPerformed(ActionEvent e)
 		{
 			String actionCommand = e.getActionCommand();
-
-			if(actionCommand.equals(" ")) // make sure it is a valid spot
-			{
-				for(int row = 0; row < 3; row++)
-				{
-					for(int col = 0; col < 3; col++)
-					{
-						if(e.getSource() == buttonGrid[row][col]) // get the button that was pressed
-						{
-							masterPanel.runGame(row, col);
-						}
+			for(int row = 0; row < 3; row++) {
+				for(int col = 0; col < 3; col++) {
+					if(e.getSource() == buttonGrid[row][col] && logicGrid[row][col] == ' ') { // Get the button that was pressed
+						masterPanel.runGame(row, col);
 					}
 				}
 			}
