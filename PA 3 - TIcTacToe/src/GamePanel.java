@@ -1,3 +1,12 @@
+/**
+ * Sets up the game panel to hold the player panels, board, and menu panels
+ * Also runs the game and checks if moves made are valid and/or result in a win
+ *
+ * @Authors: Scott Campbell & Arron Cushing
+ * @Version: 24 February 2019 - Assignment 3
+ * @file: GamePanel.java
+ */
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -15,6 +24,13 @@ public class GamePanel extends JPanel
 		
 		boolean isPlayer1Turn;
 
+		//Sets up the game panel with the player panels, the board, the menu, and a status message
+		//@pre player panels, menu panel, and board panels have been made
+		//@post game panel is set up, all values are initialized to defaults
+		//@param player1 - panel for Player 1 (X), containing the player's name and the number of wins and losses the player has
+		//		 player2 - panel for Player 2 (O), containing the player's name and the number of wins and losses the player has
+		//		 menu - panel holding the menu, containing a button for New Game, for Reset, and for Exit
+		//		 board - panel containing a 3x3 grid of buttons to play the game on
 		public GamePanel(PlayerPanel player1, PlayerPanel player2, MenuPanel menu, BoardPanel board)
 		{
 			this.player1 = player1;
@@ -25,6 +41,10 @@ public class GamePanel extends JPanel
 			createPanel();
 		}
 		
+		//Creates the game panel and sets the layout for the panel
+		//@pre none
+		//@post game panel is set to a layout
+		//@param none
 		private void createPanel()
 		{
 			players = new JPanel();
@@ -37,6 +57,11 @@ public class GamePanel extends JPanel
 			add(board, BorderLayout.CENTER);
 			add(menu, BorderLayout.SOUTH);
 		}
+		
+		//Confirms if the user wants to quit the game, then exits if user confirms
+		//@pre none
+		//@post game exits if user confirms, else nothing
+		//@param none
 		public void exitGame()
 		{
 			if (JOptionPane.showConfirmDialog(null, "Are you sure you want to quit the game?", "Warning - You are about to exit out of the game!", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) 
@@ -44,6 +69,10 @@ public class GamePanel extends JPanel
 				System.exit(0);
 			}
 		}
+		//Resets the game - sets all stats to 0, resets buttons, and reverts to default state
+		//@pre none
+		//@post game is fully reset to starting status
+		//@param none
 		public void resetGame()
 		{
 			if (JOptionPane.showConfirmDialog(null, "This will end the game and set the win/loss stats to 0. Are you sure?", "Warning - You are about to reset the game", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) 
@@ -57,6 +86,11 @@ public class GamePanel extends JPanel
 				menu.setStatus("Welcome to Tic Tac Toe!");
 			}
 		}
+		
+		//Makes a new game without resetting statistics
+		//@pre none
+		//@post board is cleared and ready for a new game
+		//@param none
 		public void newGame()
 		{
 			board.resetButtons();
@@ -67,6 +101,12 @@ public class GamePanel extends JPanel
 			isPlayer1Turn = true;
 			menu.setStatus(player1.getName() + "'s turn.");
 		}
+		
+		//Runs the tic tac toe game
+		//@pre game is in progress
+		//@post places the player's character on that space, and switches turn over to other player
+		//@param row - row of button that has been selected
+		//       col - column of button that has been selected
 		public void runGame(int row, int col)
 		{
 			if(isPlayer1Turn) {
