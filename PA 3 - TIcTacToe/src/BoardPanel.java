@@ -105,21 +105,23 @@ public class BoardPanel extends JPanel
 		if(player1NegFilled || player2NegFilled)
 			return true;
 		
-		//Checking the negative diagonal
+		//Checking the positive diagonal
 		boolean player1PosFilled = true;
 		boolean player2PosFilled = true;
 		
+		int col = 0;
 		for(int row = 2; row >= 0; row--)
 		{
-			if(logicGrid[row][row] == 'x')
+			if(logicGrid[row][col] == 'x')
 			{
 				player2PosFilled = false;
-			} else if (logicGrid[row][row] == 'o') {
+			} else if (logicGrid[row][col] == 'o') {
 				player1PosFilled = false;
 			} else {
 				player1PosFilled = false;
 				player2PosFilled = false;
 			}
+			col++;
 		}
 		if(player1PosFilled || player2PosFilled)
 			return true;
@@ -181,7 +183,7 @@ public class BoardPanel extends JPanel
 		{
 			for(int col = 0; col < 3; col++)
 			{
-				buttonGrid[row][col].setText(" ");
+				buttonGrid[row][col].setIcon(null);
 				logicGrid[row][col] = ' ';
 			}
 		}
