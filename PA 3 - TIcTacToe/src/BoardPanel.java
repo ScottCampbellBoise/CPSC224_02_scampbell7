@@ -18,17 +18,17 @@ import javax.swing.JPanel;
 public class BoardPanel extends JPanel
 {
 	private GamePanel masterPanel;
-	
+
 	public JButton[][] buttonGrid;
 	public char[][] logicGrid;
-		
+
 	//Sets up the board panel with a 3-by-3 grid of buttons
 	//@pre none
 	//@post board is set up and initialized to hold nothing in its buttons
 	//		also clears the board if there is anything in it beforehand
 	//@param none
 	public BoardPanel()
-	{		
+	{
 		fillButtonGrid();
 		setLayout(new GridLayout(3,3));
 		fillPanel();
@@ -55,10 +55,10 @@ public class BoardPanel extends JPanel
 	}
 	//Sets the master panel of boardPanel
 	//@pre object of type gamePanel exists
-	//@post the game panel where boardPanel will be displayed, denoted masterPanel, is set 
+	//@post the game panel where boardPanel will be displayed, denoted masterPanel, is set
 	//@param masterPanel - object gamePanel, where the main interface is held
 	public void setMasterPanel(GamePanel masterPanel) { this.masterPanel = masterPanel; }
-	
+
 	//Checks if the game has been won
 	//@pre game is currently in progress
 	//@post none
@@ -69,7 +69,7 @@ public class BoardPanel extends JPanel
 		//Checking across rows
 		boolean player1RowFilled = true;
 		boolean player2RowFilled = true;
-		
+
 		for(int row = 0; row < 3; row++)
 		{
 			for(int col = 0; col < 3; col++)
@@ -91,11 +91,11 @@ public class BoardPanel extends JPanel
 				player2RowFilled = true;
 			}
 		}
-		
+
 		//Checking the columns
 		boolean player1ColFilled = true;
 		boolean player2ColFilled = true;
-		
+
 		for(int col = 0; col < 3; col++)
 		{
 			for(int row = 0; row < 3; row++)
@@ -117,11 +117,11 @@ public class BoardPanel extends JPanel
 				player2ColFilled = true;
 			}
 		}
-		
+
 		//Checking the negative diagonal (top left to bottom right)
 		boolean player1NegFilled = true;
 		boolean player2NegFilled = true;
-		
+
 		for(int row = 0; row < 3; row++)
 		{
 			if(logicGrid[row][row] == 'x')
@@ -136,15 +136,13 @@ public class BoardPanel extends JPanel
 		}
 		if(player1NegFilled || player2NegFilled)
 			return true;
-		
-<<<<<<< HEAD
+
+
 		//Checking the positive diagonal
-=======
 		//Checking the negative diagonal (top right to bottom left)
->>>>>>> 82c9288b28abe90ccca45d36387601b74c1f4dde
 		boolean player1PosFilled = true;
 		boolean player2PosFilled = true;
-		
+
 		int col = 0;
 		for(int row = 2; row >= 0; row--)
 		{
@@ -161,7 +159,7 @@ public class BoardPanel extends JPanel
 		}
 		if(player1PosFilled || player2PosFilled)
 			return true;
-		
+
 		return false; //if no matches are found
 	}
 	//Checks if all possible squares are filled with no wins
@@ -174,7 +172,7 @@ public class BoardPanel extends JPanel
 		boolean allSelected = true;
 		for(int row  = 0; row < 3; row++)
 		{
-			for(int col = 0; col < 3; col++) 
+			for(int col = 0; col < 3; col++)
 			{
 				if(logicGrid[row][col] != 'x' && logicGrid[row][col] != 'o')
 				{
@@ -240,17 +238,14 @@ public class BoardPanel extends JPanel
 		{
 			for(int col = 0; col < 3; col++)
 			{
-<<<<<<< HEAD
-=======
-				buttonGrid[row][col].setText(" ");
->>>>>>> 82c9288b28abe90ccca45d36387601b74c1f4dde
+				buttonGrid[row][col].setText("");
 				buttonGrid[row][col].setIcon(null);
 				logicGrid[row][col] = ' ';
 			}
 		}
 	}
-	
-	
+
+
 	public class BoardButtonListener implements ActionListener
 	{
 		//Implements the buttons so that the user interactions are handled properly
