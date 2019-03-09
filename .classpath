@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="ICA1 - Functions"/>
+	<classpathentry kind="src" path="PA 1 - Yahtzee/src"/>
+	<classpathentry kind="src" path="PA 2 - Hangman/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="PA 1 - Yahtzee/bin"/>
+</classpath>
