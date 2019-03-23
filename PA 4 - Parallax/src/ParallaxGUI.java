@@ -1,6 +1,9 @@
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -55,22 +58,15 @@ public class ParallaxGUI extends JFrame{
 		}catch(IOException e) {System.out.println("Error Uploading scene photos!");}
 	}
 	
-	class ParallaxPanel extends JPanel implements ActionListener
+	class ParallaxPanel extends JPanel implements ActionListener, MouseListener, MouseMotionListener
 	{
-		private int delay = 100;
 		protected Timer timer;
+		private final int delay = 50;
 		
-		private int x1;
-		private int x2;
-		private int x3;
-		private int x4;
-		private int x5;
+		private int mouseX, mouseY;
 		
-		private int y1;
-		private int y2;
-		private int y3;
-		private int y4;
-		private int y5;
+		private int x1, x2, x3, x4, x5;
+		private int y1, y2, y3, y4, y5;
 		
 		private final double dx1 = 0.1;
 		private final double dx2 = 0.2;
@@ -89,11 +85,13 @@ public class ParallaxGUI extends JFrame{
 		
 		public void actionPerformed(ActionEvent e)
 		{
+			/**
 			x1 += 10*dx1;
 			x2 += 10*dx2;
 			x3 += 10*dx3;
 			x4 += 10*dx4;
 			x5 += 10*dx5;
+			*/
 			
 			repaint();
 		}
@@ -108,6 +106,52 @@ public class ParallaxGUI extends JFrame{
 		    g.drawImage(layer4Image, -x4, -y4, null);
 		    g.drawImage(layer5Image, -x5, -y5, null);
 		}
+		
+		public void mousePressed(MouseEvent e)
+	    {
+			 mouseX = e.getX();
+			 mouseY = e.getY();
+			 System.out.println("X: " + mouseX + "\tY: " + mouseY );
+	    }
+	
+	    public void mouseClicked(MouseEvent e)
+	    {
+	    	 
+	    }
+	     
+	    public void mouseReleased(MouseEvent e)
+	    {
+	    	 
+	    }
+	
+	    public void mouseEntered(MouseEvent e)
+	    {
+	    	 
+	    }
+	
+	    public void mouseExited(MouseEvent e)
+	    {
+	    	 
+	    }
+	     
+	    public void mouseDragged(MouseEvent e)
+	    {
+	    	int mouse_dx = e.getX() - mouseX;
+	    	int mouse_dy = e.getY() - mouseY;
+	    	
+	    	x1 += mouse_dx*dx1;
+			x2 += mouse_dx*dx2;
+			x3 += mouse_dx*dx3;
+			x4 += mouse_dx*dx4;
+			x5 += mouse_dx*dx5;
+			
+			repaint();
+	    }
+	      
+	    public void mouseMoved(MouseEvent e)
+	    {
+	    	 
+	    }
 	}
 	
 }
