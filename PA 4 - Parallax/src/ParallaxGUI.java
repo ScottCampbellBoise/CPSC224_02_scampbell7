@@ -58,7 +58,7 @@ public class ParallaxGUI extends JFrame{
 		}catch(IOException e) {System.out.println("Error Uploading scene photos!");}
 	}
 	
-	class ParallaxPanel extends JPanel implements ActionListener, MouseListener, MouseMotionListener
+	class ParallaxPanel extends JPanel implements ActionListener
 	{
 		protected Timer timer;
 		private final int delay = 50;
@@ -78,6 +78,8 @@ public class ParallaxGUI extends JFrame{
 		{
 			x1 = x2 = x3 = x4 = x5 = Math.abs(layer1Image.getWidth() - this.getWidth())/2;
 		    y1 = y2 = y3 = y4 = y5 = Math.abs(layer1Image.getHeight() - this.getHeight())/8;
+		    
+		    addMouseListener(new MyMouseListener());
 		    
 		    timer = new Timer(delay, this);
 			timer.start();
@@ -107,51 +109,56 @@ public class ParallaxGUI extends JFrame{
 		    g.drawImage(layer5Image, -x5, -y5, null);
 		}
 		
-		public void mousePressed(MouseEvent e)
-	    {
-			 mouseX = e.getX();
-			 mouseY = e.getY();
-			 System.out.println("X: " + mouseX + "\tY: " + mouseY );
-	    }
-	
-	    public void mouseClicked(MouseEvent e)
-	    {
-	    	 
-	    }
-	     
-	    public void mouseReleased(MouseEvent e)
-	    {
-	    	 
-	    }
-	
-	    public void mouseEntered(MouseEvent e)
-	    {
-	    	 
-	    }
-	
-	    public void mouseExited(MouseEvent e)
-	    {
-	    	 
-	    }
-	     
-	    public void mouseDragged(MouseEvent e)
-	    {
-	    	int mouse_dx = e.getX() - mouseX;
-	    	int mouse_dy = e.getY() - mouseY;
-	    	
-	    	x1 += mouse_dx*dx1;
-			x2 += mouse_dx*dx2;
-			x3 += mouse_dx*dx3;
-			x4 += mouse_dx*dx4;
-			x5 += mouse_dx*dx5;
-			
-			repaint();
-	    }
-	      
-	    public void mouseMoved(MouseEvent e)
-	    {
-	    	 
-	    }
+		private class MyMouseMotionListener implements MouseMotionListener
+		{
+			public void mouseDragged(MouseEvent e)
+		    {
+		    	int mouse_dx = e.getX() - mouseX;
+		    	int mouse_dy = e.getY() - mouseY;
+		    	
+		    	x1 += mouse_dx*dx1;
+				x2 += mouse_dx*dx2;
+				x3 += mouse_dx*dx3;
+				x4 += mouse_dx*dx4;
+				x5 += mouse_dx*dx5;
+				
+				repaint();
+		    }
+		      
+		    public void mouseMoved(MouseEvent e)
+		    {
+		    	 
+		    }
+		}
+		
+		private class MyMouseListener implements MouseListener
+		{
+			public void mousePressed(MouseEvent e)
+		    {
+				 mouseX = e.getX();
+				 mouseY = e.getY();
+				 System.out.println("X: " + mouseX + "\tY: " + mouseY );
+		    }
+		
+		    public void mouseClicked(MouseEvent e)
+		    {
+		    	 
+		    }
+		     
+		    public void mouseReleased(MouseEvent e)
+		    {
+		    	 
+		    }
+		
+		    public void mouseEntered(MouseEvent e)
+		    {
+		    	 
+		    }
+		
+		    public void mouseExited(MouseEvent e)
+		    {
+		    	 
+		    }
+		}
 	}
-	
 }
