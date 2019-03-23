@@ -60,16 +60,28 @@ public class ParallaxGUI extends JFrame{
 		private int delay = 100;
 		protected Timer timer;
 		
-		private int x = 0;
-		private int y = 0;
+		private int x1;
+		private int x2;
+		private int x3;
+		private int x4;
+		private int x5;
 		
-		private int dx;
-		private int dy;
+		private int y1;
+		private int y2;
+		private int y3;
+		private int y4;
+		private int y5;
+		
+		private final double dx1 = 0.1;
+		private final double dx2 = 0.2;
+		private final double dx3 = 0.35;
+		private final double dx4 = 0.6;
+		private final double dx5 = 1.0;
 		
 		public ParallaxPanel()
 		{
-			x = Math.abs(layer1Image.getWidth() - this.getWidth())/2;
-		    y = Math.abs(layer1Image.getHeight() - this.getHeight())/8;
+			x1 = x2 = x3 = x4 = x5 = Math.abs(layer1Image.getWidth() - this.getWidth())/2;
+		    y1 = y2 = y3 = y4 = y5 = Math.abs(layer1Image.getHeight() - this.getHeight())/8;
 		    
 		    timer = new Timer(delay, this);
 			timer.start();
@@ -77,6 +89,12 @@ public class ParallaxGUI extends JFrame{
 		
 		public void actionPerformed(ActionEvent e)
 		{
+			x1 += 10*dx1;
+			x2 += 10*dx2;
+			x3 += 10*dx3;
+			x4 += 10*dx4;
+			x5 += 10*dx5;
+			
 			repaint();
 		}
 		
@@ -84,11 +102,11 @@ public class ParallaxGUI extends JFrame{
 		protected void paintComponent(Graphics g) {
 		    super.paintComponent(g);
 		    
-		    g.drawImage(layer1Image, -x, -y, null);
-		    g.drawImage(layer2Image, -x, -y, null);
-		    g.drawImage(layer3Image, -x, -y, null);
-		    g.drawImage(layer4Image, -x, -y, null);
-		    g.drawImage(layer5Image, -x, -y, null);
+		    g.drawImage(layer1Image, -x1, -y1, null);
+		    g.drawImage(layer2Image, -x2, -y2, null);
+		    g.drawImage(layer3Image, -x3, -y3, null);
+		    g.drawImage(layer4Image, -x4, -y4, null);
+		    g.drawImage(layer5Image, -x5, -y5, null);
 		}
 	}
 	
