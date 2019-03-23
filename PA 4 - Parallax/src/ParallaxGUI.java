@@ -61,18 +61,19 @@ public class ParallaxGUI extends JFrame{
 	class ParallaxPanel extends JPanel implements ActionListener
 	{
 		protected Timer timer;
-		private final int delay = 50;
+		private final int delay = 1000;
 		
 		private int mouseX, mouseY;
 		
 		private int x1, x2, x3, x4, x5;
 		private int y1, y2, y3, y4, y5;
 		
-		private final double dx1 = 0.1;
-		private final double dx2 = 0.2;
-		private final double dx3 = 0.35;
-		private final double dx4 = 0.6;
-		private final double dx5 = 1.0;
+		private double dx1 = 0.1;
+		private double dx2 = 0.2;
+		private double dx3 = 0.35;
+		private double dx4 = 0.6;
+		private double dx5 = 1.0;
+		
 		
 		public ParallaxPanel()
 		{
@@ -80,21 +81,14 @@ public class ParallaxGUI extends JFrame{
 		    y1 = y2 = y3 = y4 = y5 = Math.abs(layer1Image.getHeight() - this.getHeight())/8;
 		    
 		    addMouseListener(new MyMouseListener());
+		    addMouseMotionListener(new MyMouseMotionListener());
 		    
 		    timer = new Timer(delay, this);
 			timer.start();
 		}
 		
 		public void actionPerformed(ActionEvent e)
-		{
-			/**
-			x1 += 10*dx1;
-			x2 += 10*dx2;
-			x3 += 10*dx3;
-			x4 += 10*dx4;
-			x5 += 10*dx5;
-			*/
-			
+		{			
 			repaint();
 		}
 		
@@ -116,11 +110,13 @@ public class ParallaxGUI extends JFrame{
 		    	int mouse_dx = e.getX() - mouseX;
 		    	int mouse_dy = e.getY() - mouseY;
 		    	
-		    	x1 += mouse_dx*dx1;
-				x2 += mouse_dx*dx2;
-				x3 += mouse_dx*dx3;
-				x4 += mouse_dx*dx4;
-				x5 += mouse_dx*dx5;
+		    	x1 -= mouse_dx*dx1;
+				x2 -= mouse_dx*dx2;
+				x3 -= mouse_dx*dx3;
+				x4 -= mouse_dx*dx4;
+				x5 -= mouse_dx*dx5;
+				
+				System.out.println("dragged");
 				
 				repaint();
 		    }
@@ -152,12 +148,20 @@ public class ParallaxGUI extends JFrame{
 		
 		    public void mouseEntered(MouseEvent e)
 		    {
-		    	 
+		    	 dx1 = 0.1;
+		    	 dx2 = 0.2;
+		    	 dx3 = 0.35;
+		    	 dx4 = 0.6;
+		    	 dx5 = 1.0;
 		    }
 		
 		    public void mouseExited(MouseEvent e)
 		    {
-		    	 
+		    	 dx1 = 0;
+		    	 dx2 = 0;
+		    	 dx3 = 0;
+		    	 dx4 = 0;
+		    	 dx5 = 0;
 		    }
 		}
 	}
