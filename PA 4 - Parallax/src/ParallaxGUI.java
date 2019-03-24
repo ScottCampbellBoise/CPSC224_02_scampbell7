@@ -16,6 +16,7 @@ import javax.swing.Timer;
 public class ParallaxGUI extends JFrame{
 	
 	private ParallaxPanel masterPanel;
+	private JFrame masterFrame;
 	
 	private BufferedImage layer1Image;
 	private BufferedImage layer2Image;
@@ -34,6 +35,8 @@ public class ParallaxGUI extends JFrame{
 		setSize(600,600);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		masterFrame = this;
 		
 		uploadPhotos();
 		
@@ -61,40 +64,39 @@ public class ParallaxGUI extends JFrame{
 	class ParallaxPanel extends JPanel implements ActionListener
 	{
 		protected Timer timer;
-		private final int delay = 50;
+		private final int delay = 10;
 		
 		private int mouseX, mouseY;
 		
 		private int x1, x2, x3, x4, x5;
 		private int y1, y2, y3, y4, y5;
 		
-		private final double dx1 = 0.1;
-		private final double dx2 = 0.2;
-		private final double dx3 = 0.35;
-		private final double dx4 = 0.6;
-		private final double dx5 = 1.0;
+		private double dx1 = 0.05;
+		private double dx2 = 0.08;
+		private double dx3 = 0.12;
+		private double dx4 = 0.15;
+		private double dx5 = 0.25;
 		
+		private double dy1 = 0.025;
+		private double dy2 = 0.05;
+		private double dy3 = 0.09;
+		private double dy4 = 0.15;
+		private double dy5 = 0.20;
+			
 		public ParallaxPanel()
 		{
-			x1 = x2 = x3 = x4 = x5 = Math.abs(layer1Image.getWidth() - this.getWidth())/2;
-		    y1 = y2 = y3 = y4 = y5 = Math.abs(layer1Image.getHeight() - this.getHeight())/8;
+			x1 = x2 = x3 = x4 = x5 = (layer1Image.getWidth() - masterFrame.getWidth())/2;
+		    y1 = y2 = y3 = y4 = y5 = (layer1Image.getHeight() - masterFrame.getHeight())/2;
 		    
 		    addMouseListener(new MyMouseListener());
+		    addMouseMotionListener(new MyMouseMotionListener());
 		    
 		    timer = new Timer(delay, this);
 			timer.start();
 		}
 		
 		public void actionPerformed(ActionEvent e)
-		{
-			/**
-			x1 += 10*dx1;
-			x2 += 10*dx2;
-			x3 += 10*dx3;
-			x4 += 10*dx4;
-			x5 += 10*dx5;
-			*/
-			
+		{			
 			repaint();
 		}
 		
@@ -116,11 +118,25 @@ public class ParallaxGUI extends JFrame{
 		    	int mouse_dx = e.getX() - mouseX;
 		    	int mouse_dy = e.getY() - mouseY;
 		    	
-		    	x1 += mouse_dx*dx1;
-				x2 += mouse_dx*dx2;
-				x3 += mouse_dx*dx3;
-				x4 += mouse_dx*dx4;
-				x5 += mouse_dx*dx5;
+		    	if( x5 - mouse_dx*dx5 < 0 || x5 - mouse_dx*dx5 > layer5Image.getWidth() - x5 ) {
+		    		mouse_dx = 0;
+		    	}
+		    	if(y5 - mouse_dy*dy5 < 0 || layer5Image.getHeight() - y5 + mouse_dy*dy5 < masterFrame.getHeight() - 15 )
+		    	{
+		    		mouse_dy = 0;
+		    	}
+		    	
+		    	x1 -= mouse_dx*dx1;
+				x2 -= mouse_dx*dx2;
+				x3 -= mouse_dx*dx3;
+				x4 -= mouse_dx*dx4;
+				x5 -= mouse_dx*dx5;
+				
+				y1 -= mouse_dy*dy1;
+				y2 -= mouse_dy*dy2;
+				y3 -= mouse_dy*dy3;
+				y4 -= mouse_dy*dy4;
+				y5 -= mouse_dy*dy5;
 				
 				repaint();
 		    }
@@ -137,7 +153,6 @@ public class ParallaxGUI extends JFrame{
 		    {
 				 mouseX = e.getX();
 				 mouseY = e.getY();
-				 System.out.println("X: " + mouseX + "\tY: " + mouseY );
 		    }
 		
 		    public void mouseClicked(MouseEvent e)
@@ -152,12 +167,23 @@ public class ParallaxGUI extends JFrame{
 		
 		    public void mouseEntered(MouseEvent e)
 		    {
+		    	dx1 = 0.05;
+		    	dx2 = 0.08;
+		    	dx3 = 0.12;
+		    	dx4 = 0.15;
+		    	dx5 = 0.25;
 		    	 
+		    	dy1 = 0.025;
+		 		dy2 = 0.05;
+		 		dy3 = 0.09;
+		 		dy4 = 0.15;
+		 		dy5 = 0.2;
 		    }
 		
 		    public void mouseExited(MouseEvent e)
 		    {
-		    	 
+		    	 dx1 = dx2 = dx3 = dx4 = dx5 = 0;
+		    	 dy1 = dy2 = dy3 = dy4 = dy5 = 0;
 		    }
 		}
 	}
