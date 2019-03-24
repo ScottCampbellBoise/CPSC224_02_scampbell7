@@ -162,7 +162,6 @@ public class ParallaxGUI extends JFrame{
 		    {
 				 mouseX = e.getX();
 				 mouseY = e.getY();
-				 System.out.println("X: " + mouseX + "\tY: " + mouseY );
 		    }
 		
 		    public void mouseClicked(MouseEvent e)
