@@ -9,9 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.Timer;
+import javax.swing.*;
 
 public class ParallaxGUI extends JFrame{
 	
@@ -31,15 +29,19 @@ public class ParallaxGUI extends JFrame{
 	
 	public ParallaxGUI()
 	{
+		//Setting JFrame Values
 		setTitle("Parallax Motion Example");
 		setSize(600,600);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		//Creating a variable to hold the JFrame object for use later
 		masterFrame = this;
 		
+		//uploading the scene photos from a remote file
 		uploadPhotos();
 		
+		//create an instance of the Panel where the images are to be stored
 		masterPanel = new ParallaxPanel();
 				
 		add(masterPanel);
@@ -58,7 +60,10 @@ public class ParallaxGUI extends JFrame{
 			layer4Image = ImageIO.read(new File("Images/layer4.png"));
 			layer5Image = ImageIO.read(new File("Images/layer5.png"));
 			
-		}catch(IOException e) {System.out.println("Error Uploading scene photos!");}
+		}catch(IOException e) {
+			JOptionPane.showMessageDialog(null,"Could not locate the necessary Scene Images!");
+			System.exit(0);
+		}
 	}
 	
 	class ParallaxPanel extends JPanel implements ActionListener
