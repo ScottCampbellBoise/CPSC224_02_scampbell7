@@ -64,7 +64,7 @@ public class ParallaxGUI extends JFrame{
 	class ParallaxPanel extends JPanel implements ActionListener
 	{
 		protected Timer timer;
-		private final int delay = 10;
+		private final int delay = 100;
 		
 		private int mouseX, mouseY;
 		
@@ -152,7 +152,38 @@ public class ParallaxGUI extends JFrame{
 		      
 		    public void mouseMoved(MouseEvent e)
 		    {
-		    	 
+		    	int mouse_dx = e.getX() - mouseX;
+		    	int mouse_dy = e.getY() - mouseY;
+		    	
+		    	if(x5 - mouse_dx*dx5 < 0)
+		    	{
+		    		mouse_dx = 0;
+		    	}
+		    	else if (x5 - mouse_dx*dx5 > layer5Image.getWidth() - x5) {
+		    		mouse_dx = 0;
+		    	}
+		    	
+		    	if(y5-mouse_dy*dy5 < 0)
+		    	{
+		    		mouse_dy = 0;
+		    	}
+		    	else if (layer5Image.getHeight() - y5 + mouse_dy*dy5 < masterFrame.getHeight() - 15) {
+		    		mouse_dy = 0;
+		    	}
+		    	
+		    	x1 -= mouse_dx*dx1;
+				x2 -= mouse_dx*dx2;
+				x3 -= mouse_dx*dx3;
+				x4 -= mouse_dx*dx4;
+				x5 -= mouse_dx*dx5;
+				
+				y1 -= mouse_dy*dy1;
+				y2 -= mouse_dy*dy2;
+				y3 -= mouse_dy*dy3;
+				y4 -= mouse_dy*dy4;
+				y5 -= mouse_dy*dy5;
+				
+				repaint();
 		    }
 		}
 		
