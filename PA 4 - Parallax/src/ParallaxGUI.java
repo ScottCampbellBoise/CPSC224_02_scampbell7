@@ -27,6 +27,10 @@ public class ParallaxGUI extends JFrame{
 		new ParallaxGUI();
 	}
 	
+	//Prepares the window that will hold the parallax image
+	//@pre none
+	//@post window for the parallax image is set up and ready for interaction
+	//@param none
 	public ParallaxGUI()
 	{
 		//Setting JFrame Values
@@ -51,6 +55,10 @@ public class ParallaxGUI extends JFrame{
 		repaint();
 	}
 	
+	//Uploads photos for use as the various layers in the parallax image
+	//@pre images for use are in the appropriate file path
+	//@post images are uploaded and ready to be used in the scene
+	//@param none
 	private void uploadPhotos()
 	{
 		try{
@@ -88,24 +96,35 @@ public class ParallaxGUI extends JFrame{
 		private double dy4 = 0.15;
 		private double dy5 = 0.20;
 		
-		
+		//Sets the panel that will hold the parallax image up
+		//@pre none
+		//@post panel with parallax image is set up and ready for use
+		//@param none
 		public ParallaxPanel()
 		{
-			x1 = x2 = x3 = x4 = x5 = Math.abs(layer1Image.getWidth() - masterFrame.getWidth())/2;
+		    x1 = x2 = x3 = x4 = x5 = Math.abs(layer1Image.getWidth() - masterFrame.getWidth())/2;
 		    y1 = y2 = y3 = y4 = y5 = Math.abs(layer1Image.getHeight() - masterFrame.getHeight())/2;
 		    
 		    addMouseListener(new MyMouseListener());
 		    addMouseMotionListener(new MyMouseMotionListener());
 		    
 		    timer = new Timer(delay, this);
-			timer.start();
+		    timer.start();
 		}
 		
+		//Refreshes the image after a certain delay
+		//@pre none
+		//@post after the delay has passed, the panel image is refreshed
+		//@param ActionEvent e - event that has been performed
 		public void actionPerformed(ActionEvent e)
 		{			
 			repaint();
 		}
 		
+		//Draws the parallax image onto the panel
+		//@pre images have been loaded in
+		//@post images are drawn onto the panel
+		//@param Graphics g - paint component used for drawing to 
 		@Override
 		protected void paintComponent(Graphics g) {
 		    super.paintComponent(g);
@@ -119,6 +138,10 @@ public class ParallaxGUI extends JFrame{
 		
 		private class MyMouseMotionListener implements MouseMotionListener
 		{
+			//Handles action of mouse being dragged
+			//@pre mouse has been dragged
+			//@post image moves as specified
+			//@param MouseEvent e - action of mouse being dragged
 			public void mouseDragged(MouseEvent e)
 		    {
 		    	int mouse_dx = e.getX() - mouseX;
@@ -154,7 +177,11 @@ public class ParallaxGUI extends JFrame{
 				
 				repaint();
 		    }
-		      
+		    
+		    //Handles action of mouse being moved
+		    //@pre mouse has been moved
+		    //@post image moves as specified
+		    //@param MouseEvent e - action of mouse being moved
 		    public void mouseMoved(MouseEvent e)
 		    {
 		    	int mouse_dx = e.getX() - mouseX;
@@ -194,7 +221,11 @@ public class ParallaxGUI extends JFrame{
 		
 		private class MyMouseListener implements MouseListener
 		{
-			public void mousePressed(MouseEvent e)
+		    //Handles action of mouse being moved
+		    //@pre mouse has been pressed
+		    //@post none
+		    //@param MouseEvent e - action of mouse being pressed
+		    public void mousePressed(MouseEvent e)
 		    {
 				 mouseX = e.getX();
 				 mouseY = e.getY();
@@ -210,6 +241,10 @@ public class ParallaxGUI extends JFrame{
 		    	 
 		    }
 		
+		    //Handles action of mouse entering window
+		    //@pre mouse has entered the window
+		    //@post none
+		    //@param MouseEvent e - action of mouse entering the window
 		    public void mouseEntered(MouseEvent e)
 		    {
 				dx1 = 0.05;
@@ -225,6 +260,10 @@ public class ParallaxGUI extends JFrame{
 				dy5 = 0.20;
 		    }
 		
+		    //Handles action of mouse exiting the window
+		    //@pre mouse has exited the window
+		    //@post none
+		    //@param MouseEvent e - action of mouse exiting the window
 		    public void mouseExited(MouseEvent e)
 		    {
 		    	 dx1 = 0;
