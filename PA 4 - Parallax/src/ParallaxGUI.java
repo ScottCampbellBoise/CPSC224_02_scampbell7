@@ -1,3 +1,9 @@
+/**
+ * @Authors: Scott Campbell & Arron Cushing
+ * @Version: 25 March 2019 - Assignment 4
+ * @file: ParallaxGUI.java
+ */
+
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
