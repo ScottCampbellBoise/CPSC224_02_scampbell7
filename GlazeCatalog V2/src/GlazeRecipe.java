@@ -24,12 +24,12 @@ public class GlazeRecipe
 		private String[] firing = { "Ox." };
 		private String lowerCone = "6";
 		private String upperCone = "6";
-		private String[] finishes = { "Glossy" };
-		private String reliability = "5";
-		private String[] functionality = { "General" };
-		private String stability = "5";
-		private String[] combination = { "Other" };
-		private String[] comments = { "No Comments..." };
+		private String[] finishes = { "Unknown" };
+		private String reliability = "Unknown";
+		private String[] functionality = { "Unknown" };
+		private String stability = "Unknown";
+		private String[] combination = { "Unknown" };
+		private String comments =  "No Comments...";
 		private GlazePhoto[] photos = { new GlazePhoto() };
 		
 		public GlazeRecipe() { }
@@ -54,7 +54,7 @@ public class GlazeRecipe
 					functionality = lines[9].split("~");
 					stability = lines[10].trim();
 					combination = lines[11].split("~");
-					comments = lines[12].split("~");
+					comments = lines[12];
 					photos = parsePhotos(lines[13].split("~"));
 				}
 			} catch(Exception e) {
@@ -73,10 +73,10 @@ public class GlazeRecipe
 				try{
 					BufferedImage photo = ImageIO.read(new File(vals[0].trim()));
 					String desc = vals[1];
-					allPhotos[k] = new GlazePhoto(photo, desc);
+					allPhotos[k] = new GlazePhoto(vals[0].trim(), photo, desc);
 				} catch(Exception e) {
 					e.printStackTrace();
-					System.out.println("Error Reading Image from file...");
+					System.out.println("GlazeRecipe: Error Reading Image from file: "+filePath);
 					//Display JOptionPane....
 				}
 			}
@@ -106,7 +106,7 @@ public class GlazeRecipe
 		public String[] getFunctionalityAttribute() { return functionality; }
 		public String getStabilityAttribute() { return stability; }
 		public String[] getCombinationAttribute() { return combination; }
-		public String[] getComments() { return comments; }
+		public String getComments() { return comments; }
 		public GlazePhoto[] getPhotos() {return photos; }
 		public int getNumPhotos() { return photos.length; }
 		
@@ -145,6 +145,31 @@ public class GlazeRecipe
 				}
 			}
 		}
+		public void removePhoto(String path)
+		{
+			for(int k = 0; k < photos.length; k++)
+			{
+				//set the remove picture to null
+				if(photos[k].getPath().contains(path)) { photos[k] = null; }
+			}
+			//resize the array to remove the null
+			if(photos.length == 1) {
+				
+				photos = new GlazePhoto[1]; photos[1] = new GlazePhoto();
+			} else if (photos.length > 1) {
+				GlazePhoto[] temp = new GlazePhoto[photos.length - 1];
+				int count = 0;
+				for(int k = 0; k < photos.length; k++)
+				{
+					if(photos[k] != null) {
+						temp[count] = photos[k];
+						count++;
+					}
+				}
+				photos = temp;
+			}
+			
+		}
 		
 		public void setName(String newName) { this.name = newName; }
 		public void addComponent(GlazeComponent newComponent)
@@ -167,6 +192,8 @@ public class GlazeRecipe
 				glazeAdds = updatedArray;
 			}
 		}
+		public void setComponents(GlazeComponent[] newComps) {this.glazeComponents = newComps;}
+		public void setAdds(GlazeComponent[] newAdds) {this.glazeAdds = newAdds;}
 		public void setColor(String[] newColor) { colors = newColor; }
 		public void setFiring(String[] newFiring) { firing = newFiring; }
 		public void setConeRange(String newLowerCone, String newUpperCone) {lowerCone = newLowerCone; upperCone = newUpperCone; }
@@ -175,12 +202,21 @@ public class GlazeRecipe
 		public void setFunctionality(String[] newFunctionality) { functionality = newFunctionality; }
 		public void setStability(String newStability) { stability = newStability; }
 		public void setCombination(String[] newCombo) { combination = newCombo; }
-		public void setComment(String[] newComment) { comments = newComment; }
+		public void setComment(String newComment) { comments = newComment; }
 		public void addPhoto(GlazePhoto newPhoto) 
 		{
 			GlazePhoto[] temp = new GlazePhoto[photos.length + 1];
-			temp[temp.length] = newPhoto;
+			for(int k = 0; k < photos.length; k++) {temp[k] = photos[k];}
+			temp[temp.length - 1] = newPhoto;
 			photos = temp;
+		}
+		public void setPhotoDesc(String path, String newDesc)
+		{
+			//Will set the photo description corresponding to path
+			for(GlazePhoto gp : photos)
+			{
+				if(gp.getPath().contains(path)) { gp.setDesc(newDesc); }
+			}
 		}
 		
 		public void updateFile() { updateFile(filePath); } // Use the original file
@@ -191,60 +227,66 @@ public class GlazeRecipe
 	            File glazeFile = new File(otherPath);
 	            writer = new BufferedWriter(new FileWriter(glazeFile));
 	            
-	            writer.write(name + "@\n");
+	            writer.write(name.trim() + "@\n");
 	            
 	            String compString = "";
-	            for(GlazeComponent gc : glazeComponents) { compString += (gc.getName() + " ; " + gc.getAmount() + " ~ "); }
-	            compString = compString.trim().substring(0, compString.length() - 2) + "@\n"; 
+	            for(GlazeComponent gc : glazeComponents) { compString += (gc.getName().trim() + " ; " + gc.getAmount() + " ~ "); }
+	            compString = compString.trim().substring(0, compString.length() - 3).trim() + "@\n"; 
 	            writer.write(compString);
 	            
 	            String addString = "";
 	            if(glazeAdds != null)
 	            {
-	            	for(GlazeComponent gc : glazeAdds) { addString += (gc.getName() + " ; " + gc.getAmount() + " ~ "); }
-	 	            addString = addString.substring(0, addString.length() - 2) + "@\n"; 
+	            	for(GlazeComponent gc : glazeAdds) { addString += (gc.getName().trim() + " ; " + gc.getAmount() + " ~ "); }
+	 	            addString = addString.substring(0, addString.length() - 3).trim() + "@\n"; 
 	 	            writer.write(addString);
 	            } else {
-	            	writer.write("~@\n");
+	            	writer.write("@\n");
 	            }
 	           
 	            String colorString = "";
-	            for(String gc : colors) { colorString += (gc + " ~ "); }
-	            colorString = colorString.substring(0, colorString.length() - 2) + "@\n"; 
+	            for(String gc : colors) { colorString += (gc.trim() + " ~ "); }
+	            colorString = colorString.substring(0, colorString.length() - 3).trim() + "@\n"; 
 	            writer.write(colorString);
 	            
 	            String firingString = "";
-	            for(String gc : firing) { firingString += (gc + " ~ "); }
-	            firingString = firingString.substring(0, firingString.length() - 2); 
-	            writer.write(firingString + "@\n");
+	            for(String gc : firing) { if(gc != null) {firingString += (gc.trim() + " ~ ");} }
+	            firingString = firingString.substring(0, firingString.length() - 3).trim() + "@\n"; 
+	            writer.write(firingString);
 	            
 	            writer.write(lowerCone + "@\n");
 	            writer.write(upperCone + "@\n");
 	            
 	            String finishString = "";
-	            for(String gc : finishes) { finishString += (gc + " ~ "); }
-	            finishString = finishString.substring(0, finishString.length() - 2) + "@\n"; 
+	            for(String gc : finishes) { finishString += (gc.trim() + " ~ "); }
+	            finishString = finishString.substring(0, finishString.length() - 3).trim() + "@\n"; 
 	            writer.write(finishString);
 	            
-	            writer.write(reliability + "@\n");
+	            writer.write(reliability.trim() + "@\n");
 	            
 	            String funcString = "";
-	            for(String gc : functionality) { funcString += (gc + " ~ "); }
-	            funcString = funcString.substring(0, funcString.length() - 2) + "@\n"; 
+	            for(String gc : functionality) { funcString += (gc.trim() + " ~ "); }
+	            funcString = funcString.substring(0, funcString.length() - 3).trim() + "@\n"; 
 	            writer.write(funcString);
 	            
-	            writer.write(stability + "@\n");
+	            writer.write(stability.trim() + "@\n");
 	            
 	            String comboString = "";
-	            for(String gc : combination) { comboString += (gc + " ~ "); }
-	            comboString = comboString.substring(0, comboString.length() - 2) + "@\n"; 
+	            for(String gc : combination) { comboString += (gc.trim() + " ~ "); }
+	            comboString = comboString.substring(0, comboString.length() - 3).trim() + "@\n"; 
 	            writer.write(comboString);
 	            
 	            //comments
-	            writer.write("No Comments ... " + "@\n");
+	            writer.write(comments + "@\n");
 	            
 	            // photos
-	            writer.write("null_image.png ; No Photos ..." + "@\n");
+	            String photoString = "";
+	            for(GlazePhoto gp : this.photos)
+	            {
+	            	photoString += (gp.getPath() + " ; " + gp.getDesc().trim() + " ~ ");
+	            }
+	            photoString = photoString.substring(0, photoString.length() - 3).trim() + "@\n"; 
+	            writer.write(photoString);
 	            
 	        } catch (Exception e) {
 	            e.printStackTrace();

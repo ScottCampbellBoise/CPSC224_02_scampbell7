@@ -1,4 +1,6 @@
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -9,27 +11,28 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * TO DO:
- * 
- * IF A DIFFERENT RELIABILITY OR STABILITY IS CHOSEN, JSUT OVERWRITE THE OLD ONE!!!!
- * UPDATE THE DIFFERENT FIRING STYLES AS WELL
+ *
  * IF A NEW FIRING IS ADDED FROM THE ATTRIBUTES PANEL, UPDATE UP TOP, NOT BELOW!!!
  * 
- * Implement the updating of the recipe 
  * Add the save, duplicate, preview and export buttons
  */
 public class GlazeEditPanel extends JPanel
@@ -38,7 +41,7 @@ public class GlazeEditPanel extends JPanel
 		
 	String[] lowerConeArray = {"010-","09","08","07","06","05","04","03","02","01","1","2","3","4","5","6","7","8","9","10","11"};
 	String[] upperConeArray = {"09","08","07","06","05","04","03","02","01","1","2","3","4","5","6","7","8","9","10","11","12+"};
-	String[] firingArray = {"Ox.", "Red.", "Salt", "Soda", "Wood", "Other"};
+	String[] firingArray = {"Unknown","Ox.", "Red.", "Salt", "Soda", "Wood", "Other"};
 	JComboBox<String> lowerConeComboBox, upperConeComboBox;
 		
 	private JPanel titlePanel;
@@ -240,7 +243,7 @@ public class GlazeEditPanel extends JPanel
 		commentsBorder.setTitlePosition(TitledBorder.TOP);
 		commentsPanel.setBorder(commentsBorder);
 		commentsTextArea = new JTextArea(3,50);
-		commentsTextArea.setText(recipe.getComments()[0]);
+		commentsTextArea.setText(recipe.getComments());
 		commentsPanel.add(commentsTextArea);
 		
 	    attributesPanel = new JPanel();
@@ -283,17 +286,47 @@ public class GlazeEditPanel extends JPanel
 		add(allCompPanel, BorderLayout.CENTER);
 		add(commentsAndAttributesPanel, BorderLayout.SOUTH);
 	}
+	
+	private void addNewPhoto()
+	{
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+		    "JPG & GIF Images", "jpg", "gif");
+		chooser.setFileFilter(filter);
+		int returnVal = chooser.showOpenDialog(this);
+		if(returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = chooser.getSelectedFile();
+			try{
+				BufferedImage buffImage = ImageIO.read(file);
+				String desc = "No desc ...";
+				
+				//OPEN A NEW JPANEL TO RESIZE/CROP THE IMAGE AND GET DESC !!!
+				
+				recipe.addPhoto(new GlazePhoto(file.getAbsolutePath(),buffImage, desc));
+			} catch(Exception e) {
+				System.out.println("Error reading the selected image: "+file.getName());
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	/**
 	 * UPDATE TO BE MORE CAREFUL AND FOOLPROOF
 	 */
 	private void saveChanges()
 	{
-		//get all the qualities current values and update the recipe object
 		String rawName = nameField.getText();
 		if(rawName.substring(0,1).equals("~")) { rawName = rawName.substring(1,rawName.length()).trim();}
 		recipe.setName(rawName); //Update glaze name
+		
 		// Components and adds are already updated to the recipe object
+		
 		recipe.setConeRange((String)lowerConeComboBox.getSelectedItem(),(String)upperConeComboBox.getSelectedItem());
+		
+		//Firing types
+		String[] newFireLabels = new String[firingLabels.length];
+		for(int k = 0; k < firingLabels.length; k++) { if(firingLabels[k] != null) {newFireLabels[k] = firingLabels[k].getName();} }
+		recipe.setFiring(newFireLabels);
 		
 		ArrayList<String> newColors = new ArrayList<String>();
 		ArrayList<String> newFinishes = new ArrayList<String>();
@@ -326,7 +359,11 @@ public class GlazeEditPanel extends JPanel
 		comboArr = newCombos.toArray(comboArr);
 		recipe.setCombination(comboArr);
 		
-		recipe.updateFile("Glaze Recipes/" + rawName + ".txt");
+		recipe.setComment(commentsTextArea.getText().trim());
+		
+		//photos are added automatically
+		
+		recipe.updateFile();
 	}
 	private void requestAttributes()
 	{
@@ -668,7 +705,7 @@ public class GlazeEditPanel extends JPanel
 			prevPhotoButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e)
 				{
-					photoPosition = (originalPhotos.length + photoPosition - 1) % originalPhotos.length;
+					photoPosition = (recipe.getNumPhotos() + photoPosition - 1) % recipe.getNumPhotos();
 					updatePanel();
 				}
 			});
@@ -678,7 +715,7 @@ public class GlazeEditPanel extends JPanel
 			nextPhotoButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e)
 				{
-					photoPosition = (photoPosition + 1) % originalPhotos.length;
+					photoPosition = (photoPosition + 1) % recipe.getNumPhotos();
 					updatePanel();
 				}
 			});
@@ -704,25 +741,26 @@ public class GlazeEditPanel extends JPanel
 			private String desc;
 			private BufferedImage img;
 			private TitledBorder border;
-			private final int PHOTO_DIMENSION = 300;
+			private final int PHOTO_WIDTH = 160;
+			private final int PHOTO_HEIGHT = 200;
 			
 			public EditablePhoto(GlazePhoto photo)
 			{
 				this.photo = photo;
 				this.desc = photo.getDesc();
-				this.img = resizePhoto(photo.getPhoto(), PHOTO_DIMENSION);
+				this.img = resizePhoto(photo.getPhoto(), PHOTO_WIDTH, PHOTO_HEIGHT);
 				createPhotoDescPanel();
 			}
 			
-			private BufferedImage resizePhoto(BufferedImage original, int newDim)
+			private BufferedImage resizePhoto(BufferedImage original, int newWidth, int newHeight)
 			{
 				int w = original.getWidth();  
 			    int h = original.getHeight();  
-			    BufferedImage dimg = new BufferedImage(newDim, newDim, original.getType());  
+			    BufferedImage dimg = new BufferedImage(newWidth, newHeight, original.getType());  
 			    Graphics2D g = dimg.createGraphics();  
 			    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
 			    RenderingHints.VALUE_INTERPOLATION_BILINEAR);  
-			    g.drawImage(original, 0, 0, newDim, newDim, 0, 0, w, h, null);  
+			    g.drawImage(original, 0, 0, newWidth, newHeight, 0, 0, w, h, null);  
 			    g.dispose();  
 			    return dimg;  
 			}
@@ -738,7 +776,8 @@ public class GlazeEditPanel extends JPanel
 				addPhotoButton.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent e)
 					{
-						System.out.println("IMPLEMENT ADD PHOTO FUNCTION IN GLAZE EDIT PANEL");
+						addNewPhoto();
+						originalPhotos = recipe.getPhotos();
 					}
 				});
 				
@@ -751,14 +790,11 @@ public class GlazeEditPanel extends JPanel
 						String newDesc = inputPanel.getNewDesc();
 						if(newDesc != null)
 						{
-							System.out.println("Description set to: "+newDesc);
+							recipe.setPhotoDesc(photo.getPath(), newDesc);
 							photo.setDesc(newDesc);
 							border.setTitle(newDesc);
 							validate();
 							repaint();
-							/**
-							 * IMPLEMENT THIS IN FUTURE TO CHANGE THE RECIPE FILE...
-							 */
 						}
 					}
 				});
@@ -769,9 +805,10 @@ public class GlazeEditPanel extends JPanel
 					{
 						int dialogResult = JOptionPane.showConfirmDialog (null, "This will permanently delete the photo... Are you sure?","Warning",JOptionPane.YES_NO_OPTION);
 						if(dialogResult == JOptionPane.YES_OPTION){
-							/**
-							 * Remove the photo
-							 */
+							recipe.removePhoto(originalPhotos[photoPosition].getPath());
+							originalPhotos = recipe.getPhotos();
+							photoPosition = (recipe.getNumPhotos() + photoPosition - 1) % recipe.getNumPhotos();
+							updatePanel();
 						}
 					}
 				});

@@ -94,7 +94,7 @@ import javax.swing.border.TitledBorder;
 			commentsBorder.setTitleJustification(TitledBorder.LEFT);
 			commentsBorder.setTitlePosition(TitledBorder.TOP);
 			commentsPanel.setBorder(commentsBorder);
-			commentsPanel.add(new JLabel(recipe.getComments()[0]));
+			commentsPanel.add(new JLabel(recipe.getComments()));
 			
 			
 			allCompPanel = new JPanel();
