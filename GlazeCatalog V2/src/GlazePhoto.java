@@ -8,24 +8,28 @@ import javax.imageio.ImageIO;
 	{
 		BufferedImage photo;
 		String desc;
+		String path;
 		
 		public GlazePhoto()
 		{
 			try {
 				this.photo = ImageIO.read(new File("null_image.png"));
 				this.desc = "No Desc";
+				this.path = "null_image.png";
 			} catch(Exception e) {
 				System.out.println("Error reading null_image.png in GlazePhoto Class ...");
 			}
 		}
-		public GlazePhoto(BufferedImage photo, String desc)
+		public GlazePhoto(String path, BufferedImage photo, String desc)
 		{
+			this.path = path;
 			this.photo = photo;
 			this.desc = desc;
 		}
 		
 		public BufferedImage getPhoto(){ return photo; }
 		public String getDesc() { return desc; }
+		public String getPath() { return path; } 
 		public void setPhoto(BufferedImage newPhoto) { photo = newPhoto; }
 		public void setDesc(String newDesc) { desc = newDesc; }
 	}
