@@ -19,10 +19,10 @@ public class AttributeSelectionPanel extends JPanel
 	String[] upperConeArray = {"09","08","07","06","05","04","03","02","01","1","2","3","4","5","6","7","8","9","10","11","12+"};
 	String[] firingArray = {"Ox.", "Red.", "Salt", "Soda", "Wood", "Other"};
 	String[] finishArray = {"Matte", "Glossy", "Other"};
-	String[] reliabilityArray = {"Unknown","1 - Unreliable","2","3","4","5","6","7","8","9","10 - Very Reliable"};
-	String[] functionalityArray = {"Unknown","Decorative", "Food Safe", "General", "Toxic","Textured","Other"};
-	String[] stabilityArray = {"Unknown","1 - Unstable","2","3","4","5","6","7","8","9","10 - Very Stable"};
-	String[] combinationArray = {"Unknown","Good","Ok","Dependent","Bad","Other"};
+	String[] reliabilityArray = {"1 - Unreliable","2","3","4","5","6","7","8","9","10 - Very Reliable"};
+	String[] functionalityArray = {"Decorative", "Food Safe", "General", "Toxic","Textured","Other"};
+	String[] stabilityArray = {"1 - Unstable","2","3","4","5","6","7","8","9","10 - Very Stable"};
+	String[] combinationArray = {"Good","Ok","Dependent","Bad","Other"};
 	
 	JLabel colorLabel, coneLabel, firingLabel, finishLabel, reliabilityLabel, functionalityLabel,
 		stabilityLabel, combinationLabel;

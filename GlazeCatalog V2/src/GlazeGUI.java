@@ -5,12 +5,6 @@ public class GlazeGUI extends JFrame
 	/**
 	 * Master TO DO:
 	 * 
-	 * Clean up all the code!!!
-	 * Comment add the Classes!!!
-	 * 
-	 * Update the format of the glaze edit panel
-	 * 		Add buffers between elements
-	 * 
 	 * Implement an SQL database to store all the glazes and search by attributes
 	 * 
 	 * Make a Panel to display/add Glaze Layering Tests - IF TIME!!!
@@ -19,6 +13,7 @@ public class GlazeGUI extends JFrame
 	 * 
 	 * GlazeEditPanel ...
 	 * 		Check if the user has editing privlages before allowing them to make changes - IF TIME!!!
+	 * 		Add a button to finilize changes
 	 * 				Check if the components add up to 100. If not, offer a button to scale to 100
 	 * 		Add a button to make a duplicate of the glaze
 	 * 		Add a print preview button
@@ -58,12 +53,10 @@ public class GlazeGUI extends JFrame
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			
-		GlazeRecipe baldwinGreen = new GlazeRecipe("Glaze Recipes/Baldwin Green/Baldwin Green.txt");
-		
 		glazeSearchPanel = new GlazeSearchPanel();
 		//testPanel = new GlazeRecipePanel(new GlazeRecipe("/Users/ScottCampbell/Documents/workspace/GlazeCatalog/glaze1.txt"));
 		testPanel2 = new GlazeRecipePanel(new GlazeRecipe("/Users/ScottCampbell/Documents/workspace/GlazeCatalog/Glaze Recipes/Spearmint.txt"));
-		editPanel = new GlazeEditPanel(baldwinGreen);
+		editPanel = new GlazeEditPanel(new GlazeRecipe("/Users/ScottCampbell/Documents/workspace/GlazeCatalog/glaze1.txt"));
 		editPanel2 = new GlazeEditPanel();
 
 		//add(glazeSearchPanel);
