@@ -110,38 +110,66 @@ public class GlazeRecipe
 		public GlazePhoto[] getPhotos() {return photos; }
 		public int getNumPhotos() { return photos.length; }
 		
-		public void removeComponent(String componentName) 
+		public void removeComponent(String componentName, double amount) 
 		{
-			GlazeComponent[] updatedArray = new GlazeComponent[glazeComponents.length - 1];
-			int count = 0;
-			for(int k = 0; k < glazeComponents.length && count < glazeComponents.length - 1; k++)
+			if(glazeComponents != null)
 			{
-				if(!glazeComponents[k].getName().equals(componentName)) 
-				{
-					updatedArray[count] = glazeComponents[k];
-					count++;
+				if(glazeComponents.length == 1 && glazeComponents[0].getName().trim().toLowerCase().equals(componentName) && glazeComponents[0].getAmount() == amount) { 
+					glazeComponents = null;
+				} else {
+					//Make sure that the componet to remove exists
+					boolean exists = false;
+					for(int k = 0; k < glazeComponents.length; k++) { 
+						if(glazeComponents[k].getAmount() == amount && glazeComponents[k].getName().toLowerCase().trim().equals(componentName.trim().toLowerCase())) {
+							exists = true;
+							break;
+						}
+					}
+					
+					if(exists) {
+						GlazeComponent[] updatedArray = new GlazeComponent[glazeComponents.length - 1];
+						int count = 0;
+						for(int k = 0; k < glazeComponents.length; k++) {
+							if(!glazeComponents[k].getName().equals(componentName) && glazeComponents[k].getAmount() != amount) {
+								updatedArray[count] = glazeComponents[k];
+								count++;
+							}
+						}
+						this.glazeComponents = updatedArray;
+						System.out.println("Succesfully Removed!");
+					}
 				}
 			}
-			this.glazeComponents = updatedArray;
 		}
-		public void removeAdd(String componentName) 
+		public void removeAdd(String componentName, double amount) 
 		{
 			if(glazeAdds != null)
 			{
-				if(glazeAdds.length == 1) { 
+				if(glazeAdds.length == 1 && glazeAdds[0].getName().trim().toLowerCase().equals(componentName) && glazeAdds[0].getAmount() == amount) { 
 					glazeAdds = null;
+					System.out.println("Succesfully Removed!");
 				} else {
-					GlazeComponent[] updatedArray = new GlazeComponent[glazeAdds.length - 1];
-					int count = 0;
-					for(int k = 0; k < glazeAdds.length && count < glazeAdds.length - 1; k++)
-					{
-						if(!glazeAdds[k].getName().equals(componentName)) 
-						{
-							updatedArray[count] = glazeAdds[k];
-							count++;
+					//Make sure that the componet to remove exists
+					boolean exists = false;
+					for(int k = 0; k < glazeAdds.length; k++) { 
+						if(glazeAdds[k].getAmount() == amount && glazeAdds[k].getName().toLowerCase().trim().equals(componentName.trim().toLowerCase())) {
+							exists = true;
+							break;
 						}
 					}
-					this.glazeAdds = updatedArray;
+					
+					if(exists) {
+						GlazeComponent[] updatedArray = new GlazeComponent[glazeAdds.length - 1];
+						int count = 0;
+						for(int k = 0; k < glazeAdds.length; k++) {
+							if(!glazeAdds[k].getName().equals(componentName) && glazeAdds[k].getAmount() != amount) {
+								updatedArray[count] = glazeAdds[k];
+								count++;
+							}
+						}
+						this.glazeAdds = updatedArray;
+						System.out.println("Succesfully Removed!");
+					}
 				}
 			}
 		}
@@ -174,10 +202,42 @@ public class GlazeRecipe
 		public void setName(String newName) { this.name = newName; }
 		public void addComponent(GlazeComponent newComponent)
 		{
-			GlazeComponent[] updatedArray = new GlazeComponent[glazeComponents.length + 1];
-			for(int k = 0; k < glazeComponents.length; k++) { updatedArray[k] = glazeComponents[k]; }
-			updatedArray[glazeComponents.length] = newComponent;
-			glazeComponents = updatedArray;
+			if(glazeComponents == null)
+			{
+				glazeComponents = new GlazeComponent[1];
+				glazeComponents[0] = newComponent;
+			} else {
+				//Check if duplicate first ... if there is a component with the same name and amount, then do not add it
+				boolean isDuplicate = false;
+				for(int k = 0; k < glazeComponents.length; k++) { 
+					if(glazeComponents[k].getName().toLowerCase().trim().equals(newComponent.getName().toLowerCase().trim())
+							&& glazeComponents[k].getAmount() == newComponent.getAmount()) 
+					{
+						isDuplicate = true; break; 
+					}
+				}
+				
+				//check if there is a component with the same name already. if so, replace it with the new component
+				boolean isUpdate = false;
+				for(int k = 0; k < glazeComponents.length; k++) { 
+					if(glazeComponents[k].getName().trim().toLowerCase().equals(newComponent.getName().trim().toLowerCase()) 
+							&& glazeComponents[k].getAmount() != newComponent.getAmount()) 
+					{
+						isUpdate = true;
+						glazeComponents[k] = newComponent;
+						break;
+					}
+				}
+				
+				//If it isn't a duplicate, and if it wasn't updated, add to the array
+				if(!isDuplicate && !isUpdate)
+				{
+					GlazeComponent[] updatedArray = new GlazeComponent[glazeComponents.length + 1];
+					for(int k = 0; k < glazeComponents.length; k++) { updatedArray[k] = glazeComponents[k]; }
+					updatedArray[glazeComponents.length] = newComponent;
+					glazeComponents = updatedArray;
+				}
+			}
 		}
 		public void addAdd(GlazeComponent newComponent)
 		{
@@ -186,10 +246,36 @@ public class GlazeRecipe
 				glazeAdds = new GlazeComponent[1];
 				glazeAdds[0] = newComponent;
 			} else {
-				GlazeComponent[] updatedArray = new GlazeComponent[glazeAdds.length + 1];
-				for(int k = 0; k < glazeAdds.length; k++) { updatedArray[k] = glazeAdds[k]; }
-				updatedArray[glazeAdds.length] = newComponent;
-				glazeAdds = updatedArray;
+				//Check if duplicate first ... if there is a component with the same name and amount, then do not add it
+				boolean isDuplicate = false;
+				for(int k = 0; k < glazeAdds.length; k++) { 
+					if(glazeAdds[k].getName().toLowerCase().trim().equals(newComponent.getName().toLowerCase().trim())
+							&& glazeAdds[k].getAmount() == newComponent.getAmount()) 
+					{
+						isDuplicate = true; break; 
+					}
+				}
+				
+				//check if there is a component with the same name already. if so, replace it with the new component
+				boolean isUpdate = false;
+				for(int k = 0; k < glazeAdds.length; k++) { 
+					if(glazeAdds[k].getName().trim().toLowerCase().equals(newComponent.getName().trim().toLowerCase()) 
+							&& glazeAdds[k].getAmount() != newComponent.getAmount()) 
+					{
+						isUpdate = true;
+						glazeAdds[k] = newComponent;
+						break;
+					}
+				}
+				
+				//If it isn't a duplicate, and if it wasn't updated, add to the array
+				if(!isDuplicate && !isUpdate)
+				{
+					GlazeComponent[] updatedArray = new GlazeComponent[glazeAdds.length + 1];
+					for(int k = 0; k < glazeAdds.length; k++) { updatedArray[k] = glazeAdds[k]; }
+					updatedArray[glazeAdds.length] = newComponent;
+					glazeAdds = updatedArray;
+				}
 			}
 		}
 		public void setComponents(GlazeComponent[] newComps) {this.glazeComponents = newComps;}

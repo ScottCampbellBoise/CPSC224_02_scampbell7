@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -34,6 +36,25 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * IF A NEW FIRING IS ADDED FROM THE ATTRIBUTES PANEL, UPDATE UP TOP, NOT BELOW!!!
  * 
  * Add the save, duplicate, preview and export buttons
+ * 
+ * Move the save button to the bottom of the panel
+ * 
+ * Add a padding to all the panels between each other
+ * 
+ * change the color of the buttons
+ * 
+ * change the button colors on the photo panel
+ * 
+ * change the panel color for the firing types
+ * 
+ * change the panel color for the attributes
+ * 
+ * change the button color for the attributes button
+ * 
+ * Reformat/add buffer to the JTextArea component
+ * 
+ * Stretch: 
+ * 		Add a 'auto-fill feature for the glaze components/adds'
  */
 public class GlazeEditPanel extends JPanel
 {
@@ -142,6 +163,13 @@ public class GlazeEditPanel extends JPanel
 		addComponentButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
 			{
+				updateComponentsPanel(true);
+			}
+		});
+		/*
+		addComponentButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
 				JPanel optionPanel = new JPanel();
 				JTextField compField = new JTextField(12);
 				JTextField amtField = new JTextField(12);
@@ -170,6 +198,7 @@ public class GlazeEditPanel extends JPanel
 			      }
 			}
 		});
+		*/
 		
 		componentPanel = new JPanel();
 		TitledBorder componentBorder = new TitledBorder("Components (%)");
@@ -177,11 +206,29 @@ public class GlazeEditPanel extends JPanel
 		componentBorder.setTitlePosition(TitledBorder.TOP);
 		componentPanel.setBorder(componentBorder);
 		components = parseComponents(recipe.getComponents(), false);
-		componentPanel.setLayout(new GridLayout(components.length + 1,1));
-		for(int k = 0; k < components.length; k++) { componentPanel.add(components[k]); }
+		components = parseComponents(recipe.getComponents(), false);
+		if(components == null){
+			componentPanel.setLayout(new GridLayout(5,1));
+			for(int k = 0; k < 4; k++) {componentPanel.add(new ComponentPanel(false)); }
+		} else if(components.length < 4) {
+			componentPanel.setLayout(new GridLayout(5,1));
+			int count = 0;
+			for(int k = 0; k < components.length; k++) { componentPanel.add(components[k]); count++; }
+			for(int k = count; k < 4; k++) {componentPanel.add(new ComponentPanel(false)); }
+		} else {
+			componentPanel.setLayout(new GridLayout(components.length + 1,1));
+			for(int k = 0; k < components.length; k++) { componentPanel.add(components[k]); }
+		}
 		componentPanel.add(addComponentButton);
 		
 		addAddButton = new JButton("Insert New Add");
+		addAddButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				updateAddsPanel(true);
+			}
+		});
+		/*
 		addAddButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
 			{
@@ -208,12 +255,13 @@ public class GlazeEditPanel extends JPanel
 			    		  recipe.addAdd(new GlazeComponent(compName, compAmount));
 			    		  updateAddsPanel();
 			    	  } catch (Exception ex) {
-			    		  JOptionPane.showMessageDialog(null,"Please enter a valid number for the amount","Error!",JOptionPane.ERROR_MESSAGE);
+			    		  JOptionPane.showMessageDialog(null,"Please enter a valid number for the amount", "Error!", JOptionPane.ERROR_MESSAGE);
 			    		  ex.printStackTrace();
 			    	  }
 			      }
 			}
 		});
+		*/
 		
 		addPanel = new JPanel();
 		TitledBorder addBorder = new TitledBorder("Add (%)");
@@ -221,8 +269,19 @@ public class GlazeEditPanel extends JPanel
 		addBorder.setTitlePosition(TitledBorder.TOP);
 		addPanel.setBorder(addBorder);
 		adds = parseComponents(recipe.getAdds(), true);
-		addPanel.setLayout(new GridLayout(adds.length + 1,1));
-		for(int k = 0; k < adds.length; k++) { addPanel.add(adds[k]); }
+		if(adds == null) {
+			addPanel.setLayout(new GridLayout(3,1));
+			for(int k = 0; k < 2; k++) {addPanel.add(new ComponentPanel(true)); }
+		} else if(adds.length < 2) {
+			addPanel.setLayout(new GridLayout(3,1));
+			int count = 0;
+			for(int k = 0; k < adds.length; k++) { addPanel.add(adds[k]); count++; }
+			for(int k = count; k < 2; k++) {addPanel.add(new ComponentPanel(true)); }
+		} else {
+			addPanel.setLayout(new GridLayout(adds.length + 1,1));
+			for(int k = 0; k < adds.length; k++) { addPanel.add(adds[k]); }
+		}
+		addPanel.add(addAddButton);
 		addPanel.add(addAddButton);
 		
 		JPanel ingredientsPanel = new JPanel();
@@ -315,6 +374,8 @@ public class GlazeEditPanel extends JPanel
 	 */
 	private void saveChanges()
 	{
+		
+		//Push all the changes into the GlazeRecipe object and then save that to a file
 		String rawName = nameField.getText();
 		if(rawName.substring(0,1).equals("~")) { rawName = rawName.substring(1,rawName.length()).trim();}
 		recipe.setName(rawName); //Update glaze name
@@ -408,15 +469,31 @@ public class GlazeEditPanel extends JPanel
 		if(count < NUM_ATTRIBUTES) { attributes[count] = new GlazeAttribute("Reliability: " + reliabilityAttributes); count++; }
 		if(count < NUM_ATTRIBUTES) { attributes[count] = new GlazeAttribute("Stability: " + stabilityAttributes+""); count++; }
 	} 
-	private void updateAddsPanel()
+	private void updateAddsPanel(boolean addNewItem)
 	{
 		addPanel.removeAll();
 		addPanel.revalidate();
 		addPanel.repaint();
 		
 		adds = parseComponents(recipe.getAdds(), true);
-		addPanel.setLayout(new GridLayout(adds.length + 1,1));
-		for(int k = 0; k < adds.length; k++) { addPanel.add(adds[k]); }
+		if(adds == null) {
+			addPanel.setLayout(new GridLayout(3,1));
+			for(int k = 0; k < 2; k++) {addPanel.add(new ComponentPanel(true)); }
+		} else if(adds.length < 2) {
+			addPanel.setLayout(new GridLayout(3,1));
+			int count = 0;
+			for(int k = 0; k < adds.length; k++) { addPanel.add(adds[k]); count++; }
+			for(int k = count; k < 2; k++) {addPanel.add(new ComponentPanel(true)); }
+		} else {
+			if(addNewItem) {
+				addPanel.setLayout(new GridLayout(adds.length + 2,1));
+				for(int k = 0; k < adds.length; k++) { addPanel.add(adds[k]); }
+				addPanel.add(new ComponentPanel(true));
+			} else {
+				addPanel.setLayout(new GridLayout(adds.length + 1,1));
+				for(int k = 0; k < adds.length; k++) { addPanel.add(adds[k]); }
+			}
+		}
 		addPanel.add(addAddButton);
 		
 		addPanel.revalidate();
@@ -424,15 +501,31 @@ public class GlazeEditPanel extends JPanel
 		super.revalidate();
 		super.repaint();
 	}
-	private void updateComponentsPanel()
+	private void updateComponentsPanel(boolean addNewItem)
 	{
 		componentPanel.removeAll();
 		componentPanel.revalidate();
 		componentPanel.repaint();
 		
 		components = parseComponents(recipe.getComponents(), false);
-		componentPanel.setLayout(new GridLayout(components.length  + 1,1));
-		for(int k = 0; k < components.length; k++) { componentPanel.add(components[k]); }
+		if(components == null){
+			componentPanel.setLayout(new GridLayout(5,1));
+			for(int k = 0; k < 4; k++) {componentPanel.add(new ComponentPanel(false)); }
+		} else if(components.length < 4) {
+			componentPanel.setLayout(new GridLayout(5,1));
+			int count = 0;
+			for(int k = 0; k < components.length; k++) { componentPanel.add(components[k]); count++; }
+			for(int k = count; k < 4; k++) {componentPanel.add(new ComponentPanel(false)); }
+		} else {
+			if(addNewItem) {
+				componentPanel.setLayout(new GridLayout(components.length + 2,1));
+				for(int k = 0; k < components.length; k++) { componentPanel.add(components[k]); }
+				componentPanel.add(new ComponentPanel(false)); 
+			} else {
+				componentPanel.setLayout(new GridLayout(components.length + 1,1));
+				for(int k = 0; k < components.length; k++) { componentPanel.add(components[k]); }
+			}
+		}
 		componentPanel.add(addComponentButton);
 		
 		componentPanel.revalidate();
@@ -448,12 +541,14 @@ public class GlazeEditPanel extends JPanel
 			
 			for(int k = 0; k < components.length; k++)
 			{
-				compPanels[k] = new ComponentPanel(components[k].getName(), components[k].getAmount(), isAdd);
+				String theName = components[k].getName();
+				double theAmt = components[k].getAmount();
+				compPanels[k] = new ComponentPanel(theName, theAmt, isAdd);
 			}
 			
 			return compPanels;
 		} else {
-			return new JPanel[] {new JPanel()};		
+			return null;		
 		}
 	}
 	private JPanel parseFiring()
@@ -536,7 +631,7 @@ public class GlazeEditPanel extends JPanel
 		repaint();
 	}
 	
-	public class GlazeAttribute extends JPanel
+	private class GlazeAttribute extends JPanel
 	{
 		private JLabel label;
 		private JButton button;
@@ -572,26 +667,171 @@ public class GlazeEditPanel extends JPanel
 	private class ComponentPanel extends JPanel
 	{
 		JTextField componentField;
-		JTextField addField;
+		JTextField amtField;
 		JButton removeButton;
 		
 		String name;
 		double amount;
 		boolean isAdd;
 		
-		public ComponentPanel(String name, double amount, boolean isAdd)
-		{
-			this.name = name;
-			this.amount = amount;
+		boolean isEmpty = false;
+		boolean noName = false;
+		boolean noAmt = false;
+		
+		public ComponentPanel(boolean isAdd)
+		{	
+			name = "";
+			amount = -1;
+			isEmpty = true;
+			noName = true;
+			noAmt = true;
 			this.isAdd = isAdd;
 			
-			componentField = new JTextField(name, 25);
-			//componentField.setEditable();
-			//Add Action Listener
+			createContents();
 			
-			addField = new JTextField("" + amount, 8);
-			//addField.setEditable(hasEditPrivlages);
-			//Add Action Listener
+			setLayout(new BorderLayout());
+			add(componentField, BorderLayout.WEST);
+			add(amtField, BorderLayout.CENTER);
+			add(removeButton, BorderLayout.EAST);
+		}
+		public ComponentPanel(String newName, double newAmount, boolean isAdd)
+		{
+			this.name = newName;
+			this.amount = newAmount;
+			this.isAdd = isAdd;
+			
+			createContents();
+			
+			setLayout(new BorderLayout());
+			add(componentField, BorderLayout.WEST);
+			add(amtField, BorderLayout.CENTER);
+			add(removeButton, BorderLayout.EAST);
+		}
+		
+		public void createContents()
+		{
+			if(isEmpty) { componentField = new JTextField("", 25); }
+			else {  componentField = new JTextField(" "+name.trim(), 25);}
+			componentField.addFocusListener(new FocusListener() {
+			      public void focusGained(FocusEvent e) 
+			      { }
+
+			      public void focusLost(FocusEvent e) 
+			      {
+			    	  try{
+			    		  System.out.println("FocusEvent Performed in component field...");
+							name = componentField.getText().trim();
+							if(name != null && !name.equals("")) { isEmpty = false; noName = false; }
+							
+						
+							if(!noAmt && !noName){
+								if(isAdd)
+								{
+									recipe.addAdd(new GlazeComponent(name, amount));
+									updateAddsPanel(false);
+								} else {
+									recipe.addComponent(new GlazeComponent(name, amount));
+									updateComponentsPanel(false);
+								}
+								System.out.println("Updated GlazeRecipe");
+							}
+							
+			    	  } catch(Exception ex) {
+			    		  System.out.println("Error updated when focus lost in component field ...");
+			    	  }
+			      }
+			});
+			componentField.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e)
+				{
+					System.out.println("ActionEvent Performed in component field...");
+					name = componentField.getText().trim();
+					if(name != null && !name.equals("")) { isEmpty = false; noName = false; }
+					
+					if(!noAmt && !noName){
+						if(isAdd)
+						{
+							recipe.addAdd(new GlazeComponent(name, amount));
+							updateAddsPanel(false);
+						} else {
+							recipe.addComponent(new GlazeComponent(name, amount));
+							updateComponentsPanel(false);
+						}
+						System.out.println("Updated GlazeRecipe");
+					}
+				}
+			});
+			
+			if(isEmpty) { amtField = new JTextField("", 8); }
+			else { amtField = new JTextField(amount+"", 8); }
+			amtField.addFocusListener(new FocusListener() {
+			      public void focusGained(FocusEvent e) 
+			      { }
+
+			      public void focusLost(FocusEvent e) 
+			      {
+			    	  try{
+			    		  System.out.println("Focus lost in amt field");
+				    	  try{
+								amount = Double.parseDouble(amtField.getText());
+							} catch(Exception ex1) {
+								System.out.println("Error in amount input");
+								noAmt = true;
+								amtField.setText("");
+							}
+							if(amount > 0)
+							{
+								noAmt = false;
+								amtField.setText("");
+							}
+							
+							if(!noAmt && !noName){
+								if(isAdd)
+								{
+									recipe.addAdd(new GlazeComponent(name, amount));
+									updateAddsPanel(false);
+								} else {
+									recipe.addComponent(new GlazeComponent(name, amount));
+									updateComponentsPanel(false);
+								}
+								System.out.println("Updated GlazeRecipe");
+							}
+			    	  } catch(Exception ex2) {
+			    		  System.out.println("Error updating when focus lost in add field");
+			    	  }
+			    	  
+			      }
+			});
+			amtField.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e)
+				{
+					try{
+						amount = Double.parseDouble(amtField.getText());
+					} catch(Exception ex) {
+						System.out.println("Error in amount input");
+						amtField.setText("");
+					}
+					if(amount < 0)
+					{
+						noAmt = true;
+						amtField.setText("");
+					} else {
+						noAmt = false;
+						
+						if(!noAmt && !noName){
+							if(isAdd)
+							{
+								recipe.addAdd(new GlazeComponent(name, amount));
+								updateAddsPanel(false);
+							} else {
+								recipe.addComponent(new GlazeComponent(name, amount));
+								updateComponentsPanel(false);
+							}
+							System.out.println("Updated GlazeRecipe");
+						}
+					}
+				}
+			});
 			
 			removeButton = new JButton();
 			removeButton.setIcon(new ImageIcon("exit_icon.png"));
@@ -599,20 +839,23 @@ public class GlazeEditPanel extends JPanel
 			removeButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e)
 				{
-					if(!isAdd) { 
-						recipe.removeComponent(name);
-						updateComponentsPanel();
-					} else { 
-						recipe.removeAdd(name); 
-						updateAddsPanel();
+					if(!noName && !noAmt) {
+						if(!isAdd) { 
+							recipe.removeComponent(name, amount);
+							updateComponentsPanel(false);
+						} else { 
+							recipe.removeAdd(name, amount); 
+							updateAddsPanel(false);
+						}
+					} else {
+						if(!isAdd) { 
+							updateComponentsPanel(false);
+						} else { 
+							updateAddsPanel(false);
+						}
 					}
 				}
 			});
-			
-			setLayout(new BorderLayout());
-			add(componentField, BorderLayout.WEST);
-			add(addField, BorderLayout.CENTER);
-			add(removeButton, BorderLayout.EAST);
 		}
 		public String getName() { return name; }
 		public double getAmount() { return amount; } 

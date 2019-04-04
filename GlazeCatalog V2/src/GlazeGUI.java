@@ -8,10 +8,7 @@ public class GlazeGUI extends JFrame
 	 * Clean up all the code!!!
 	 * Comment add the Classes!!!
 	 * 
-	 * Update the format of the glaze edit panel
-	 * 		Add buffers between elements
-	 * 
-	 * Implement an SQL database to store all the glazes and search by attributes
+	 * Update the format of the glaze edit panel - See class for details
 	 * 
 	 * Make a Panel to display/add Glaze Layering Tests - IF TIME!!!
 	 * 		Allow user to choose which glazes they want to see layered
@@ -26,6 +23,7 @@ public class GlazeGUI extends JFrame
 	 * 
 	 * Update GlazeRecipePanel
 	 * 		change fonts to be more appealing
+	 * 		update the image to be what would be outputed - create PDF file and display that?
 	 * 		
 	 * add print / export capability to GlazeRecipePanel
 	 * 

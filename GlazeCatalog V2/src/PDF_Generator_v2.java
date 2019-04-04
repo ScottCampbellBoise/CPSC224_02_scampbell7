@@ -127,6 +127,25 @@ public class PDF_Generator_v2 {
 	}
 	
 	/**
+	 * This class creates a table of contents and adds it to the PDF
+	 */
+	private class TableOfContents
+	{
+		private GlazeRecipe[] lowFireRecipes;
+		private GlazeRecipe[] midFireRecipes;
+		private GlazeRecipe[] highFireRecipes;
+		
+		/**
+		 * @param glazeRootFile - the file that contains all of the glaze recipes
+		 */
+		public TableOfContents(Document document, PdfWriter writer, File glazeRootFile)
+		{
+			//Seperate the recipes into low, mid and high firing range
+			//		create pages out of each 
+		}
+	}
+	
+	/**
 	 * This class will create and properly format a header for a glaze page
 	 */
 	private class GlazePageFooter

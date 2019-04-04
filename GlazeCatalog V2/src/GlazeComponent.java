@@ -13,4 +13,6 @@
 		
 		public String getName() { return name; }
 		public double getAmount() { return amount; }
+		public void setName(String newName) { this.name = newName; }
+		public void setAmount(double newAmt) { this.amount = newAmt; }
 	}
