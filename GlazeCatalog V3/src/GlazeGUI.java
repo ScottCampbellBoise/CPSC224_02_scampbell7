@@ -3,6 +3,8 @@ import javax.swing.*;
 public class GlazeGUI extends JFrame
 {
 	/**
+	 * V3
+	 * 
 	 * Master TO DO:
 	 * 
 	 * Clean up all the code!!!

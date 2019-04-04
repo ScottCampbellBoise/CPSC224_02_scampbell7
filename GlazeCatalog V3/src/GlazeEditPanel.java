@@ -1,6 +1,5 @@
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -27,6 +26,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -35,9 +36,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * IF A NEW FIRING IS ADDED FROM THE ATTRIBUTES PANEL, UPDATE UP TOP, NOT BELOW!!!
  * 
- * Add the save, duplicate, preview and export buttons
- * 
- * Move the save button to the bottom of the panel
+ * Update all messages to be on MessagePanel
  * 
  * Add a padding to all the panels between each other
  * 
@@ -92,7 +91,9 @@ public class GlazeEditPanel extends JPanel
 		
 	private final int MAX_FIRING_TYPES = 6;
 	private FiringLabel[] firingLabels;
-		
+	
+	private MessagePanel messagePanel = new MessagePanel();
+			
 	public GlazeEditPanel() // new glaze constructor
 	{
 		this.recipe = new GlazeRecipe();
@@ -110,7 +111,8 @@ public class GlazeEditPanel extends JPanel
 	public void createPanel()
 	{
 		titlePanel = new JPanel();
-		nameField = new JTextField("~ " + recipe.getName(),12);
+		titlePanel.setBorder(new EmptyBorder(10, 5, 10, 5));
+		nameField = new JTextField("  " + recipe.getName(),12);
 		nameField.setFont(new Font(nameField.getName(), Font.PLAIN, 24));
 		
 		lowerConeComboBox = new JComboBox<String>(lowerConeArray);
@@ -137,7 +139,7 @@ public class GlazeEditPanel extends JPanel
 		});
 		
 		firingPanel = new JPanel();
-		firingPanel.setBorder(BorderFactory.createTitledBorder("Firing Types"));
+		firingPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder("Firing Types")));
 		firingContents = parseFiring();
 		firingPanel.add(firingContents);
 		
@@ -148,7 +150,7 @@ public class GlazeEditPanel extends JPanel
 		coneSelectPanel.add(lowerConeComboBox, BorderLayout.WEST);
 		coneSelectPanel.add(coneLabel, BorderLayout.CENTER);
 		coneSelectPanel.add(upperConeComboBox, BorderLayout.EAST);
-		coneSelectPanel.setBorder(BorderFactory.createTitledBorder("Cone Range:"));
+		coneSelectPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder("Cone Range")));
 		
 		JPanel coneAndFiringPanel = new JPanel();
 		coneAndFiringPanel.setLayout(new GridLayout(1,2));
@@ -166,45 +168,9 @@ public class GlazeEditPanel extends JPanel
 				updateComponentsPanel(true);
 			}
 		});
-		/*
-		addComponentButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e)
-			{
-				JPanel optionPanel = new JPanel();
-				JTextField compField = new JTextField(12);
-				JTextField amtField = new JTextField(12);
-				JLabel compLabel = new JLabel("Component");
-				compLabel.setHorizontalAlignment(JLabel.RIGHT);
-				JLabel amtLabel = new JLabel("Amount (%)");
-				amtLabel.setHorizontalAlignment(JLabel.RIGHT);
-				
-				optionPanel.setLayout(new GridLayout(2,2));
-				optionPanel.add(compLabel);
-				optionPanel.add(compField);
-				optionPanel.add(amtLabel);
-				optionPanel.add(amtField);
-				
-				int result = JOptionPane.showConfirmDialog(null, optionPanel, 
-			               "Please Enter the New Component and Amount", JOptionPane.OK_CANCEL_OPTION);
-			      if (result == JOptionPane.OK_OPTION) {
-			    	  try {
-			    		  String compName = compField.getText();
-			    		  double compAmount = Double.parseDouble(amtField.getText());
-			    		  recipe.addComponent(new GlazeComponent(compName, compAmount));
-			    		  updateComponentsPanel();
-			    	  } catch (Exception ex) {
-			    		  JOptionPane.showMessageDialog(null,"Please enter a valid number for the amount","Error!",JOptionPane.ERROR_MESSAGE);
-			    	  }
-			      }
-			}
-		});
-		*/
 		
 		componentPanel = new JPanel();
-		TitledBorder componentBorder = new TitledBorder("Components (%)");
-		componentBorder.setTitleJustification(TitledBorder.LEFT);
-		componentBorder.setTitlePosition(TitledBorder.TOP);
-		componentPanel.setBorder(componentBorder);
+		componentPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Components")));
 		components = parseComponents(recipe.getComponents(), false);
 		components = parseComponents(recipe.getComponents(), false);
 		if(components == null){
@@ -228,46 +194,9 @@ public class GlazeEditPanel extends JPanel
 				updateAddsPanel(true);
 			}
 		});
-		/*
-		addAddButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e)
-			{
-				JPanel optionPanel = new JPanel();
-				JTextField compField = new JTextField(12);
-				JTextField amtField = new JTextField(12);
-				JLabel compLabel = new JLabel("Add");
-				compLabel.setHorizontalAlignment(JLabel.RIGHT);
-				JLabel amtLabel = new JLabel("Amount (%)");
-				amtLabel.setHorizontalAlignment(JLabel.RIGHT);
-				
-				optionPanel.setLayout(new GridLayout(2,2));
-				optionPanel.add(compLabel);
-				optionPanel.add(compField);
-				optionPanel.add(amtLabel);
-				optionPanel.add(amtField);
-				
-				int result = JOptionPane.showConfirmDialog(null, optionPanel, 
-			               "Please Enter the New Add and Amount", JOptionPane.OK_CANCEL_OPTION);
-			      if (result == JOptionPane.OK_OPTION) {
-			    	  try {
-			    		  String compName = compField.getText();
-			    		  double compAmount = Double.parseDouble(amtField.getText());
-			    		  recipe.addAdd(new GlazeComponent(compName, compAmount));
-			    		  updateAddsPanel();
-			    	  } catch (Exception ex) {
-			    		  JOptionPane.showMessageDialog(null,"Please enter a valid number for the amount", "Error!", JOptionPane.ERROR_MESSAGE);
-			    		  ex.printStackTrace();
-			    	  }
-			      }
-			}
-		});
-		*/
 		
 		addPanel = new JPanel();
-		TitledBorder addBorder = new TitledBorder("Add (%)");
-		addBorder.setTitleJustification(TitledBorder.LEFT);
-		addBorder.setTitlePosition(TitledBorder.TOP);
-		addPanel.setBorder(addBorder);
+		addPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Add")));
 		adds = parseComponents(recipe.getAdds(), true);
 		if(adds == null) {
 			addPanel.setLayout(new GridLayout(3,1));
@@ -297,19 +226,13 @@ public class GlazeEditPanel extends JPanel
 		ingrAndImagePanel.add(imagePanel, BorderLayout.EAST);
 		
 		commentsPanel = new JPanel();
-		TitledBorder commentsBorder = new TitledBorder("Comments");
-		commentsBorder.setTitleJustification(TitledBorder.LEFT);
-		commentsBorder.setTitlePosition(TitledBorder.TOP);
-		commentsPanel.setBorder(commentsBorder);
+		commentsPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 15), new TitledBorder("Comments")));
 		commentsTextArea = new JTextArea(3,50);
 		commentsTextArea.setText(recipe.getComments());
 		commentsPanel.add(commentsTextArea);
 		
 	    attributesPanel = new JPanel();
-		TitledBorder border = new TitledBorder("Glaze Attributes");
-		border.setTitleJustification(TitledBorder.LEFT);
-	    border.setTitlePosition(TitledBorder.TOP);
-	    attributesPanel.setBorder(border);
+	    attributesPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Glaze Attributes")));
 	    addAttributeButton = new JButton("Add New Attribute");
 	    addAttributeButton.setPreferredSize(new Dimension(50,20));
 	    addAttributeButton.addActionListener(new ActionListener(){
@@ -331,6 +254,12 @@ public class GlazeEditPanel extends JPanel
 		allCompPanel.add(titlePanel, BorderLayout.NORTH);
 		allCompPanel.add(ingrAndImagePanel, BorderLayout.CENTER);
 		
+		
+		JPanel allRecipePanel = new JPanel(); // This panel holds all the glaze related items
+		allRecipePanel.setLayout(new BorderLayout());
+		allRecipePanel.add(allCompPanel, BorderLayout.CENTER);
+		allRecipePanel.add(commentsAndAttributesPanel, BorderLayout.SOUTH);
+		
 		JButton saveButton = new JButton("Save Glaze");
 		saveButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
@@ -339,11 +268,49 @@ public class GlazeEditPanel extends JPanel
 			}
 		});
 		
+		JButton duplicateButton = new JButton("Duplicate Glaze");
+		duplicateButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				duplicateGlaze();
+			}
+		});
 		
+		JButton exportButton = new JButton("Export Recipe");
+		saveButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				exportGlaze();
+			}
+		});
+	
+		//Create a panel to hold the save, duplicate, and print buttons
+		JPanel modifyButtonsPanel = new JPanel();
+		modifyButtonsPanel.setLayout(new GridLayout(1,3));
+		modifyButtonsPanel.add( saveButton );
+		modifyButtonsPanel.add( duplicateButton );
+		modifyButtonsPanel.add( exportButton );
+		
+		JPanel modifyAndMessagePanel = new JPanel();
+		modifyAndMessagePanel.setLayout(new GridLayout(2,1));
+		modifyAndMessagePanel.add(messagePanel);
+		modifyAndMessagePanel.add(modifyButtonsPanel);
+				
 		setLayout(new BorderLayout());
-		add(saveButton, BorderLayout.NORTH);
-		add(allCompPanel, BorderLayout.CENTER);
-		add(commentsAndAttributesPanel, BorderLayout.SOUTH);
+		add(allRecipePanel, BorderLayout.CENTER);
+		add(modifyAndMessagePanel, BorderLayout.SOUTH);
+	}
+	
+	private void exportGlaze()
+	{
+		// ask if they want to save changes first
+		// ask where they want to save it
+	}
+	
+	private void duplicateGlaze()
+	{
+		// ask if they want to save changes first
+		// find a unique file name ... 
 	}
 	
 	private void addNewPhoto()
@@ -611,10 +578,7 @@ public class GlazeEditPanel extends JPanel
 	{
 		attributesPanel.removeAll();
 		
-		TitledBorder border = new TitledBorder("Glaze Attributes");
-		border.setTitleJustification(TitledBorder.LEFT);
-	    border.setTitlePosition(TitledBorder.TOP);
-	    attributesPanel.setBorder(border);
+		attributesPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Glaze Attributes")));
 	    attributesPanel.setLayout(new BorderLayout());
 	    
 		JPanel lowerPanel = new JPanel();
@@ -631,6 +595,69 @@ public class GlazeEditPanel extends JPanel
 		repaint();
 	}
 	
+	private class MessagePanel extends JPanel
+	{
+		private JTextField messageField;
+		private JButton exitButton;
+		
+		private static final int NO_MESSAGE = 0;
+		private static final int ERROR_MESSAGE = 1;
+		private static final int WARNING_MESSAGE = 2;
+		private static final int GENERAL_MESSAGE = 3;
+		
+		public MessagePanel() {
+			messageField = new JTextField("");
+			messageField.setEnabled(false);
+				
+			exitButton = new JButton();
+			exitButton.setIcon(new ImageIcon("exit_icon.png"));
+			exitButton.setPreferredSize(new Dimension(20,20));
+			exitButton.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e)
+				{
+					displayMsg("",NO_MESSAGE);
+				}
+			});
+			
+			setBorder(new EmptyBorder(5, 5, 5, 5));
+			setLayout(new BorderLayout());
+			add(messageField, BorderLayout.CENTER);
+			
+			displayMsg("",0);
+		}
+		
+		public void displayMsg(String msg, int msgType)
+		{
+			messageField.setText(msg);
+			if(msgType == ERROR_MESSAGE) {
+				messageField.setBackground(new Color(255, 179, 179)); // Red Color
+				addExitButton();
+			} else if(msgType == WARNING_MESSAGE) {
+				messageField.setBackground(new Color(255, 240, 179)); // Yellow Color
+				addExitButton();
+			} else if(msgType == GENERAL_MESSAGE) {
+				messageField.setBackground(new Color(204, 255, 221)); // Green Color
+				addExitButton();
+			} else {
+				messageField.setBackground(Color.LIGHT_GRAY);
+				removeExitButton();
+			}
+			validate();
+			repaint();
+		}
+		private void removeExitButton()
+		{
+			try{
+				remove(exitButton);
+			} catch(Exception e) {
+				
+			}
+		}
+		private void addExitButton()
+		{
+			add(exitButton, BorderLayout.EAST);
+		}
+	}
 	private class GlazeAttribute extends JPanel
 	{
 		private JLabel label;
@@ -639,9 +666,12 @@ public class GlazeEditPanel extends JPanel
 		
 		public GlazeAttribute(String attributeName)
 		{
-			setBorder(BorderFactory.createEtchedBorder());
+			setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), new EtchedBorder()));
 			this.attributeName = attributeName;
 			label = new JLabel(attributeName+"   ");
+			label.setOpaque(true);
+			label.setBackground(Color.WHITE);
+			
 			button = new JButton();
 			button.setIcon(new ImageIcon("exit_icon.png"));
 			button.setPreferredSize(new Dimension(20,20));
@@ -938,10 +968,7 @@ public class GlazeEditPanel extends JPanel
 			this.originalPhotos = originalPhotos;
 			this.photoPosition = 0;
 			
-			TitledBorder border = new TitledBorder("Glaze Photos");
-			border.setTitleJustification(TitledBorder.CENTER);
-		    border.setTitlePosition(TitledBorder.TOP);
-		    setBorder(border);
+			setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 15), new TitledBorder(null, "Glaze Photos", TitledBorder.CENTER,TitledBorder.TOP)));
 			
 			prevPhotoButton = new JButton("<");
 			prevPhotoButton.setPreferredSize(new Dimension(30,30));
