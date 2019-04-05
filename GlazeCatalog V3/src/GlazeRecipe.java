@@ -110,17 +110,17 @@ public class GlazeRecipe
 		public GlazePhoto[] getPhotos() {return photos; }
 		public int getNumPhotos() { return photos.length; }
 		
-		public void removeComponent(String componentName, double amount) 
+		public void removeComponent(GlazeComponent comp) 
 		{
 			if(glazeComponents != null)
 			{
-				if(glazeComponents.length == 1 && glazeComponents[0].getName().trim().toLowerCase().equals(componentName) && glazeComponents[0].getAmount() == amount) { 
+				if(glazeComponents.length == 1 && glazeComponents[0].getID() == comp.getID()) { 
 					glazeComponents = null;
 				} else {
 					//Make sure that the componet to remove exists
 					boolean exists = false;
 					for(int k = 0; k < glazeComponents.length; k++) { 
-						if(glazeComponents[k].getAmount() == amount && glazeComponents[k].getName().toLowerCase().trim().equals(componentName.trim().toLowerCase())) {
+						if(glazeComponents[k].getID() == comp.getID()) {
 							exists = true;
 							break;
 						}
@@ -130,7 +130,7 @@ public class GlazeRecipe
 						GlazeComponent[] updatedArray = new GlazeComponent[glazeComponents.length - 1];
 						int count = 0;
 						for(int k = 0; k < glazeComponents.length; k++) {
-							if(!glazeComponents[k].getName().equals(componentName) && glazeComponents[k].getAmount() != amount) {
+							if(glazeComponents[k].getID() != comp.getID()) {
 								updatedArray[count] = glazeComponents[k];
 								count++;
 							}
@@ -141,18 +141,18 @@ public class GlazeRecipe
 				}
 			}
 		}
-		public void removeAdd(String componentName, double amount) 
+		public void removeAdd(GlazeComponent comp) 
 		{
 			if(glazeAdds != null)
 			{
-				if(glazeAdds.length == 1 && glazeAdds[0].getName().trim().toLowerCase().equals(componentName) && glazeAdds[0].getAmount() == amount) { 
+				if(glazeAdds.length == 1 && glazeAdds[0].getID() == comp.getID()) { 
 					glazeAdds = null;
 					System.out.println("Succesfully Removed!");
 				} else {
 					//Make sure that the componet to remove exists
 					boolean exists = false;
 					for(int k = 0; k < glazeAdds.length; k++) { 
-						if(glazeAdds[k].getAmount() == amount && glazeAdds[k].getName().toLowerCase().trim().equals(componentName.trim().toLowerCase())) {
+						if(glazeAdds[k].getID() == comp.getID()) {
 							exists = true;
 							break;
 						}
@@ -162,7 +162,7 @@ public class GlazeRecipe
 						GlazeComponent[] updatedArray = new GlazeComponent[glazeAdds.length - 1];
 						int count = 0;
 						for(int k = 0; k < glazeAdds.length; k++) {
-							if(!glazeAdds[k].getName().equals(componentName) && glazeAdds[k].getAmount() != amount) {
+							if(glazeAdds[k].getID() != comp.getID()) {
 								updatedArray[count] = glazeAdds[k];
 								count++;
 							}

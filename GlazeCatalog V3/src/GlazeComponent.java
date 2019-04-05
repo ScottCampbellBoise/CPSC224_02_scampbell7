@@ -4,15 +4,26 @@
 	{
 		private String name;
 		private double amount;
+		private long ID;
+		
+		public GlazeComponent()
+		{
+			this.name = "";
+			this.amount = 0;
+			this.ID = System.currentTimeMillis();
+		}
 		
 		public GlazeComponent(String name, double amount)
 		{
 			this.name = name;
 			this.amount = amount;
+			this.ID = System.currentTimeMillis();
 		}
 		
 		public String getName() { return name; }
 		public double getAmount() { return amount; }
+		public long getID() { return ID; }
 		public void setName(String newName) { this.name = newName; }
 		public void setAmount(double newAmt) { this.amount = newAmt; }
+		public void setID(long newID) { this.ID = newID; }
 	}

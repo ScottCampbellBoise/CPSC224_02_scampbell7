@@ -508,9 +508,7 @@ public class GlazeEditPanel extends JPanel
 			
 			for(int k = 0; k < components.length; k++)
 			{
-				String theName = components[k].getName();
-				double theAmt = components[k].getAmount();
-				compPanels[k] = new ComponentPanel(theName, theAmt, isAdd);
+				compPanels[k] = new ComponentPanel(components[k], isAdd);
 			}
 			
 			return compPanels;
@@ -696,25 +694,27 @@ public class GlazeEditPanel extends JPanel
 	}
 	private class ComponentPanel extends JPanel
 	{
-		JTextField componentField;
-		JTextField amtField;
-		JButton removeButton;
+		private  JTextField componentField;
+		private  JTextField amtField;
+		private  JButton removeButton;
 		
-		String name;
-		double amount;
-		boolean isAdd;
+		private  GlazeComponent comp;
+		private  boolean isAdd;
 		
-		boolean isEmpty = false;
-		boolean noName = false;
-		boolean noAmt = false;
+		private  boolean isEmpty = false;
+		private  boolean noName = false;
+		private  boolean noAmt = false;
+		
+		private final Color unsavedColor = new Color(255, 240, 179);
+		private final Color savedColor = Color.WHITE;
 		
 		public ComponentPanel(boolean isAdd)
 		{	
-			name = "";
-			amount = -1;
-			isEmpty = true;
-			noName = true;
-			noAmt = true;
+			this.comp = new GlazeComponent();
+			
+			this.isEmpty = true;
+			this.noName = true;
+			this.noAmt = true;
 			this.isAdd = isAdd;
 			
 			createContents();
@@ -724,10 +724,9 @@ public class GlazeEditPanel extends JPanel
 			add(amtField, BorderLayout.CENTER);
 			add(removeButton, BorderLayout.EAST);
 		}
-		public ComponentPanel(String newName, double newAmount, boolean isAdd)
+		public ComponentPanel(GlazeComponent comp, boolean isAdd)
 		{
-			this.name = newName;
-			this.amount = newAmount;
+			this.comp = comp;
 			this.isAdd = isAdd;
 			
 			createContents();
@@ -741,26 +740,29 @@ public class GlazeEditPanel extends JPanel
 		public void createContents()
 		{
 			if(isEmpty) { componentField = new JTextField("", 25); }
-			else {  componentField = new JTextField(" "+name.trim(), 25);}
+			else {  componentField = new JTextField(" " + comp.getName().trim(), 25);}
 			componentField.addFocusListener(new FocusListener() {
 			      public void focusGained(FocusEvent e) 
-			      { }
+			      {
+			    	  componentField.setBackground(unsavedColor);
+			      }
 
 			      public void focusLost(FocusEvent e) 
 			      {
 			    	  try{
-			    		  System.out.println("FocusEvent Performed in component field...");
-							name = componentField.getText().trim();
-							if(name != null && !name.equals("")) { isEmpty = false; noName = false; }
+			    		    System.out.println("FocusEvent Performed in component field...");
+			    		    String newName = componentField.getText().trim();
+							comp.setName(newName);
+							if( newName != null && !newName.equals("")) { isEmpty = false; noName = false; }
 							
-						
 							if(!noAmt && !noName){
+								componentField.setBackground(savedColor);
 								if(isAdd)
 								{
-									recipe.addAdd(new GlazeComponent(name, amount));
+									recipe.addAdd( comp );
 									updateAddsPanel(false);
 								} else {
-									recipe.addComponent(new GlazeComponent(name, amount));
+									recipe.addComponent(comp);
 									updateComponentsPanel(false);
 								}
 								System.out.println("Updated GlazeRecipe");
@@ -775,16 +777,16 @@ public class GlazeEditPanel extends JPanel
 				public void actionPerformed(ActionEvent e)
 				{
 					System.out.println("ActionEvent Performed in component field...");
-					name = componentField.getText().trim();
-					if(name != null && !name.equals("")) { isEmpty = false; noName = false; }
+					comp.setName(componentField.getText().trim());
+					if(comp.getName() != null && !comp.getName().equals("")) { isEmpty = false; noName = false; }
 					
 					if(!noAmt && !noName){
 						if(isAdd)
 						{
-							recipe.addAdd(new GlazeComponent(name, amount));
+							recipe.addAdd(comp);
 							updateAddsPanel(false);
 						} else {
-							recipe.addComponent(new GlazeComponent(name, amount));
+							recipe.addComponent(comp);
 							updateComponentsPanel(false);
 						}
 						System.out.println("Updated GlazeRecipe");
@@ -793,38 +795,44 @@ public class GlazeEditPanel extends JPanel
 			});
 			
 			if(isEmpty) { amtField = new JTextField("", 8); }
-			else { amtField = new JTextField(amount+"", 8); }
+			else { amtField = new JTextField(comp.getAmount() + "", 8); }
 			amtField.addFocusListener(new FocusListener() {
 			      public void focusGained(FocusEvent e) 
-			      { }
+			      { 
+			    	  amtField.setBackground(unsavedColor);
+			      }
 
 			      public void focusLost(FocusEvent e) 
 			      {
 			    	  try{
 			    		  System.out.println("Focus lost in amt field");
-				    	  try{
-								amount = Double.parseDouble(amtField.getText());
-							} catch(Exception ex1) {
+			    		  try{
+								double newAmt = Double.parseDouble(amtField.getText());
+								comp.setAmount(newAmt);
+							} catch(Exception ex) {
 								System.out.println("Error in amount input");
+								amtField.setText("");
+							}
+							if(comp.getAmount() < 0)
+							{
+								comp.setAmount(0.0);
 								noAmt = true;
 								amtField.setText("");
-							}
-							if(amount > 0)
-							{
+							} else {
 								noAmt = false;
-								amtField.setText("");
-							}
-							
-							if(!noAmt && !noName){
-								if(isAdd)
-								{
-									recipe.addAdd(new GlazeComponent(name, amount));
-									updateAddsPanel(false);
-								} else {
-									recipe.addComponent(new GlazeComponent(name, amount));
-									updateComponentsPanel(false);
+								
+								if(!noAmt && !noName){
+									amtField.setBackground(savedColor);
+									if(isAdd)
+									{
+										recipe.addAdd(comp);
+										updateAddsPanel(false);
+									} else {
+										recipe.addComponent(comp);
+										updateComponentsPanel(false);
+									}
+									System.out.println("Updated GlazeRecipe");
 								}
-								System.out.println("Updated GlazeRecipe");
 							}
 			    	  } catch(Exception ex2) {
 			    		  System.out.println("Error updating when focus lost in add field");
@@ -836,13 +844,15 @@ public class GlazeEditPanel extends JPanel
 				public void actionPerformed(ActionEvent e)
 				{
 					try{
-						amount = Double.parseDouble(amtField.getText());
+						double newAmt = Double.parseDouble(amtField.getText());
+						comp.setAmount(newAmt);
 					} catch(Exception ex) {
 						System.out.println("Error in amount input");
 						amtField.setText("");
 					}
-					if(amount < 0)
+					if(comp.getAmount() < 0)
 					{
+						comp.setAmount(0.0);
 						noAmt = true;
 						amtField.setText("");
 					} else {
@@ -851,10 +861,10 @@ public class GlazeEditPanel extends JPanel
 						if(!noAmt && !noName){
 							if(isAdd)
 							{
-								recipe.addAdd(new GlazeComponent(name, amount));
+								recipe.addAdd(comp);
 								updateAddsPanel(false);
 							} else {
-								recipe.addComponent(new GlazeComponent(name, amount));
+								recipe.addComponent(comp);
 								updateComponentsPanel(false);
 							}
 							System.out.println("Updated GlazeRecipe");
@@ -871,10 +881,10 @@ public class GlazeEditPanel extends JPanel
 				{
 					if(!noName && !noAmt) {
 						if(!isAdd) { 
-							recipe.removeComponent(name, amount);
+							recipe.removeComponent(comp);
 							updateComponentsPanel(false);
 						} else { 
-							recipe.removeAdd(name, amount); 
+							recipe.removeAdd(comp); 
 							updateAddsPanel(false);
 						}
 					} else {
@@ -887,8 +897,8 @@ public class GlazeEditPanel extends JPanel
 				}
 			});
 		}
-		public String getName() { return name; }
-		public double getAmount() { return amount; } 
+		public String getName() { return comp.getName(); }
+		public double getAmount() { return comp.getAmount(); } 
 	}
 	private class FiringLabel extends JPanel
 	{
@@ -1086,11 +1096,12 @@ public class GlazeEditPanel extends JPanel
 				buttonPanel.add(addPhotoButton);
 				buttonPanel.add(changeDescButton);
 				buttonPanel.add(removePhotoButton);
+				buttonPanel.setBorder(new EmptyBorder(5,5,5,5));
 				
 				border = new TitledBorder(desc);
 				border.setTitleJustification(TitledBorder.CENTER);
 			    border.setTitlePosition(TitledBorder.BOTTOM);
-			    photoLabel.setBorder(border);
+			    photoLabel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5,5,5,5),border));
 				
 				setLayout(new BorderLayout());
 				add(photoLabel, BorderLayout.CENTER);
