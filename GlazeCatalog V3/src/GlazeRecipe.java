@@ -8,14 +8,9 @@ import java.nio.file.Paths;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
-/**
- * TO DO:
- * 		Add update of photo to the save function!
- *		Add update of comments to save func
- */
 public class GlazeRecipe
 {
-		private String filePath;
+		private String filePath; // this is the folder that holds the txt file and image files
 	
 		private String name = "Glaze Name";
 		private GlazeComponent[] glazeComponents = { new GlazeComponent("Comp 1." , 0.0) };
@@ -36,9 +31,10 @@ public class GlazeRecipe
 		public GlazeRecipe(String filePath)
 		{
 			this.filePath = filePath;
+			File theFile = new File(filePath);
 			try
 			{
-				String fileContents = new String(Files.readAllBytes( Paths.get(filePath)));
+				String fileContents = new String(Files.readAllBytes( Paths.get(filePath + "/" + theFile.getName() + ".txt" )));
 				String[] lines = fileContents.split("@");
 				if(lines.length >= 14)
 				{
@@ -305,8 +301,32 @@ public class GlazeRecipe
 			}
 		}
 		
-		public void updateFile() { updateFile(filePath); } // Use the original file
-		public void updateFile(String otherPath) // Save to different location than the original
+		public boolean updateFile() 
+		{
+			/**
+			 * Check if the glaze recipe name is different than the file name.
+			 * If so, save the entire file to a new directory with updated name, and delete the old
+			 */
+			
+			File origFile = new File(filePath);
+			
+			if(origFile.getName().trim().equals(name.trim())) { // same name - just update the text file
+				updateRecipeFile(filePath + "/" + origFile.getName() + ".txt");
+				return true;
+			} else { // different name update to different directory, then destroy the original
+				boolean isDuplicated = duplicateRecipe();
+				if(isDuplicated)
+				{
+					deleteDirectory(origFile.getAbsoluteFile());
+					filePath = "Glaze Recipes/"+name;
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		private void updateRecipeFile(String otherPath)
 		{
 			BufferedWriter writer = null;
 	        try {
@@ -382,5 +402,62 @@ public class GlazeRecipe
 	            } catch (Exception e) { e.printStackTrace(); }
 	        }
 		}
-	
+		private void savePhotos(String rootDir)
+		{
+			int count = 1;
+			for(GlazePhoto p : photos) {
+				try{
+					File outputfile = new File(rootDir + "/glaze " + count + ".png");
+					ImageIO.write(p.getPhoto(), "PNG", outputfile);
+					count++;
+				} catch(Exception e) {
+					System.out.println("Error saving an image to file.");
+				}
+			}
+		}
+		public boolean duplicateRecipe()
+		{
+			String newFileName = name.trim();
+			int lastSpaceIndex = newFileName.lastIndexOf(" ");
+			if(newFileName.substring(lastSpaceIndex, newFileName.length()).contains("v")) // already has a v extension
+			{
+				newFileName = newFileName.substring(0,lastSpaceIndex);
+			}
+		    
+			if(new File("Glaze Recipes/" + newFileName).exists())
+			{
+				int num = 2;
+			    while(new File("Glaze Recipes/" + newFileName + " v" + num).exists()) { num++; }
+			    newFileName += " v" + num;
+			}
+		    
+		    File newDir = new File("Glaze Recipes/" + newFileName);
+		    try {
+		    	newDir.mkdir();
+		    	String originalName = name;
+		    	name = newFileName;
+		    	updateRecipeFile("Glaze Recipes/" + newFileName + "/" + newFileName + ".txt");
+		    	name = originalName;
+		    	savePhotos("Glaze Recipes/" + newFileName);
+		    	return true;
+		    } catch(Exception e) {
+		    	return false;
+		    }
+		}
+		private boolean deleteDirectory(File directory) {
+		    if(directory.exists()){
+		        File[] files = directory.listFiles();
+		        if(null!=files){
+		            for(int i=0; i<files.length; i++) {
+		                if(files[i].isDirectory()) {
+		                    deleteDirectory(files[i]);
+		                }
+		                else {
+		                    files[i].delete();
+		                }
+		            }
+		        }
+		    }
+		    return(directory.delete());
+		}
 }

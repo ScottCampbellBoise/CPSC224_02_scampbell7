@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,8 +25,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -33,27 +36,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * TO DO:
- *
- * IF A NEW FIRING IS ADDED FROM THE ATTRIBUTES PANEL, UPDATE UP TOP, NOT BELOW!!!
- * 
- * Update all messages to be on MessagePanel
- * 
- * Add a padding to all the panels between each other
  * 
  * change the color of the buttons
  * 
  * change the button colors on the photo panel
  * 
- * change the panel color for the firing types
- * 
- * change the panel color for the attributes
- * 
  * change the button color for the attributes button
  * 
- * Reformat/add buffer to the JTextArea component
- * 
  * Stretch: 
- * 		Add a 'auto-fill feature for the glaze components/adds'
+ * 		Add a 'auto-fill' feature for the glaze components/adds
  */
 public class GlazeEditPanel extends JPanel
 {
@@ -93,7 +84,11 @@ public class GlazeEditPanel extends JPanel
 	private FiringLabel[] firingLabels;
 	
 	private MessagePanel messagePanel = new MessagePanel();
+	private final String[] ILLEGAL_CHARACTERS = { ".", "/", "\n", "\r", "\t", "\0", "\f", "`", "?", "*", "\\", "<", ">", "|", "\"", ":" };
+
+	private PDF_Generator_v2 pdf_generator = new PDF_Generator_v2();
 			
+
 	public GlazeEditPanel() // new glaze constructor
 	{
 		this.recipe = new GlazeRecipe();
@@ -114,6 +109,22 @@ public class GlazeEditPanel extends JPanel
 		titlePanel.setBorder(new EmptyBorder(10, 5, 10, 5));
 		nameField = new JTextField("  " + recipe.getName(),12);
 		nameField.setFont(new Font(nameField.getName(), Font.PLAIN, 24));
+		nameField.setMargin(new Insets(20,10,10,10));
+		nameField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+            	int length = nameField.getText().length();
+                String lastChar = nameField.getText().substring(length-1,length);
+                for(String c : ILLEGAL_CHARACTERS)
+                {
+                	if(lastChar.equals(c)) {
+                		//remove from field, display error message
+                		nameField.setText(nameField.getText().substring(0, length-1));
+                		messagePanel.displayMsg("Illegal Character! Please choose a valid character", MessagePanel.ERROR_MESSAGE);
+                		break;
+                	}
+                }
+            }
+        });
 		
 		lowerConeComboBox = new JComboBox<String>(lowerConeArray);
 		lowerConeComboBox.setSelectedItem(recipe.getLowerCone().trim());
@@ -137,7 +148,7 @@ public class GlazeEditPanel extends JPanel
 				}
 			}
 		});
-		
+		s
 		firingPanel = new JPanel();
 		firingPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder("Firing Types")));
 		firingContents = parseFiring();
@@ -146,10 +157,10 @@ public class GlazeEditPanel extends JPanel
 		coneSelectPanel = new JPanel();
 		JLabel coneLabel = new JLabel("to");
 		coneLabel.setHorizontalAlignment(JLabel.CENTER);
-		coneSelectPanel.setLayout(new BorderLayout());
-		coneSelectPanel.add(lowerConeComboBox, BorderLayout.WEST);
-		coneSelectPanel.add(coneLabel, BorderLayout.CENTER);
-		coneSelectPanel.add(upperConeComboBox, BorderLayout.EAST);
+		coneSelectPanel.setLayout(new GridLayout(1,3));
+		coneSelectPanel.add(lowerConeComboBox);
+		coneSelectPanel.add(coneLabel);
+		coneSelectPanel.add(upperConeComboBox);
 		coneSelectPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder("Cone Range")));
 		
 		JPanel coneAndFiringPanel = new JPanel();
@@ -211,7 +222,6 @@ public class GlazeEditPanel extends JPanel
 			for(int k = 0; k < adds.length; k++) { addPanel.add(adds[k]); }
 		}
 		addPanel.add(addAddButton);
-		addPanel.add(addAddButton);
 		
 		JPanel ingredientsPanel = new JPanel();
 		ingredientsPanel.setLayout(new BorderLayout());
@@ -226,13 +236,17 @@ public class GlazeEditPanel extends JPanel
 		ingrAndImagePanel.add(imagePanel, BorderLayout.EAST);
 		
 		commentsPanel = new JPanel();
-		commentsPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 15), new TitledBorder("Comments")));
-		commentsTextArea = new JTextArea(3,50);
-		commentsTextArea.setText(recipe.getComments());
-		commentsPanel.add(commentsTextArea);
+		commentsPanel.setLayout(new BorderLayout());
+		commentsPanel.setBorder(BorderFactory.createCompoundBorder(new TitledBorder("Comments"), new EmptyBorder(5, 5, 5, 5)));
+		commentsTextArea = new JTextArea(4,60);
+		commentsTextArea.setMargin(new Insets(10,10,10,10));
+		commentsTextArea.setBorder(new EmptyBorder(5,5,5,5));
+		commentsTextArea.setText(recipe.getComments().trim());
+		JScrollPane commentsTextAreaScrollPane = new JScrollPane(commentsTextArea);
+		commentsPanel.add(commentsTextAreaScrollPane, BorderLayout.CENTER);
 		
 	    attributesPanel = new JPanel();
-	    attributesPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Glaze Attributes")));
+	    attributesPanel.setBorder(new TitledBorder("Glaze Attributes"));
 	    addAttributeButton = new JButton("Add New Attribute");
 	    addAttributeButton.setPreferredSize(new Dimension(50,20));
 	    addAttributeButton.addActionListener(new ActionListener(){
@@ -246,13 +260,14 @@ public class GlazeEditPanel extends JPanel
 	    
 	    JPanel commentsAndAttributesPanel = new JPanel();
 	    commentsAndAttributesPanel.setLayout(new BorderLayout());
-	    commentsAndAttributesPanel.add(commentsPanel, BorderLayout.NORTH);
+	    commentsAndAttributesPanel.setBorder(new EmptyBorder(5,15,10,15));
+	    commentsAndAttributesPanel.add(commentsPanel, BorderLayout.CENTER);
 	    commentsAndAttributesPanel.add(attributesPanel, BorderLayout.SOUTH);
 		
 		allCompPanel = new JPanel();
 		allCompPanel.setLayout(new BorderLayout());
 		allCompPanel.add(titlePanel, BorderLayout.NORTH);
-		allCompPanel.add(ingrAndImagePanel, BorderLayout.CENTER);
+		allCompPanel.add(ingrAndImagePanel, BorderLayout.SOUTH);
 		
 		
 		JPanel allRecipePanel = new JPanel(); // This panel holds all the glaze related items
@@ -277,7 +292,7 @@ public class GlazeEditPanel extends JPanel
 		});
 		
 		JButton exportButton = new JButton("Export Recipe");
-		saveButton.addActionListener(new ActionListener(){
+		exportButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
 			{
 				exportGlaze();
@@ -303,16 +318,37 @@ public class GlazeEditPanel extends JPanel
 	
 	private void exportGlaze()
 	{
-		// ask if they want to save changes first
-		// ask where they want to save it
+		if (JOptionPane.showConfirmDialog(null, "Do you want to save changes?", "Warning",
+		        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+		    saveChanges();
+		}
+		
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(new FileNameExtensionFilter("pdf file","pdf"));
+	    int returnVal = chooser.showSaveDialog(null);
+	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+	    	boolean isSaved = pdf_generator.saveRecipeAsPDF(recipe, chooser.getSelectedFile().getAbsolutePath());
+	    	if(!isSaved)
+	    	{
+	    		messagePanel.displayMsg("Could not save the recipe to the specified file...", MessagePanel.ERROR_MESSAGE);
+	    	}
+	    }
+		
 	}
-	
 	private void duplicateGlaze()
 	{
-		// ask if they want to save changes first
-		// find a unique file name ... 
+		if (JOptionPane.showConfirmDialog(null, "Do you want to save changes?", "Warning",
+		        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+		    saveChanges();
+		}
+		
+		boolean isDuplicated = recipe.duplicateRecipe();
+		if(isDuplicated) {
+			messagePanel.displayMsg("Recipe file duplicated!", MessagePanel.GENERAL_MESSAGE);
+		} else {
+			messagePanel.displayMsg("Recipe file could not be duplicated!", MessagePanel.ERROR_MESSAGE);
+		}
 	}
-	
 	private void addNewPhoto()
 	{
 		JFileChooser chooser = new JFileChooser();
@@ -329,8 +365,9 @@ public class GlazeEditPanel extends JPanel
 				//OPEN A NEW JPANEL TO RESIZE/CROP THE IMAGE AND GET DESC !!!
 				
 				recipe.addPhoto(new GlazePhoto(file.getAbsolutePath(),buffImage, desc));
+				messagePanel.displayMsg("Successfully added the selected image!", MessagePanel.GENERAL_MESSAGE);
 			} catch(Exception e) {
-				System.out.println("Error reading the selected image: "+file.getName());
+				messagePanel.displayMsg("Error reading the selected image file ...", MessagePanel.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
 		}
@@ -341,7 +378,6 @@ public class GlazeEditPanel extends JPanel
 	 */
 	private void saveChanges()
 	{
-		
 		//Push all the changes into the GlazeRecipe object and then save that to a file
 		String rawName = nameField.getText();
 		if(rawName.substring(0,1).equals("~")) { rawName = rawName.substring(1,rawName.length()).trim();}
@@ -352,10 +388,16 @@ public class GlazeEditPanel extends JPanel
 		recipe.setConeRange((String)lowerConeComboBox.getSelectedItem(),(String)upperConeComboBox.getSelectedItem());
 		
 		//Firing types
-		String[] newFireLabels = new String[firingLabels.length];
-		for(int k = 0; k < firingLabels.length; k++) { if(firingLabels[k] != null) {newFireLabels[k] = firingLabels[k].getName();} }
+		int count = 0;
+		for(int k = 0; k < firingLabels.length; k++) { if(firingLabels[k] != null) {count++;} }
+		String[] newFireLabels = new String[count];
+		count = 0;
+		for(int k = 0; k < firingLabels.length; k++)
+		{
+			if(firingLabels[k] != null) { newFireLabels[count] = firingLabels[k].getName(); count++; }
+		}
 		recipe.setFiring(newFireLabels);
-		
+				
 		ArrayList<String> newColors = new ArrayList<String>();
 		ArrayList<String> newFinishes = new ArrayList<String>();
 		ArrayList<String> newFunctionality = new ArrayList<String>();
@@ -392,6 +434,8 @@ public class GlazeEditPanel extends JPanel
 		//photos are added automatically
 		
 		recipe.updateFile();
+		
+		messagePanel.displayMsg("All changes are saved!", MessagePanel.GENERAL_MESSAGE);
 	}
 	private void requestAttributes()
 	{
@@ -400,23 +444,29 @@ public class GlazeEditPanel extends JPanel
 		
 	}
 	public void addAttribute(String attributeName)
-	{
-		boolean isAlreadyAdded = false;
-		
-		for(int k = 0; k < NUM_ATTRIBUTES; k++)
+	{		
+		//Check to see if it is a firing attribute - if so, add to the FiringTypes box
+		if(attributeName.contains("Firing:"))
 		{
-			if(attributes[k] != null && attributes[k].getName().equals(attributeName)) { isAlreadyAdded = true; }
-		}
-		
-		if(!isAlreadyAdded) {
-			for(int k = 0; k < NUM_ATTRIBUTES; k++) {
-				if(attributes[k] == null)  {
-					attributes[k] = new GlazeAttribute(attributeName);
-					break;
+			addFiringLabel(attributeName.substring(7,attributeName.length()).trim());
+		} else {
+			boolean isAlreadyAdded = false;
+			
+			for(int k = 0; k < NUM_ATTRIBUTES; k++)
+			{
+				if(attributes[k] != null && attributes[k].getName().equals(attributeName)) { isAlreadyAdded = true; }
+			}
+			
+			if(!isAlreadyAdded) {
+				for(int k = 0; k < NUM_ATTRIBUTES; k++) {
+					if(attributes[k] == null)  {
+						attributes[k] = new GlazeAttribute(attributeName);
+						break;
+					}
 				}
 			}
+			updateAttributes();
 		}
-		updateAttributes();
 	}
 	private void parseAttributes()
 	{
@@ -576,7 +626,7 @@ public class GlazeEditPanel extends JPanel
 	{
 		attributesPanel.removeAll();
 		
-		attributesPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Glaze Attributes")));
+		attributesPanel.setBorder(new TitledBorder("Glaze Attributes"));
 	    attributesPanel.setLayout(new BorderLayout());
 	    
 		JPanel lowerPanel = new JPanel();
@@ -626,7 +676,7 @@ public class GlazeEditPanel extends JPanel
 		
 		public void displayMsg(String msg, int msgType)
 		{
-			messageField.setText(msg);
+			messageField.setText("\t" + msg);
 			if(msgType == ERROR_MESSAGE) {
 				messageField.setBackground(new Color(255, 179, 179)); // Red Color
 				addExitButton();
@@ -634,12 +684,13 @@ public class GlazeEditPanel extends JPanel
 				messageField.setBackground(new Color(255, 240, 179)); // Yellow Color
 				addExitButton();
 			} else if(msgType == GENERAL_MESSAGE) {
-				messageField.setBackground(new Color(204, 255, 221)); // Green Color
+				messageField.setBackground(new Color(125, 255, 104)); // Green Color
 				addExitButton();
 			} else {
 				messageField.setBackground(Color.LIGHT_GRAY);
 				removeExitButton();
 			}
+			messageField.setForeground(Color.BLACK);
 			validate();
 			repaint();
 		}
@@ -666,7 +717,8 @@ public class GlazeEditPanel extends JPanel
 		{
 			setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), new EtchedBorder()));
 			this.attributeName = attributeName;
-			label = new JLabel(attributeName+"   ");
+			label = new JLabel(attributeName);
+			label.setHorizontalAlignment(SwingConstants.CENTER);
 			label.setOpaque(true);
 			label.setBackground(Color.WHITE);
 			
@@ -706,6 +758,7 @@ public class GlazeEditPanel extends JPanel
 		private  boolean noAmt = false;
 		
 		private final Color unsavedColor = new Color(255, 240, 179);
+		private final Color errorColor = new Color(255, 179, 179);
 		private final Color savedColor = Color.WHITE;
 		
 		public ComponentPanel(boolean isAdd)
@@ -745,12 +798,12 @@ public class GlazeEditPanel extends JPanel
 			      public void focusGained(FocusEvent e) 
 			      {
 			    	  componentField.setBackground(unsavedColor);
+			    	  componentField.select(0, componentField.getText().length());
 			      }
 
 			      public void focusLost(FocusEvent e) 
 			      {
 			    	  try{
-			    		    System.out.println("FocusEvent Performed in component field...");
 			    		    String newName = componentField.getText().trim();
 							comp.setName(newName);
 							if( newName != null && !newName.equals("")) { isEmpty = false; noName = false; }
@@ -765,18 +818,15 @@ public class GlazeEditPanel extends JPanel
 									recipe.addComponent(comp);
 									updateComponentsPanel(false);
 								}
-								System.out.println("Updated GlazeRecipe");
 							}
-							
 			    	  } catch(Exception ex) {
-			    		  System.out.println("Error updated when focus lost in component field ...");
+			    		  messagePanel.displayMsg("Error updating recipe file ...", MessagePanel.ERROR_MESSAGE);
 			    	  }
 			      }
 			});
 			componentField.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e)
 				{
-					System.out.println("ActionEvent Performed in component field...");
 					comp.setName(componentField.getText().trim());
 					if(comp.getName() != null && !comp.getName().equals("")) { isEmpty = false; noName = false; }
 					
@@ -789,7 +839,6 @@ public class GlazeEditPanel extends JPanel
 							recipe.addComponent(comp);
 							updateComponentsPanel(false);
 						}
-						System.out.println("Updated GlazeRecipe");
 					}
 				}
 			});
@@ -800,18 +849,17 @@ public class GlazeEditPanel extends JPanel
 			      public void focusGained(FocusEvent e) 
 			      { 
 			    	  amtField.setBackground(unsavedColor);
+			    	  componentField.select(0, componentField.getText().length());
 			      }
 
 			      public void focusLost(FocusEvent e) 
 			      {
 			    	  try{
-			    		  System.out.println("Focus lost in amt field");
 			    		  try{
 								double newAmt = Double.parseDouble(amtField.getText());
 								comp.setAmount(newAmt);
 							} catch(Exception ex) {
-								System.out.println("Error in amount input");
-								amtField.setText("");
+								messagePanel.displayMsg("Amount must be a valid integer!", MessagePanel.ERROR_MESSAGE);
 							}
 							if(comp.getAmount() < 0)
 							{
@@ -831,13 +879,11 @@ public class GlazeEditPanel extends JPanel
 										recipe.addComponent(comp);
 										updateComponentsPanel(false);
 									}
-									System.out.println("Updated GlazeRecipe");
 								}
 							}
 			    	  } catch(Exception ex2) {
-			    		  System.out.println("Error updating when focus lost in add field");
-			    	  }
-			    	  
+			    		 messagePanel.displayMsg("Error updating the recipe file ...", MessagePanel.ERROR_MESSAGE);
+			    	  }  
 			      }
 			});
 			amtField.addActionListener(new ActionListener(){
@@ -847,8 +893,7 @@ public class GlazeEditPanel extends JPanel
 						double newAmt = Double.parseDouble(amtField.getText());
 						comp.setAmount(newAmt);
 					} catch(Exception ex) {
-						System.out.println("Error in amount input");
-						amtField.setText("");
+						messagePanel.displayMsg("Amount must be a valid integer!", MessagePanel.ERROR_MESSAGE);
 					}
 					if(comp.getAmount() < 0)
 					{
@@ -867,7 +912,6 @@ public class GlazeEditPanel extends JPanel
 								recipe.addComponent(comp);
 								updateComponentsPanel(false);
 							}
-							System.out.println("Updated GlazeRecipe");
 						}
 					}
 				}
@@ -911,6 +955,9 @@ public class GlazeEditPanel extends JPanel
 			setBorder(BorderFactory.createEtchedBorder());
 			this.firingType = firingType;
 			label = new JLabel(firingType);
+			label.setOpaque(true);
+			label.setBackground(Color.WHITE);
+			
 			button = new JButton();
 			button.setIcon(new ImageIcon("exit_icon.png"));
 			button.setPreferredSize(new Dimension(20,20));

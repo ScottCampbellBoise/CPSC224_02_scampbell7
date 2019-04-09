@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 
@@ -37,11 +38,42 @@ public class PDF_Generator_v2 {
 	
 	public static void main(String[] args)
 	{
-		new PDF_Generator_v2();
+		new PDF_Generator_v2().generateTestPage();
 		System.out.println("Finished v2...");
 	}
 	
 	public PDF_Generator_v2()
+	{
+		
+	}
+	
+	/**
+	 * Returns whether or not an image export was successful
+	 * @param destinationPath
+	 * @return
+	 */
+	public boolean saveRecipeAsPDF(GlazeRecipe recipe, String destinationPath)
+	{
+		return false;
+		/**
+		try{
+			Document document = new Document();
+			File tempFile = new File(destinationPath);
+			tempFile.createNewFile();
+		    FileOutputStream fop = new FileOutputStream(tempFile);
+		    PdfWriter writer = PdfWriter.getInstance(document, fop);
+		    document.open(); 
+			new GlazePage(document, writer, recipe);
+		    document.close();
+		    return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		*/
+	}
+	
+	public void generateTestPage()
 	{
 		try{
 			createGlazePage();
@@ -435,13 +467,14 @@ public class PDF_Generator_v2 {
 					}
 				}
 			}
-			
-			
-			
 			return all;
 		}
 		private String parseIngredientNames(GlazeComponent[] comps)
 		{
+			if(comps == null)
+			{
+				return "No Ingredients Listed";
+			}
 			String names = "";
 			for(int k=0; k< comps.length; k++)
 			{
@@ -451,6 +484,10 @@ public class PDF_Generator_v2 {
 		}
 		private String parseIngredientAmts(GlazeComponent[] comps)
 		{
+			if(comps == null)
+			{
+				return "0.0";
+			}
 			String amts = "";
 			for(int k=0; k< comps.length; k++)
 			{
@@ -470,9 +507,11 @@ public class PDF_Generator_v2 {
 		{
 			String atms = "";
 			String[] firings = recipe.getFiringAttribute();
-			if(firings.length > 2)
-			{
-				for(int k = 0; k < firings.length - 1; k++) { atms += firings[k].trim() + ", "; }
+			
+			if(firings.length > 2) {
+				for(int k = 0; k < firings.length - 1; k++) { 
+					atms += firings[k].trim() + ", "; 
+				}
 				atms += "& " + firings[firings.length - 1].trim();
 			} else {
 				if(firings.length == 1) {
