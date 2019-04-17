@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 public class GlazeGUI extends JFrame
 {
@@ -16,12 +17,8 @@ public class GlazeGUI extends JFrame
 	 * 
 	 * GlazeEditPanel ...
 	 * 		Check if the user has editing privlages before allowing them to make changes - IF TIME!!!
-	 * 				Check if the components add up to 100. If not, offer a button to scale to 100
-	 * 
-	 * Update GlazeRecipePanel
-	 * 		change fonts to be more appealing
-	 * 		update the image to be what would be outputed - create PDF file and display that?
-	 * 
+	 * 		Check if the components add up to 100. If not, offer a button to scale to 100
+
 	 * Make a 'main page' 
 	 * 		has a sign in option that allows the user to edit the recipes - IF TIME!!!
 	 * 		has a search bar to find a glaze
@@ -30,8 +27,6 @@ public class GlazeGUI extends JFrame
 	 */
 	
 	GlazeSearchPanel glazeSearchPanel;
-	GlazeRecipePanel testPanel;
-	GlazeRecipePanel testPanel2;
 	GlazeEditPanel editPanel;
 	GlazeEditPanel editPanel2;
 	GlazeEditPanel editPanel3;
@@ -41,13 +36,13 @@ public class GlazeGUI extends JFrame
 	
 	
 	public static void main(String[] args)
-	{
+	{			
 		new GlazeGUI();
 	}
 	
 	
 	public GlazeGUI()
-	{
+	{	
 		setTitle("Glaze Catalog - Search for a Glaze");
 		setSize(540,360);
 		setResizable(true);
@@ -55,9 +50,9 @@ public class GlazeGUI extends JFrame
 			
 		GlazeRecipe baldwinGreen = new GlazeRecipe("Glaze Recipes/Baldwin Green");
 		
-		glazeSearchPanel = new GlazeSearchPanel();
-		editPanel = new GlazeEditPanel(baldwinGreen);
-		editPanel2 = new GlazeEditPanel();
+		//glazeSearchPanel = new GlazeSearchPanel();
+		//editPanel = new GlazeEditPanel(baldwinGreen);
+		//editPanel2 = new GlazeEditPanel();
 		editPanel3 = new GlazeEditPanel(new GlazeRecipe("Glaze Recipes/Baldwin Blue"));
 
 		//add(glazeSearchPanel);

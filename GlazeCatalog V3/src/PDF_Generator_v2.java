@@ -54,8 +54,6 @@ public class PDF_Generator_v2 {
 	 */
 	public boolean saveRecipeAsPDF(GlazeRecipe recipe, String destinationPath)
 	{
-		return false;
-		/**
 		try{
 			Document document = new Document();
 			File tempFile = new File(destinationPath);
@@ -70,7 +68,6 @@ public class PDF_Generator_v2 {
 			e.printStackTrace();
 			return false;
 		}
-		*/
 	}
 	
 	public void generateTestPage()

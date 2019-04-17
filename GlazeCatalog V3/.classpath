@@ -37,5 +37,6 @@
 	<classpathentry kind="lib" path="/Users/ScottCampbell/Desktop/School/Coding Projects/Libraries/IText Files/kernel-7.1.4.jar"/>
 	<classpathentry kind="lib" path="/Users/ScottCampbell/Desktop/School/Coding Projects/Libraries/IText Files/styled-xml-parser-7.1.4.jar"/>
 	<classpathentry kind="lib" path="/Users/ScottCampbell/Desktop/School/Coding Projects/Libraries/IText Files/itextpdf-5.4.0.jar"/>
+	<classpathentry kind="lib" path="/Users/ScottCampbell/Desktop/School/Coding Projects/Libraries/seaglasslookandfeel-0.2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

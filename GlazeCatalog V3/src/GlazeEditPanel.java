@@ -12,8 +12,11 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -48,6 +51,11 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class GlazeEditPanel extends JPanel
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private GlazeRecipe recipe;
 		
 	String[] lowerConeArray = {"010-","09","08","07","06","05","04","03","02","01","1","2","3","4","5","6","7","8","9","10","11"};
@@ -87,10 +95,9 @@ public class GlazeEditPanel extends JPanel
 	private final String[] ILLEGAL_CHARACTERS = { ".", "/", "\n", "\r", "\t", "\0", "\f", "`", "?", "*", "\\", "<", ">", "|", "\"", ":" };
 
 	private PDF_Generator_v2 pdf_generator = new PDF_Generator_v2();
-			
 
 	public GlazeEditPanel() // new glaze constructor
-	{
+	{	
 		this.recipe = new GlazeRecipe();
 		createPanel();
 		validate();
@@ -148,7 +155,7 @@ public class GlazeEditPanel extends JPanel
 				}
 			}
 		});
-		s
+		
 		firingPanel = new JPanel();
 		firingPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder("Firing Types")));
 		firingContents = parseFiring();
@@ -182,7 +189,6 @@ public class GlazeEditPanel extends JPanel
 		
 		componentPanel = new JPanel();
 		componentPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Components")));
-		components = parseComponents(recipe.getComponents(), false);
 		components = parseComponents(recipe.getComponents(), false);
 		if(components == null){
 			componentPanel.setLayout(new GridLayout(5,1));
@@ -358,14 +364,42 @@ public class GlazeEditPanel extends JPanel
 		int returnVal = chooser.showOpenDialog(this);
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = chooser.getSelectedFile();
-			try{
-				BufferedImage buffImage = ImageIO.read(file);
-				String desc = "No desc ...";
-				
-				//OPEN A NEW JPANEL TO RESIZE/CROP THE IMAGE AND GET DESC !!!
-				
-				recipe.addPhoto(new GlazePhoto(file.getAbsolutePath(),buffImage, desc));
-				messagePanel.displayMsg("Successfully added the selected image!", MessagePanel.GENERAL_MESSAGE);
+			try{				
+				CropPhotoPanel cpp = new CropPhotoPanel(file.getAbsolutePath());
+				cpp.addWindowListener(new WindowListener() {
+			        @Override
+			        public void windowClosing(WindowEvent e) {
+			            if(cpp.getIsSaved()) {
+			            	BufferedImage buffImage = cpp.getImage();
+							String desc = cpp.getDescription();
+							if(desc.trim().equals("")) { desc = "No description"; }
+							
+							recipe.addNewPhoto(buffImage, desc);
+							messagePanel.displayMsg("Successfully added the selected image!", MessagePanel.GENERAL_MESSAGE);
+			            }
+			        }
+			        @Override 
+			        public void windowClosed(WindowEvent e) {
+			        	if(cpp.getIsSaved()) {
+			            	BufferedImage buffImage = cpp.getImage();
+							String desc = cpp.getDescription();
+							if(desc.trim().equals("")) { desc = "No description"; }
+							
+							recipe.addNewPhoto(buffImage, desc);
+							messagePanel.displayMsg("Successfully added the selected image!", MessagePanel.GENERAL_MESSAGE);
+			            }
+			        }
+					@Override
+					public void windowOpened(WindowEvent e) {}
+					@Override
+					public void windowIconified(WindowEvent e) {}
+					@Override
+					public void windowDeiconified(WindowEvent e) {}
+					@Override
+					public void windowActivated(WindowEvent e) {}
+					@Override
+					public void windowDeactivated(WindowEvent e) {}
+			    });
 			} catch(Exception e) {
 				messagePanel.displayMsg("Error reading the selected image file ...", MessagePanel.ERROR_MESSAGE);
 				e.printStackTrace();
@@ -558,7 +592,9 @@ public class GlazeEditPanel extends JPanel
 			
 			for(int k = 0; k < components.length; k++)
 			{
-				compPanels[k] = new ComponentPanel(components[k], isAdd);
+				if(components[k] != null) {
+					compPanels[k] = new ComponentPanel(components[k], isAdd);
+				}
 			}
 			
 			return compPanels;
@@ -645,6 +681,7 @@ public class GlazeEditPanel extends JPanel
 	
 	private class MessagePanel extends JPanel
 	{
+		private static final long serialVersionUID = 1L;
 		private JTextField messageField;
 		private JButton exitButton;
 		
@@ -707,8 +744,9 @@ public class GlazeEditPanel extends JPanel
 			add(exitButton, BorderLayout.EAST);
 		}
 	}
-	private class GlazeAttribute extends JPanel
+	private class GlazeAttribute extends JPanel 
 	{
+		private static final long serialVersionUID = 1L;
 		private JLabel label;
 		private JButton button;
 		private String attributeName;
@@ -744,8 +782,9 @@ public class GlazeEditPanel extends JPanel
 		}
 		public String getName() {return attributeName;}
 	}
-	private class ComponentPanel extends JPanel
+	private class ComponentPanel extends JPanel 
 	{
+		private static final long serialVersionUID = 1L;
 		private  JTextField componentField;
 		private  JTextField amtField;
 		private  JButton removeButton;
@@ -944,8 +983,9 @@ public class GlazeEditPanel extends JPanel
 		public String getName() { return comp.getName(); }
 		public double getAmount() { return comp.getAmount(); } 
 	}
-	private class FiringLabel extends JPanel
+	private class FiringLabel extends JPanel 
 	{
+		private static final long serialVersionUID = 1L;
 		private JLabel label;
 		private JButton button;
 		private String firingType;
@@ -980,40 +1020,9 @@ public class GlazeEditPanel extends JPanel
 		}
 		public String getName() {return firingType;}
 	}
-	private class NewPhotoDescPanel extends JPanel
-	{
-		private int charCount;
-		private JTextField messageField;
-		private JLabel keyCount;		
-		
-		public NewPhotoDescPanel()
-		{
-			messageField = new JTextField(15);
-			keyCount = new JLabel("Char Count: ");
-			charCount = 0;
-			
-			setLayout(new BorderLayout());
-			add(new JLabel("Enter a New Description - Max. 15 Characters"), BorderLayout.NORTH);
-			add(messageField, BorderLayout.CENTER);
-			add(keyCount, BorderLayout.SOUTH);
-			
-			messageField.addKeyListener(new KeyAdapter() {
-	            public void keyReleased(KeyEvent e) {
-	                charCount = messageField.getText().length();
-	                if(charCount > 15) {
-	                	charCount = 15;
-	                	messageField.setText( messageField.getText().substring(0,15) );
-	                }
-	                keyCount.setText("Char Count: " + charCount);
-	                validate();
-	                repaint();
-	            }
-	        });  
-		}
-		public String getNewDesc() { return messageField.getText(); }
-	}
 	private class EditablePhotoPanel extends JPanel
-	{	
+	{
+		private static final long serialVersionUID = 1L;
 		private GlazePhoto[] originalPhotos;
 		private JButton prevPhotoButton;
 		private JButton nextPhotoButton;
@@ -1053,6 +1062,7 @@ public class GlazeEditPanel extends JPanel
 		private void updatePanel()
 		{
 			removeAll();
+			originalPhotos = recipe.getPhotos();
 			EditablePhoto currentPhoto = new EditablePhoto(originalPhotos[photoPosition]);
 			setLayout(new BorderLayout());
 			add(prevPhotoButton, BorderLayout.WEST);
@@ -1062,8 +1072,9 @@ public class GlazeEditPanel extends JPanel
 			repaint();
 		}
 
-		private class EditablePhoto extends JPanel
+		private class EditablePhoto extends JPanel 
 		{
+			private static final long serialVersionUID = 1L;
 			private GlazePhoto photo;
 			private String desc;
 			private BufferedImage img;

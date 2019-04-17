@@ -292,6 +292,17 @@ public class GlazeRecipe
 			temp[temp.length - 1] = newPhoto;
 			photos = temp;
 		}
+		public void addNewPhoto(BufferedImage img, String desc)
+		{
+			GlazePhoto newPhoto = new GlazePhoto(filePath + "/glaze "+ (photos.length + 1) + ".png", img, desc);
+			
+			GlazePhoto[] temp = new GlazePhoto[photos.length + 1];
+			for(int k = 0; k < photos.length; k++) {temp[k] = photos[k];}
+			temp[temp.length - 1] = newPhoto;
+			photos = temp;
+			
+			savePhotos(filePath);
+		}
 		public void setPhotoDesc(String path, String newDesc)
 		{
 			//Will set the photo description corresponding to path

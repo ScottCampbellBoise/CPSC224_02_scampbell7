@@ -8,7 +8,7 @@
 		
 		public GlazeComponent()
 		{
-			this.name = "";
+			this.name = "Name";
 			this.amount = 0;
 			this.ID = System.currentTimeMillis();
 		}

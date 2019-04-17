@@ -1,40 +1,41 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.Timer;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-/** 
- * This class should accept in a BufferedImage as an argument and allow the
- * 		user to move the photo around in a fixed region, and resize the photo
- * 		* uses a mouse listener to implement the dragging aspect and a timer 
- * 			to update the panel if the photo has been moved
- */
 public class CropPhotoPanel extends JFrame{
 	private JFrame masterFrame;
 	
 	private final int FRAME_WIDTH = 480;
-	private final int FRAME_HEIGHT = 600;
-	
-	private final int IMAGE_WIDTH = 240; // NOTE: these values are twice as large as they need to be for compression sake
+	private final int FRAME_HEIGHT = 700;
+	private final int IMAGE_WIDTH = 240;
 	private final int IMAGE_HEIGHT = 300;
+	private int imageWidth = IMAGE_WIDTH;
+	private int imageHeight = IMAGE_HEIGHT;
 	
 	private BufferedImage rawImage;
 	private String rawPath;
@@ -42,19 +43,19 @@ public class CropPhotoPanel extends JFrame{
 	private int RAW_IMAGE_HEIGHT;
 	
 	private ResizeablePhoto resizeablePhoto;
+	private NewPhotoDescPanel descPanel;
 	private JLabel photoLabel;
 	private JSlider scaleSlider;
 	
+	private boolean isSaved = false;
+	
 	public static void main(String[] args)
 	{
-		try{
-			
+		try{	
 			new CropPhotoPanel("/Users/ScottCampbell/Desktop/img.png");
 		} catch(Exception e) {
 			System.out.println("Error Reading a the file ... ");
 		}
-		
-		
 	}
 	
 	public CropPhotoPanel(String rawPath)
@@ -68,8 +69,7 @@ public class CropPhotoPanel extends JFrame{
 			setTitle("Upload a Photo");
 			setSize(FRAME_WIDTH, FRAME_HEIGHT);
 			setResizable(false);
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			
+			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);			
 			masterFrame = this;
 			
 			createPanel();
@@ -79,16 +79,17 @@ public class CropPhotoPanel extends JFrame{
 			System.out.println("Error reading in file!!!");
 		}
 	}
-	
+		
 	private void createPanel()
 	{
 		resizeablePhoto = new ResizeablePhoto();
 		
-		scaleSlider = new JSlider(JSlider.HORIZONTAL, 25, 300, 100);
+		scaleSlider = new JSlider(JSlider.HORIZONTAL, 100, 300, 100);
 		scaleSlider.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent e)
 			{
-				rawImage = getScaledImage(rawImage, RAW_IMAGE_WIDTH*scaleSlider.getValue()/100, RAW_IMAGE_HEIGHT*scaleSlider.getValue()/100);
+				imageWidth = IMAGE_WIDTH*scaleSlider.getValue()/100; 
+				imageHeight = IMAGE_HEIGHT*scaleSlider.getValue()/100;
 				resizeablePhoto.repaintPanel();
 			}
 		});
@@ -97,34 +98,43 @@ public class CropPhotoPanel extends JFrame{
 		scaleSlider.setPaintTicks(true);
 		scaleSlider.setPaintLabels(true);
 		
+		descPanel = new NewPhotoDescPanel();
+		descPanel.setBorder(new EmptyBorder(25,65,15,65));
+		
+		JButton saveButton = new JButton("Save");
+		saveButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				dispatchEvent(new WindowEvent(masterFrame, WindowEvent.WINDOW_CLOSING));
+				isSaved = true;
+			}
+		});
+		
+		JPanel configPanel = new JPanel();
+		configPanel.setLayout(new BorderLayout());
+		configPanel.add(scaleSlider, BorderLayout.NORTH);
+		configPanel.add(descPanel, BorderLayout.CENTER);
+		configPanel.add(saveButton, BorderLayout.SOUTH);
+		
 		setLayout(new BorderLayout());
 		add(resizeablePhoto, BorderLayout.CENTER);
-		add(scaleSlider, BorderLayout.SOUTH);
+		add(configPanel, BorderLayout.SOUTH);
 	}
-	private BufferedImage getScaledImage(BufferedImage srcImg, int w, int h){
-	    BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TRANSLUCENT);
-	    Graphics2D g2 = resizedImg.createGraphics();
-	    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-	    g2.drawImage(srcImg, 0, 0, w, h, null);
-	    g2.dispose();
-	    return resizedImg;
-	}
-	
-	/**
-	 * This class alters the dimensions of a photo on a JLabel
-	 */
-	private class ResizeablePhoto extends JPanel implements ActionListener
+	public boolean getIsSaved()
 	{
-		protected Timer timer;
-		private final int delay = 50;
+		return isSaved;
+	}
+	public BufferedImage getImage() { return resizeablePhoto.getCroppedPhoto(); }
+	public String getDescription() { return descPanel.getNewDesc(); }
+
+	private class ResizeablePhoto extends JPanel implements ActionListener
+	{		
+		private final int Y_OFFSET = 130;
 		
 		private int mouse_x;
 		private int mouse_y;
 		private int imgX = 0;
 		private int imgY = 0;
-		
-		private int dx;
-		private int dy;
 		
 		private final int screenColor = new Color(30, 30, 30, 200).getRGB();
 		private final int transColor = new Color(0,0,0,0).getRGB();
@@ -140,10 +150,10 @@ public class CropPhotoPanel extends JFrame{
 		    {
 		    	for(int col = 0; col < screenImg.getHeight(); col++)
 		    	{
-		    		if( col > ((screenImg.getWidth() / 2) - (IMAGE_WIDTH / 2)) &&
-		    				col < ((screenImg.getWidth() / 2) + (IMAGE_WIDTH / 2)) &&
-		    				row > ((screenImg.getHeight() / 2) - (IMAGE_HEIGHT / 2)) &&
-		    				row < ((screenImg.getHeight() / 2) + (IMAGE_HEIGHT / 2))) 
+		    		if( col > ((screenImg.getWidth() / 2) - (imageWidth / 2)) &&
+		    				col < ((screenImg.getWidth() / 2) + (imageWidth / 2)) &&
+		    				row > ((screenImg.getHeight() / 2) - (imageHeight / 2)) &&
+		    				row < ((screenImg.getHeight() / 2) + (imageHeight / 2))) 
 		    		{
 		    			screenImg.setRGB(col,row,transColor);
 		    		} else {
@@ -154,21 +164,29 @@ public class CropPhotoPanel extends JFrame{
 		    
 		    Graphics g = screenImg.getGraphics();
 		    g.setColor(Color.BLACK);
-		    g.drawRect((screenImg.getWidth() / 2) - (IMAGE_WIDTH / 2) , (screenImg.getHeight() / 2) - (IMAGE_HEIGHT / 2) , IMAGE_WIDTH, IMAGE_HEIGHT);
+		    g.drawRect((screenImg.getWidth() / 2) - (imageWidth / 2) , (screenImg.getHeight() / 2) - (imageHeight / 2) , imageWidth, imageHeight);
 		    g.dispose();
 		    
-		    imgX = (rawImage.getWidth()/2 - FRAME_WIDTH/2);
-		    imgY = (rawImage.getHeight()/2 - FRAME_HEIGHT/2); 
+		    imgX = -(imageWidth - FRAME_WIDTH)/2; // Center of the screen
+		    imgY = -(imageWidth - FRAME_HEIGHT)/2 - Y_OFFSET; // Center of the screen
 		    
 		    //timer = new Timer(delay, this);
 		    //timer.start();
 		}
 		
 		public void repaintPanel() { repaint(); }
-		
-		public void actionPerformed(ActionEvent e)
+		public void actionPerformed(ActionEvent e) { repaint(); }
+		/**
+		 *UPDATE TO BE HIGHER QUALITY...
+		 */
+		public BufferedImage getCroppedPhoto()
 		{
-			repaint();
+			Dimension size = getSize();
+	        BufferedImage img = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB);
+	        Graphics2D g2 = img.createGraphics();
+	        paint(g2);
+			BufferedImage suborig = img.getSubimage((this.getWidth() - IMAGE_WIDTH)/2, (this.getHeight() - IMAGE_HEIGHT)/2, IMAGE_WIDTH, IMAGE_HEIGHT);
+			return suborig;
 		}
 
 		@Override
@@ -176,8 +194,11 @@ public class CropPhotoPanel extends JFrame{
 		    super.paintComponent(g);
 		    
 		    //Cover the panel in a half transparent screen except for a section in the middle for the photo
-		    g.drawImage(rawImage, -imgX, -imgY, null);
-		    g.drawImage(screenImg, -(screenImg.getWidth()/2 - FRAME_WIDTH/2), -(screenImg.getHeight()/2 - FRAME_HEIGHT/2), null);
+		    g.drawImage(rawImage, imgX, imgY, imageWidth, imageHeight, null);
+		    g.drawImage(screenImg, -(screenImg.getWidth() - this.getWidth())/2, -(screenImg.getHeight() - this.getHeight())/2, null);
+		    g.setColor(Color.WHITE);
+		    g.setFont(new Font("Times", Font.BOLD, 20));
+		    g.drawString("Drag the Image to Fit", 150, 50);
 		}
 		
 		private class MyMouseListener implements MouseListener
@@ -198,32 +219,26 @@ public class CropPhotoPanel extends JFrame{
 		private class MyMouseMotionListener implements MouseMotionListener
 		{
 			public void mouseDragged(MouseEvent e) { 
-				int mouse_dx = e.getX() - mouse_x;
-		    	int mouse_dy = e.getY() - mouse_y;
+				int mouse_dx = (int)((e.getX() - mouse_x) * 0.02);
+		    	int mouse_dy = (int)((e.getY() - mouse_y) * 0.02);
 		    	
-		    	if(imgX - mouse_dx < 0)
-		    	{
+		    	if(imgX + mouse_dx + imageWidth < (FRAME_WIDTH - IMAGE_WIDTH/2) || 
+		    			imgX + mouse_dx > (IMAGE_WIDTH/2)) {
 		    		mouse_dx = 0;
 		    	}
-		    	else if (imgX - mouse_dx > rawImage.getWidth() - imgX) {
-		    		mouse_dx = 0;
+		    	if(imgY + mouse_dy + imageHeight < (FRAME_HEIGHT - Y_OFFSET - 20 - IMAGE_HEIGHT/2) || 
+		    			imgY + mouse_dy > IMAGE_HEIGHT/2 - 50) {
+		    		mouse_dy = 0;
 		    	}
 		    	
-		    	if(imgY - mouse_dy < 0)
-		    	{
-		    		mouse_dy = 0;
-		    	}
-		    	else if (rawImage.getHeight() - imgY + mouse_dy < masterFrame.getHeight()) {
-		    		mouse_dy = 0;
-		    	}
-				imgX -= mouse_dx;
-				imgY -= mouse_dx;
+				imgX += mouse_dx;
+				imgY += mouse_dy;
 				
 				repaint();
 			}
 
 			public void mouseMoved(MouseEvent e) { }
 		}
-		
+
 	}
 }
