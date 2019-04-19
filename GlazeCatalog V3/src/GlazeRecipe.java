@@ -72,7 +72,7 @@ public class GlazeRecipe
 					allPhotos[k] = new GlazePhoto(vals[0].trim(), photo, desc);
 				} catch(Exception e) {
 					e.printStackTrace();
-					System.out.println("GlazeRecipe: Error Reading Image from file: "+filePath);
+					System.out.println("GlazeRecipe: Error Reading Image from file: " + filePath + "/" + vals[0].trim());
 					//Display JOptionPane....
 				}
 			}

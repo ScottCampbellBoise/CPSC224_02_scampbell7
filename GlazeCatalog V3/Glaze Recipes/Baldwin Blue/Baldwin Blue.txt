@@ -11,4 +11,4 @@ General@
 0@
 Other@
 Baldwin Blue is stable, reliable and durable, making it very suitable for functional ware@
-Glaze Recipes/Baldwin Blue/glaze 1.png ; Cone 6 Ox. ~ Glaze Recipes/Baldwin Blue/glaze 2.png ; Cone 6-7 Ox. ~ Glaze Recipes/Baldwin Blue/glaze 3.png ; Cone 8 Ox. ~ Glaze Recipes/Baldwin Blue/glaze 4.png ; Cone 6 Red. ~ Glaze Recipes/Baldwin Blue/glaze 6.png ; dog 3!@
+Glaze Recipes/Baldwin Blue/glaze 1.png ; Cone 6 Ox. ~ Glaze Recipes/Baldwin Blue/glaze 2.png ; Cone 6-7 Ox. ~ Glaze Recipes/Baldwin Blue/glaze 3.png ; Cone 8 Ox. ~ Glaze Recipes/Baldwin Blue/glaze 4.png ; Cone 6 Red.@

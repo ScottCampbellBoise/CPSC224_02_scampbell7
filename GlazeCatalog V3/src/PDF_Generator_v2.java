@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 
 import com.itextpdf.text.Anchor;
 import com.itextpdf.text.BadElementException;
@@ -31,24 +32,30 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.text.Image;
 
 public class PDF_Generator_v2 {
-	/**
-	 * TO DO: Add a table of contents class 
-	 */
+	
+	//Constants for filtering how the PDF is created
+	public final static String FIRING_ATTRIBUTE = "firing type"; // Sorts by firing method
+	public final static String CONE_ATTRIBUTE = "cone level"; // Sorts by low, mid, and high cone ranges
+	public final static String ALPHABETICAL_ATTRIBUTE = "alphabetical"; // Sorts by alphabetical
+	
+	public ContentsSection left, right;
 	
 	
 	public static void main(String[] args)
 	{
-		new PDF_Generator_v2().generateTestPage();
+		new PDF_Generator_v2();
 		System.out.println("Finished v2...");
 	}
 	
 	public PDF_Generator_v2()
 	{
-		
+		//createCatalog(ALPHABETICAL_ATTRIBUTE);
+		createCatalog(CONE_ATTRIBUTE);
+		//generateTestPage();
 	}
 	
 	/**
-	 * Returns whether or not an image export was successful
+	 * Returns whether or not a single recipe export was successful
 	 * @param destinationPath
 	 * @return
 	 */
@@ -69,8 +76,224 @@ public class PDF_Generator_v2 {
 			return false;
 		}
 	}
+		
+	/**
+	 * UPDATE TO BE MORE CAREFUL ABOUT THE NUMBER OF RECIPES AND FITTING ON 1 OR 2 ... PAGES
+	 */
+	public boolean createCatalog(String primaryAttribute)
+	{
+		//upload all the GlazeRecipes into a single array
+		GlazeRecipe[] allRecipes = uploadRecipes();
+		if(primaryAttribute.equals(FIRING_ATTRIBUTE))
+		{
+			SortedRecipeSet srs = sortByFiring(allRecipes);
+			//Create Catalog
+			
+			
+			return true;
+		} else if(primaryAttribute.equals(CONE_ATTRIBUTE)) {
+			SortedRecipeSet srs = sortByCone(allRecipes);
+			//Create Catalog
+			ContentsSection cs = new ContentsSection("Low Fire Glazes", srs.getSet(0), ContentsSection.PRIMARY_SECTION, 
+					new ContentsSection("Mid Range Glazes", srs.getSet(1), ContentsSection.PRIMARY_SECTION,
+							new ContentsSection("High Fire Glazes", srs.getSet(2), ContentsSection.PRIMARY_SECTION, null)));
+			generatePDF(srs.getAllInOrder(), cs, null);
+			return true;
+		} else if (primaryAttribute.equals(ALPHABETICAL_ATTRIBUTE)) {
+			SortedRecipeSet srs = sortAlphabetically(allRecipes);
+			//Create Catalog
+			
+			return true;
+		}
+		return false;
+	}
+	public boolean createCatalog(String primaryAttribute, String secondaryAttribute)
+	{
+		//upload all the GlazeRecipes into a single array
+		GlazeRecipe[] allRecipes = uploadRecipes();
+		
+		if(primaryAttribute.equals(FIRING_ATTRIBUTE)) {
+			SortedRecipeSet srs1 = sortByFiring(allRecipes);
+			if(secondaryAttribute.equals(CONE_ATTRIBUTE)) {
+				SortedRecipeSet srs2_1 = sortByCone(srs1.getSet(0));
+				SortedRecipeSet srs2_2 = sortByCone(srs1.getSet(1));
+				SortedRecipeSet srs2_3 = sortByCone(srs1.getSet(2));
+				//Create Glaze Page
+				return true;
+			} else if(secondaryAttribute.equals(ALPHABETICAL_ATTRIBUTE)) { 
+				SortedRecipeSet srs2_1 = sortAlphabetically(srs1.getSet(0));
+				SortedRecipeSet srs2_2 = sortAlphabetically(srs1.getSet(1));
+				SortedRecipeSet srs2_3 = sortAlphabetically(srs1.getSet(2));
+				//Create Glaze Page
+				return true;
+			} 
+		} else if(primaryAttribute.equals(CONE_ATTRIBUTE)) {
+			SortedRecipeSet srs1 = sortByCone(allRecipes);
+			
+			if(secondaryAttribute.equals(ALPHABETICAL_ATTRIBUTE)) { 
+				SortedRecipeSet srs2_1 = sortAlphabetically(srs1.getSet(0));
+				SortedRecipeSet srs2_2 = sortAlphabetically(srs1.getSet(1));
+				SortedRecipeSet srs2_3 = sortAlphabetically(srs1.getSet(2));
+				//Create Glaze Page
+				return true;
+			} else if(secondaryAttribute.equals(FIRING_ATTRIBUTE)) {
+				SortedRecipeSet srs2_1 = sortByFiring(srs1.getSet(0));
+				SortedRecipeSet srs2_2 = sortByFiring(srs1.getSet(1));
+				SortedRecipeSet srs2_3 = sortByFiring(srs1.getSet(2));
+				//Create Glaze Page
+				return true;
+			}
+		} else if (primaryAttribute.equals(ALPHABETICAL_ATTRIBUTE)) {
+			SortedRecipeSet srs1 = sortAlphabetically(allRecipes);
+			
+			if(secondaryAttribute.equals(CONE_ATTRIBUTE)) {
+				SortedRecipeSet srs2_1 = sortByCone(srs1.getSet(0));
+				//Create Glaze Page
+				return true;
+			} else if(secondaryAttribute.equals(FIRING_ATTRIBUTE)) {
+				SortedRecipeSet srs2_1 = sortByFiring(srs1.getSet(0));
+				//Create Glaze Page
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
+	 * IMPLEMENT
+	 */
+	public boolean createCatalog(String primaryAttribute, String secondaryAttribute, String tertiaryAttribute)
+	{
+		return false;
+	}
 	
-	public void generateTestPage()
+	private GlazeRecipe[] uploadRecipes()
+	{
+		File directory = new File("Glaze Recipes/");
+		ArrayList<GlazeRecipe> allRecipes = new ArrayList<GlazeRecipe>();
+
+		File[] fList = directory.listFiles();
+	    if(fList != null) {
+	        for (File file : fList) {      
+	            if (file.isDirectory()) { allRecipes.add(new GlazeRecipe(file.getAbsolutePath())); }
+	        }
+	    }
+		GlazeRecipe[] recipeAry = new GlazeRecipe[allRecipes.size()];
+		recipeAry = allRecipes.toArray(recipeAry);
+	  
+		return recipeAry;
+	}
+	private SortedRecipeSet sortByCone(GlazeRecipe[] recipes)
+	{
+		SortedRecipeSet srs = new SortedRecipeSet(recipes.length, 3);
+		GlazeRecipe[] lowFireArray = new GlazeRecipe[recipes.length];
+		GlazeRecipe[] midFireArray = new GlazeRecipe[recipes.length];
+		GlazeRecipe[] highFireArray = new GlazeRecipe[recipes.length];
+		int lowCount = 0, midCount = 0, highCount = 0;
+		
+		for(GlazeRecipe gr : recipes) {
+			String f = gr.getLowerCone().trim();
+			
+			if(f.equals("010-") || f.equals("09") || f.equals("08") || f.equals("07") || f.equals("06") 
+					|| f.equals("05") || f.equals("04") || f.equals("03") || f.equals("02") || f.equals("01")
+					|| f.equals("1") || f.equals("2") || f.equals("3")) { // Low Fire Glaze
+				lowFireArray[lowCount] = gr;
+				lowCount++;
+			} else if(f.equals("4") || f.equals("5") || f.equals("6") || f.equals("7") || f.equals("8")) {
+				midFireArray[midCount] = gr;
+				midCount++;
+			} else {
+				highFireArray[highCount] = gr;
+				highCount++;
+			}
+		}
+		srs.setSet(lowFireArray, 0);
+		srs.setSet(midFireArray, 1);
+		srs.setSet(highFireArray, 2);
+		
+		return srs;
+	}
+	private SortedRecipeSet sortByFiring(GlazeRecipe[] recipes)
+	{
+		SortedRecipeSet srs = new SortedRecipeSet(recipes.length, 3);
+		GlazeRecipe[] oxArray = new GlazeRecipe[recipes.length];
+		GlazeRecipe[] redArray = new GlazeRecipe[recipes.length];
+		GlazeRecipe[] otherArray = new GlazeRecipe[recipes.length];
+		
+		int oxCount = 0, redCount = 0, otherCount = 0;
+		
+		for(GlazeRecipe gr : recipes) {
+			String f = gr.getFiringAttribute()[0].trim();
+			if(f.equals("Ox.")) {
+				oxArray[oxCount] = gr;
+				oxCount++;
+			} else if(f.equals("Red.")) {
+				redArray[redCount] = gr;
+				redCount++;
+			} else {
+				otherArray[otherCount] = gr;
+				otherCount++;
+			}
+		}
+		srs.setSet(oxArray, 0);
+		srs.setSet(redArray, 1);
+		srs.setSet(otherArray, 2);
+		return srs;
+	}
+	private SortedRecipeSet sortAlphabetically(GlazeRecipe[] recipes)
+	{
+		boolean isSwapped = false;
+		do {
+		    isSwapped = false;
+		    for(int i=0;i<recipes.length-1;i++){
+		        if(recipes[i].getName().compareTo(recipes[i+1].getName())>0){
+		            GlazeRecipe temp = recipes[i+1];
+		            recipes[i+1] = recipes[i];
+		            recipes[i] = temp;
+		            isSwapped = true;
+		        }
+		    }
+		}while((isSwapped));
+		SortedRecipeSet srs = new SortedRecipeSet(recipes.length, 1);
+		srs.setSet(recipes, 0);
+		
+		return srs;
+	}
+	
+	private void generatePDF(GlazeRecipe[] orderedRecipes, ContentsSection left, ContentsSection right)
+	{
+		try{
+			Document document = new Document();
+		    File file = new File("/Users/ScottCampbell/Desktop/Test PDF/testPDF.pdf");
+		    file.createNewFile();
+		    FileOutputStream fop = new FileOutputStream(file);
+		    PdfWriter writer = PdfWriter.getInstance(document, fop);
+		    document.open(); 
+			
+		    new GlazeTitlePage(document, writer);
+		    document.newPage();
+		    
+		    new TableOfContents(document, writer, orderedRecipes.length, left, right);
+		    document.newPage();
+		    
+		    for(int k = 0; k < orderedRecipes.length; k += 2) {
+		    	if(k + 1 >= orderedRecipes.length) {
+		    		new GlazePage(document, writer, orderedRecipes[k]);
+		    	} else {
+		    		new GlazePage(document, writer, orderedRecipes[k], orderedRecipes[k+1]);
+		    	}
+		    	document.newPage();
+
+		    }
+		    
+		    document.close();
+		     
+		} catch(Exception e) {
+			System.out.println("Error generating the PDF!");
+			e.printStackTrace();
+		}
+	}
+	
+	private void generateTestPage()
 	{
 		try{
 			createGlazePage();
@@ -79,14 +302,13 @@ public class PDF_Generator_v2 {
 			System.out.println("ERROR !!!!");
 		}
 	}
-	
 	public void createGlazePage() throws Exception
 	{
-		GlazeRecipe baldwinGreen = new GlazeRecipe("Glaze Recipes/Baldwin Green/Baldwin Green.txt");
-		GlazeRecipe baldwinBlue = new GlazeRecipe("Glaze Recipes/Baldwin Blue/Baldwin Blue.txt");
-		GlazeRecipe pinnelSeafoam = new GlazeRecipe("Glaze Recipes/Pinnell Seafoam/Pinnell Seafoam.txt");
-		GlazeRecipe clausenOpalBlue = new GlazeRecipe("Glaze Recipes/Clausen Opal Blue/Clausen Opal Blue.txt");
-		GlazeRecipe yellowBrownOpal = new GlazeRecipe("Glaze Recipes/Yellow Brown Opal/Yellow Brown Opal.txt");
+		GlazeRecipe baldwinGreen = new GlazeRecipe("Glaze Recipes/Baldwin Green");
+		GlazeRecipe baldwinBlue = new GlazeRecipe("Glaze Recipes/Baldwin Blue");
+		GlazeRecipe pinnelSeafoam = new GlazeRecipe("Glaze Recipes/Pinnell Seafoam");
+		GlazeRecipe clausenOpalBlue = new GlazeRecipe("Glaze Recipes/Clausen Opal Blue");
+		GlazeRecipe yellowBrownOpal = new GlazeRecipe("Glaze Recipes/Yellow Brown Opal");
 		
 		Document document = new Document();
 	    //Create new File
@@ -98,6 +320,9 @@ public class PDF_Generator_v2 {
 		
 	    new GlazeTitlePage(document, writer);
 	    document.newPage();
+	    
+	    //new TableOfContents(document, writer, 26);
+	    //document.newPage();
 	    
 		new GlazePage(document, writer, baldwinGreen, baldwinBlue);
 		new GlazePageFooter(writer, "Mid-Range Glazes", "Gonzaga University Glaze Catalog", "Page 1");
@@ -160,17 +385,147 @@ public class PDF_Generator_v2 {
 	 */
 	private class TableOfContents
 	{
-		private GlazeRecipe[] lowFireRecipes;
-		private GlazeRecipe[] midFireRecipes;
-		private GlazeRecipe[] highFireRecipes;
+		// The table of contents page is to be seperated into two collumns - each can hold up to ~30 names and pages 
+		// if the number of recipes is greater than 60, add another page.
 		
-		/**
-		 * @param glazeRootFile - the file that contains all of the glaze recipes
-		 */
-		public TableOfContents(Document document, PdfWriter writer, File glazeRootFile)
+		private Document document;
+		private PdfWriter writer;
+		
+		private final int PAGE_WIDTH = 595;							// The width of the Page in pixels
+		private final int TITLE_START_Y = 760;						// Starting position of the Table of Contents Title
+		private final int CONTENTS_START_Y = 660;					// Starting position of the glaze names and page numbers
+		private final int CONTENTS_BUFFER_X  = 50;					// Buffer for where the contents are to be written
+		
+		private final Font titleFont = new Font(Font.FontFamily.HELVETICA, 22, Font.NORMAL);
+		private final Font contentFont = new Font(Font.FontFamily.HELVETICA, 11, Font.NORMAL);
+		private final Font primarySectionFont = new Font(Font.FontFamily.HELVETICA, 16, Font.ITALIC);
+		private final Font secondarySectionFont = new Font(Font.FontFamily.HELVETICA, 14, Font.ITALIC);
+		private final Font tertiarySectionFont = new Font(Font.FontFamily.HELVETICA, 12, Font.ITALIC);
+		
+		public TableOfContents(Document document, PdfWriter writer, int numRecipes, ContentsSection left, ContentsSection right) throws Exception
 		{
-			//Seperate the recipes into low, mid and high firing range
-			//		create pages out of each 
+			this.document = document;
+			this.writer = writer;
+			
+			//Create the first table of contents page
+			PdfContentByte cb = writer.getDirectContent();
+			ColumnText ct1 = new ColumnText(cb); // Table of Contents Title
+			
+			Phrase tableTitle = new Phrase();		tableTitle.setFont(titleFont);
+			
+			tableTitle.add(new Chunk("TABLE OF CONTENTS"));
+			LineSeparator ls1 = new LineSeparator();
+			LineSeparator ls2 = new LineSeparator();
+			LineSeparator ls3 = new LineSeparator();
+			ls1.drawLine(cb, 100, PAGE_WIDTH - 100, TITLE_START_Y - 55);
+			ls2.drawLine(cb, 125, PAGE_WIDTH - 125, TITLE_START_Y - 59);
+			ls3.drawLine(cb, 150, PAGE_WIDTH - 150, TITLE_START_Y - 63);
+		    ct1.setSimpleColumn(tableTitle, 0, TITLE_START_Y, PAGE_WIDTH, 0, 15, Element.ALIGN_CENTER);
+		    ct1.go();
+		    
+		    new GlazePageFooter(writer, "Table of Contents", "Gonzaga University Glaze Catalog", "");
+		    
+		    fillPage(left,right);
+		}
+		
+		//NOTE: When creating the two sections, they should only have ~30 glazes and is read from left to right
+		private void fillPage(ContentsSection left, ContentsSection right) throws Exception
+		{
+			PdfContentByte cb = writer.getDirectContent();
+			ColumnText ct1 = new ColumnText(cb); // left side names
+			ColumnText ct2 = new ColumnText(cb); // left side numbers
+			ColumnText ct3 = new ColumnText(cb); // right side names
+			ColumnText ct4 = new ColumnText(cb); // right side numbers
+			
+			Phrase names = new Phrase();
+			Phrase numbers = new Phrase();
+			Phrase namesRight = new Phrase();
+			Phrase numbersRight = new Phrase();
+						
+			String indent = "";
+			double curNum = 1;
+			
+			while(left != null) {
+				//Get Section Type and print its section name
+				if(left.getSectionType() == ContentsSection.PRIMARY_SECTION) { 
+					names.setFont(primarySectionFont); numbers.setFont(primarySectionFont);
+					names.add(left.getSectionName().toUpperCase() + "\n\n");
+					numbers.add(" \n\n");
+				} else if(left.getSectionType() == ContentsSection.SECONDARY_SECTION) { 
+					names.setFont(secondarySectionFont); numbers.setFont(secondarySectionFont);
+				} else if(left.getSectionType() == ContentsSection.TERTIARY_SECTION) { 
+					names.setFont(tertiarySectionFont); numbers.setFont(tertiarySectionFont);
+					names.add(left.getSectionName().toUpperCase() + "\n\n");
+					numbers.add(" \n\n");
+				}
+				
+				//print recipe contents
+				names.setFont(contentFont);
+				numbers.setFont(contentFont);
+	
+				String parsedNames = "";
+				String parsedNums = "";
+				GlazeRecipe[] leftRecipes = left.getSectionRecipes();
+				for(GlazeRecipe gr : leftRecipes) {
+					parsedNames += indent + gr.getName() + "\n";
+					parsedNums += "" + (int)curNum + "\n";
+					curNum += 0.5;
+				}
+				Chunk nameContentChunk = new Chunk(parsedNames);
+				Chunk numContentChunk = new Chunk(parsedNums);
+				nameContentChunk.setLineHeight(18); // This should be the same as commentsFont's size + spacing!
+				numContentChunk.setLineHeight(18); // This should be the same as commentsFont's size + spacing!
+				names.add(nameContentChunk);
+				numbers.add(numContentChunk);
+	
+				//check for a subsection
+				left = left.getSubsection();
+			}
+			while(right != null) {
+				//Get Section Type and print its section name
+				if(right.getSectionType() == ContentsSection.PRIMARY_SECTION) { 
+					namesRight.setFont(primarySectionFont); numbersRight.setFont(primarySectionFont);
+					namesRight.add(right.getSectionName().toUpperCase() + "\n\n");
+					numbersRight.add(" \n\n");
+				} else if(right.getSectionType() == ContentsSection.SECONDARY_SECTION) { 
+					namesRight.setFont(secondarySectionFont); numbersRight.setFont(secondarySectionFont);
+					namesRight.add(right.getSectionName().toUpperCase() + "\n\n");
+					numbersRight.add(" \n\n");	
+				} else if(right.getSectionType() == ContentsSection.TERTIARY_SECTION) { 
+					namesRight.setFont(tertiarySectionFont); numbersRight.setFont(tertiarySectionFont);
+					namesRight.add(right.getSectionName().toUpperCase() + "\n\n");
+					numbersRight.add(" \n\n");
+				} 
+				
+				//print recipe contents
+				namesRight.setFont(contentFont);
+				numbersRight.setFont(contentFont);
+	
+				String parsedNames = "";
+				String parsedNums = "";
+				GlazeRecipe[] rightRecipes = right.getSectionRecipes();
+				for(GlazeRecipe gr : rightRecipes) {
+					parsedNames += indent + gr.getName() + "\n";
+					parsedNums += "" + (int)curNum + "\n";
+					curNum += 0.5;
+				}
+				Chunk nameContentChunkRight = new Chunk(parsedNames);
+				Chunk numContentChunkRight = new Chunk(parsedNums);
+				nameContentChunkRight.setLineHeight(18); // This should be the same as commentsFont's size + spacing!
+				numContentChunkRight.setLineHeight(18); // This should be the same as commentsFont's size + spacing!
+				namesRight.add(nameContentChunkRight);
+				numbersRight.add(numContentChunkRight);
+	
+				//check for a subsection
+				right = right.getSubsection();
+			}
+			
+			ct1.setSimpleColumn(names, CONTENTS_BUFFER_X, CONTENTS_START_Y, PAGE_WIDTH, 0, 15, Element.ALIGN_LEFT);
+			ct2.setSimpleColumn(numbers, CONTENTS_BUFFER_X, CONTENTS_START_Y, PAGE_WIDTH/2 - 40, 0, 15, Element.ALIGN_RIGHT);
+			ct3.setSimpleColumn(namesRight, PAGE_WIDTH/2 + 40, CONTENTS_START_Y, PAGE_WIDTH, 0, 15, Element.ALIGN_LEFT);
+			ct4.setSimpleColumn(numbersRight, CONTENTS_BUFFER_X, CONTENTS_START_Y, PAGE_WIDTH - CONTENTS_BUFFER_X, 0, 15, Element.ALIGN_RIGHT);
+			ct1.go(); ct2.go(); ct3.go(); ct4.go();
+			
 		}
 	}
 	
@@ -184,7 +539,6 @@ public class PDF_Generator_v2 {
 		private final int BUFFER_X = 80;							// Buffer from the left and right side of the page
 		private final int PAGE_WIDTH = 595;							// The width of the Page in pixels
 
-		
 		private Font headerFont = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL);
 		
 		public GlazePageFooter(PdfWriter writer, String left, String center, String right) throws Exception
@@ -554,7 +908,7 @@ public class PDF_Generator_v2 {
 			
 			glazeTitle.add(new Chunk(recipe.getName().toUpperCase()));
 			LineSeparator ls5 = new LineSeparator();
-			ls5.drawLine(cb, PHOTO_BUFFER_X, PAGE_WIDTH - PHOTO_BUFFER_X, TITLE_START_Y + offset - TITLE_LINE_SPACING);
+			ls5.drawLine(cb, PHOTO_BUFFER_X - 15, PAGE_WIDTH - PHOTO_BUFFER_X  + 15, TITLE_START_Y + offset - TITLE_LINE_SPACING);
 		    ct5.setSimpleColumn(glazeTitle, PHOTO_BUFFER_X, TITLE_START_Y + offset + TITLE_LINE_SPACING, PAGE_WIDTH - PHOTO_BUFFER_X, 0, 15, Element.ALIGN_CENTER);
 		    ct5.go();
 			
@@ -657,21 +1011,104 @@ public class PDF_Generator_v2 {
 			    document.add(image1);
 			    document.add(image2);
 			} else if (photos.length == 1) { // 1 Image
-				photo1Desc.add(new Chunk(photos[0].getDesc()));
+				if(!photos[0].getPath().contains("null_image.png")){
+					photo1Desc.add(new Chunk(photos[0].getDesc()));
 
-				Image image1 = Image.getInstance(cb, photos[0].getPhoto(), 1);
-			    image1.scaleAbsolute(GLAZE_PHOTO_WIDTH, GLAZE_PHOTO_HEIGHT);
-			    image1.setAbsolutePosition(PHOTO_BUFFER_X + (GLAZE_PHOTO_WIDTH + PHOTO_SPACING)/2, PHOTO_START_Y + offset);
-			    LineSeparator ls1 = new LineSeparator();
-				ls1.drawLine(cb, PHOTO_BUFFER_X + (GLAZE_PHOTO_WIDTH + PHOTO_SPACING)/2, PHOTO_BUFFER_X + GLAZE_PHOTO_WIDTH + (GLAZE_PHOTO_WIDTH + PHOTO_SPACING)/2, PHOTO_START_Y + offset - PHOTO_DESC_LINE_SPACING);
-			    ct1.setSimpleColumn(photo1Desc, PHOTO_BUFFER_X + (GLAZE_PHOTO_WIDTH + PHOTO_SPACING)/2, PHOTO_START_Y + offset + PHOTO_DESC_SPACING, PHOTO_BUFFER_X + GLAZE_PHOTO_WIDTH + (GLAZE_PHOTO_WIDTH + PHOTO_SPACING)/2, 0, 15, Element.ALIGN_CENTER);
-			    ct1.go();
-			    
-			    document.add(image1);
+					Image image1 = Image.getInstance(cb, photos[0].getPhoto(), 1);
+				    image1.scaleAbsolute(GLAZE_PHOTO_WIDTH, GLAZE_PHOTO_HEIGHT);
+				    image1.setAbsolutePosition(PHOTO_BUFFER_X + (GLAZE_PHOTO_WIDTH + PHOTO_SPACING)/2, PHOTO_START_Y + offset);
+				    LineSeparator ls1 = new LineSeparator();
+					ls1.drawLine(cb, PHOTO_BUFFER_X + (GLAZE_PHOTO_WIDTH + PHOTO_SPACING)/2, PHOTO_BUFFER_X + GLAZE_PHOTO_WIDTH + (GLAZE_PHOTO_WIDTH + PHOTO_SPACING)/2, PHOTO_START_Y + offset - PHOTO_DESC_LINE_SPACING);
+				    ct1.setSimpleColumn(photo1Desc, PHOTO_BUFFER_X + (GLAZE_PHOTO_WIDTH + PHOTO_SPACING)/2, PHOTO_START_Y + offset + PHOTO_DESC_SPACING, PHOTO_BUFFER_X + GLAZE_PHOTO_WIDTH + (GLAZE_PHOTO_WIDTH + PHOTO_SPACING)/2, 0, 15, Element.ALIGN_CENTER);
+				    ct1.go();
+				    
+				    document.add(image1);
+				}
 			} else { // No Images
 				
 			}
 		}
 	}
 	
+	private class SortedRecipeSet
+	{
+		private GlazeRecipe[][] sortedSet;
+		
+		private String sortType;
+		
+		public SortedRecipeSet(int maxEntries, int numCategories)
+		{
+			sortedSet = new GlazeRecipe[numCategories][maxEntries];
+		}
+		
+		/**
+		 * @param setNumber - from 0 to length - 1
+		 */
+		public GlazeRecipe[] getSet(int setNumber)
+		{
+			if(setNumber < sortedSet.length && setNumber >= 0) {
+				GlazeRecipe[] all = sortedSet[setNumber];
+				int numNotNull = 0;
+				for(int k = 0; k < all.length; k++) { if (all[k] != null ) { numNotNull++; } }
+				GlazeRecipe[] condensed = new GlazeRecipe[numNotNull];
+				for(int k = 0; k < numNotNull; k++) { condensed[k] = all[k]; } 
+				return condensed;
+			}
+			return null;
+		}
+		public void setSet(GlazeRecipe[] newSet, int setNumber)
+		{
+			if(setNumber < sortedSet.length && setNumber >= 0) {
+				for(int k = 0; k < sortedSet[0].length; k++) { sortedSet[setNumber][k] = newSet[k]; }
+			}
+		}
+		public int getLength() { return sortedSet.length; }
+		public GlazeRecipe[] getAllInOrder() {
+			ArrayList<GlazeRecipe> allRecipes = new ArrayList<GlazeRecipe>();
+			for(int row = 0; row < sortedSet.length; row++) {
+				for(int col = 0; col < sortedSet[0].length; col++) {
+					if(sortedSet[row][col] != null) {
+						allRecipes.add(sortedSet[row][col]);
+					}
+				}
+			}
+			GlazeRecipe[] ordered = new GlazeRecipe[allRecipes.size()];
+			ordered = allRecipes.toArray(ordered);
+			return ordered;
+		}
+	}
+	/**
+	 * This class holds a section of the table of contents
+	 */
+	private class ContentsSection
+	{
+		//Constants for the type of section 
+		public final static int NORMAL_TEXT = 0;
+		public final static int PRIMARY_SECTION = 1;
+		public final static int SECONDARY_SECTION = 2;
+		public final static int TERTIARY_SECTION = 3;
+		
+		private GlazeRecipe[] sectionRecipes;
+		private String sectionName;
+		private int sectionType;
+		private ContentsSection subsection;
+		
+		public ContentsSection(String sectionName, GlazeRecipe[] sectionRecipes, int sectionType, ContentsSection subsection)
+		{
+			this.sectionName = sectionName;
+			this.sectionRecipes = sectionRecipes;
+			this.sectionType = sectionType;
+			this.subsection = subsection;
+		}
+		
+		public void setSectionName(String newName) { this.sectionName = newName; }
+		public void setSectionRecipes(GlazeRecipe[] newRecipes) { this.sectionRecipes = newRecipes; }
+		public void setSectionType(int newType) { this.sectionType = newType; }
+		public void setSubsection(ContentsSection newSubsection) { this.subsection = newSubsection; }
+		
+		public String getSectionName() { return this.sectionName; }
+		public GlazeRecipe[] getSectionRecipes() { return this.sectionRecipes; }
+		public int getSectionType() { return this.sectionType; }
+		public ContentsSection getSubsection() { return this.subsection; }
+	}
 }

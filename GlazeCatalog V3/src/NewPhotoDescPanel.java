@@ -41,4 +41,4 @@ public class NewPhotoDescPanel extends JPanel
         });  
 	}
 	public String getNewDesc() { return messageField.getText(); }
-}
+}	

@@ -32,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -57,6 +58,8 @@ public class GlazeEditPanel extends JPanel
 	private static final long serialVersionUID = 1L;
 
 	private GlazeRecipe recipe;
+	
+	private Color backgroundColor = UIManager.getColor("Panel.background");
 		
 	String[] lowerConeArray = {"010-","09","08","07","06","05","04","03","02","01","1","2","3","4","5","6","7","8","9","10","11"};
 	String[] upperConeArray = {"09","08","07","06","05","04","03","02","01","1","2","3","4","5","6","7","8","9","10","11","12+"};
@@ -99,20 +102,33 @@ public class GlazeEditPanel extends JPanel
 	public GlazeEditPanel() // new glaze constructor
 	{	
 		this.recipe = new GlazeRecipe();
+		setUIFont(new javax.swing.plaf.FontUIResource("Times",Font.BOLD, 12));
 		createPanel();
 		validate();
 		repaint();
 	}
 	public GlazeEditPanel(GlazeRecipe recipe) { // Edit an existing recipe
 		this.recipe = recipe;
+		setUIFont(new javax.swing.plaf.FontUIResource("Helvetica",Font.PLAIN, 12));
 		createPanel();
 		validate();
 		repaint();
 	} 
 	
+	public void setUIFont (javax.swing.plaf.FontUIResource f){
+	    java.util.Enumeration keys = UIManager.getDefaults().keys();
+	    while (keys.hasMoreElements()) {
+	      Object key = keys.nextElement();
+	      Object value = UIManager.get (key);
+	      if (value instanceof javax.swing.plaf.FontUIResource)
+	        UIManager.put (key, f);
+	      }
+	 } 
+	
 	public void createPanel()
 	{
 		titlePanel = new JPanel();
+		titlePanel.setBackground(backgroundColor);
 		titlePanel.setBorder(new EmptyBorder(10, 5, 10, 5));
 		nameField = new JTextField("  " + recipe.getName(),12);
 		nameField.setFont(new Font(nameField.getName(), Font.PLAIN, 24));
@@ -162,6 +178,7 @@ public class GlazeEditPanel extends JPanel
 		firingPanel.add(firingContents);
 		
 		coneSelectPanel = new JPanel();
+		coneSelectPanel.setBackground(backgroundColor);
 		JLabel coneLabel = new JLabel("to");
 		coneLabel.setHorizontalAlignment(JLabel.CENTER);
 		coneSelectPanel.setLayout(new GridLayout(1,3));
@@ -171,6 +188,7 @@ public class GlazeEditPanel extends JPanel
 		coneSelectPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder("Cone Range")));
 		
 		JPanel coneAndFiringPanel = new JPanel();
+		coneAndFiringPanel.setBackground(backgroundColor);
 		coneAndFiringPanel.setLayout(new GridLayout(1,2));
 		coneAndFiringPanel.add(coneSelectPanel);
 		coneAndFiringPanel.add(firingPanel);
@@ -188,6 +206,7 @@ public class GlazeEditPanel extends JPanel
 		});
 		
 		componentPanel = new JPanel();
+		componentPanel.setBackground(backgroundColor);
 		componentPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Components")));
 		components = parseComponents(recipe.getComponents(), false);
 		if(components == null){
@@ -213,6 +232,7 @@ public class GlazeEditPanel extends JPanel
 		});
 		
 		addPanel = new JPanel();
+		addPanel.setBackground(backgroundColor);
 		addPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Add")));
 		adds = parseComponents(recipe.getAdds(), true);
 		if(adds == null) {
@@ -230,6 +250,7 @@ public class GlazeEditPanel extends JPanel
 		addPanel.add(addAddButton);
 		
 		JPanel ingredientsPanel = new JPanel();
+		ingredientsPanel.setBackground(backgroundColor);
 		ingredientsPanel.setLayout(new BorderLayout());
 		ingredientsPanel.add(componentPanel, BorderLayout.CENTER);
 		ingredientsPanel.add(addPanel, BorderLayout.SOUTH);
@@ -237,11 +258,13 @@ public class GlazeEditPanel extends JPanel
 		imagePanel = new EditablePhotoPanel(recipe.getPhotos());
 		
 		JPanel ingrAndImagePanel = new JPanel();
+		ingrAndImagePanel.setBackground(backgroundColor);
 		ingrAndImagePanel.setLayout(new BorderLayout());
 		ingrAndImagePanel.add(ingredientsPanel, BorderLayout.CENTER);
 		ingrAndImagePanel.add(imagePanel, BorderLayout.EAST);
 		
 		commentsPanel = new JPanel();
+		commentsPanel.setBackground(backgroundColor);
 		commentsPanel.setLayout(new BorderLayout());
 		commentsPanel.setBorder(BorderFactory.createCompoundBorder(new TitledBorder("Comments"), new EmptyBorder(5, 5, 5, 5)));
 		commentsTextArea = new JTextArea(4,60);
@@ -252,6 +275,7 @@ public class GlazeEditPanel extends JPanel
 		commentsPanel.add(commentsTextAreaScrollPane, BorderLayout.CENTER);
 		
 	    attributesPanel = new JPanel();
+	    attributesPanel.setBackground(backgroundColor);
 	    attributesPanel.setBorder(new TitledBorder("Glaze Attributes"));
 	    addAttributeButton = new JButton("Add New Attribute");
 	    addAttributeButton.setPreferredSize(new Dimension(50,20));
@@ -265,18 +289,21 @@ public class GlazeEditPanel extends JPanel
 	    updateAttributes();
 	    
 	    JPanel commentsAndAttributesPanel = new JPanel();
+	    commentsAndAttributesPanel.setBackground(backgroundColor);
 	    commentsAndAttributesPanel.setLayout(new BorderLayout());
 	    commentsAndAttributesPanel.setBorder(new EmptyBorder(5,15,10,15));
 	    commentsAndAttributesPanel.add(commentsPanel, BorderLayout.CENTER);
 	    commentsAndAttributesPanel.add(attributesPanel, BorderLayout.SOUTH);
 		
 		allCompPanel = new JPanel();
+		allCompPanel.setBackground(backgroundColor);
 		allCompPanel.setLayout(new BorderLayout());
 		allCompPanel.add(titlePanel, BorderLayout.NORTH);
 		allCompPanel.add(ingrAndImagePanel, BorderLayout.SOUTH);
 		
 		
 		JPanel allRecipePanel = new JPanel(); // This panel holds all the glaze related items
+		allRecipePanel.setBackground(backgroundColor);
 		allRecipePanel.setLayout(new BorderLayout());
 		allRecipePanel.add(allCompPanel, BorderLayout.CENTER);
 		allRecipePanel.add(commentsAndAttributesPanel, BorderLayout.SOUTH);
@@ -307,12 +334,14 @@ public class GlazeEditPanel extends JPanel
 	
 		//Create a panel to hold the save, duplicate, and print buttons
 		JPanel modifyButtonsPanel = new JPanel();
+		modifyButtonsPanel.setBackground(backgroundColor);
 		modifyButtonsPanel.setLayout(new GridLayout(1,3));
 		modifyButtonsPanel.add( saveButton );
 		modifyButtonsPanel.add( duplicateButton );
 		modifyButtonsPanel.add( exportButton );
 		
 		JPanel modifyAndMessagePanel = new JPanel();
+		modifyAndMessagePanel.setBackground(backgroundColor);
 		modifyAndMessagePanel.setLayout(new GridLayout(2,1));
 		modifyAndMessagePanel.add(messagePanel);
 		modifyAndMessagePanel.add(modifyButtonsPanel);
@@ -690,7 +719,7 @@ public class GlazeEditPanel extends JPanel
 		private static final int WARNING_MESSAGE = 2;
 		private static final int GENERAL_MESSAGE = 3;
 		
-		public MessagePanel() {
+		public MessagePanel() {			
 			messageField = new JTextField("");
 			messageField.setEnabled(false);
 				
@@ -775,7 +804,7 @@ public class GlazeEditPanel extends JPanel
 					updateAttributes();
 				}
 			});
-		
+			
 			setLayout(new BorderLayout());
 			add(label, BorderLayout.CENTER);
 			add(button, BorderLayout.EAST);
@@ -888,7 +917,7 @@ public class GlazeEditPanel extends JPanel
 			      public void focusGained(FocusEvent e) 
 			      { 
 			    	  amtField.setBackground(unsavedColor);
-			    	  componentField.select(0, componentField.getText().length());
+			    	  amtField.select(0, amtField.getText().length());
 			      }
 
 			      public void focusLost(FocusEvent e) 
@@ -996,7 +1025,7 @@ public class GlazeEditPanel extends JPanel
 			this.firingType = firingType;
 			label = new JLabel(firingType);
 			label.setOpaque(true);
-			label.setBackground(Color.WHITE);
+			label.setBackground(backgroundColor);
 			
 			button = new JButton();
 			button.setIcon(new ImageIcon("exit_icon.png"));

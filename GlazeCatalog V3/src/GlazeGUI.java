@@ -52,11 +52,11 @@ public class GlazeGUI extends JFrame
 		
 		//glazeSearchPanel = new GlazeSearchPanel();
 		//editPanel = new GlazeEditPanel(baldwinGreen);
-		//editPanel2 = new GlazeEditPanel();
+		editPanel2 = new GlazeEditPanel(new GlazeRecipe("Glaze Recipes/Spearmint"));
 		editPanel3 = new GlazeEditPanel(new GlazeRecipe("Glaze Recipes/Baldwin Blue"));
 
 		//add(glazeSearchPanel);
-		add(editPanel3);
+		add(editPanel2);
 		//add(testPanel2);
 		
 		pack();
