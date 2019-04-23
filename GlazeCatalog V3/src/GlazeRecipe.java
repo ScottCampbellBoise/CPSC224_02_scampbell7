@@ -29,6 +29,8 @@ public class GlazeRecipe
 		private String comments =  "No Comments...";
 		private GlazePhoto[] photos = { new GlazePhoto() };
 		
+		private int numViews = 0; //  A helper variable for the main page of the Application
+		
 		public GlazeRecipe() { }
 		public GlazeRecipe(String filePath)
 		{
@@ -94,6 +96,7 @@ public class GlazeRecipe
 			return components;
 		}
 		
+		public int getViews() { return numViews; }
 		public String getName() { return name; }
 		public GlazeComponent[] getComponents() { return glazeComponents; }
 		public GlazeComponent[] getAdds() { return glazeAdds; }
@@ -199,6 +202,7 @@ public class GlazeRecipe
 			
 		}
 		
+		public void setViews(int numViews) { this.numViews = numViews; }
 		public void setName(String newName) { this.name = newName; }
 		public void addComponent(GlazeComponent newComponent)
 		{

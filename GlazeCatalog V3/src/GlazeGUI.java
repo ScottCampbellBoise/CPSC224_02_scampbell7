@@ -1,18 +1,24 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 
 public class GlazeGUI extends JFrame
 {
@@ -86,17 +92,186 @@ public class GlazeGUI extends JFrame
 	{
 		GlazePreviewPanel previewPanel;
 		GlazeSearchPanel searchPanel;
+		RecentGlazePanel recentPanel;
 		
 		public MainPanel()
 		{
 			previewPanel = new GlazePreviewPanel();
 			searchPanel = new GlazeSearchPanel();
+			recentPanel = new RecentGlazePanel();
 			
 			setLayout(new BorderLayout());
 			add(previewPanel, BorderLayout.NORTH);
-			add(searchPanel, BorderLayout.CENTER);
+			add(recentPanel, BorderLayout.CENTER);
+		}
+		/**
+		 * FINISH!!!!
+		 */
+		//returns a percentage of how much the two recipes match
+		public double compareRecipes(GlazeRecipe gr1, GlazeRecipe gr2)
+		{
+			int sum = 0;
+			int total = 100;
+			
+			// Find how much overlap the cone ranges have
+			int upperConeDiff = Integer.parseInt(gr1.getUpperCone()) - Integer.parseInt(gr2.getUpperCone());
+			int lowerConeDiff = Integer.parseInt(gr1.getLowerCone()) - Integer.parseInt(gr2.getLowerCone());
+			double avgDiff = (upperConeDiff + lowerConeDiff) / 2;
+			sum += avgDiff*25;
+			//Find how
+			
+			return 0;
 		}
 		
+		private class SuggestedGlazePanel extends JPanel
+		{
+			public SuggestedGlazePanel()
+			{
+				// Looks for glazes with similar characteristics and attributes to the most viewed glazes
+			}
+		}
+		private class RecentGlazePanel extends JPanel
+		{
+			GlazeRecipe[] recentRecipes;
+			private Font sectionFont = new Font("Helvetica",Font.BOLD, 18);
+
+			public RecentGlazePanel()
+			{
+				uploadRecentRecipes();
+				sortByViews();
+				
+				TitledBorder border = new TitledBorder("Recently Viewed Recipes"); border.setTitleFont(sectionFont);
+				setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20), border));
+				setLayout(new GridLayout(1,5));
+				
+				for(int k = 0; k < recentRecipes.length; k++) {
+					if(k < 5) {
+						add(new GlazeViewerPanel(recentRecipes[k]));
+					} else {
+						break;
+					}
+				}
+			}
+			
+			private void sortByViews()
+			{
+				boolean isSwapped = false;
+				do {
+				    isSwapped = false;
+				    for(int i=0; i<recentRecipes.length-1; i++){
+				        if(recentRecipes[i].getViews() < recentRecipes[i+1].getViews()){
+				            GlazeRecipe temp = recentRecipes[i+1];
+				            recentRecipes[i+1] = recentRecipes[i];
+				            recentRecipes[i] = temp;
+				            isSwapped = true;
+				        }
+				    }
+				} while ((isSwapped));
+			}
+			private void uploadRecentRecipes()
+			{
+				try {
+					String fileContents = new String(Files.readAllBytes(Paths.get("view_log.txt")));
+					String[] glazeInfo = fileContents.split("@");
+					
+					int count = 0; // number not null
+					for(int k = 0; k < glazeInfo.length; k++) {
+						String[] vals = glazeInfo[k].split("~");
+						String glazeName = vals[0].trim();
+						if(!glazeName.trim().equals("")) {
+							count++;
+						}
+					}
+					recentRecipes = new GlazeRecipe[count];
+					count = 0;
+					for(int k = 0; k < glazeInfo.length; k++) {
+						String[] vals = glazeInfo[k].split("~");
+						String glazeName = vals[0].trim();
+						if(!glazeName.trim().equals("")) {
+							recentRecipes[count] = new GlazeRecipe("Glaze Recipes/" + glazeName);
+							recentRecipes[count].setViews(Integer.parseInt(vals[1].trim()));
+							count++;
+						}
+					}
+
+				} catch(Exception e) {
+					System.out.println("Error reading from view_log.txt in GlazeGUI");
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		private class GlazeViewerPanel extends JPanel implements ActionListener, MouseListener
+		{
+			private GlazeRecipe theRecipe;
+			private boolean hasImage = false;
+			private GlazePhoto[] images;
+			private int imagePos = 0;
+			protected Timer timer;
+			private int delay = 1500;
+			
+			private final int IMAGE_WIDTH = 150;
+			private final int IMAGE_HEIGHT = 180;
+			
+			private final Color screenColor = new Color(255, 255, 255, 150);
+			private Font titleFont = new Font("Helvetica", Font.BOLD, 14);
+			
+			public GlazeViewerPanel(GlazeRecipe theRecipe)
+			{
+				this.theRecipe = theRecipe;
+				
+				addMouseListener(this);
+				setBorder(new EmptyBorder(10,10,10,10));
+				images = theRecipe.getPhotos();
+				if(images != null && images.length >= 1 && !images[0].getPath().contains("null_image")) {
+					hasImage = true;
+				}
+				
+				timer = new Timer(delay, this);
+			}
+			
+			public void actionPerformed(ActionEvent e)
+			{
+				imagePos = (imagePos + 1) % images.length;
+				repaint();
+			}
+			@Override
+			protected void paintComponent(Graphics g)
+			{
+				super.paintComponent(g);
+				
+				if(hasImage) {
+					g.drawImage(images[imagePos].getPhoto(), 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, null);
+				} else {
+					g.setColor(Color.WHITE);
+					g.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+				}
+				
+				g.setColor(screenColor);
+				g.fillRect(0, IMAGE_HEIGHT/2 - 15, IMAGE_WIDTH, 30);
+				g.setColor(Color.BLACK);
+				
+				FontMetrics metrics = g.getFontMetrics(titleFont);
+				Rectangle rect = new Rectangle(0, IMAGE_HEIGHT/2 - 15, IMAGE_WIDTH, 30);
+				String text = theRecipe.getName().trim();
+			    int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
+			    int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
+			    g.setFont(titleFont);
+			    g.drawString(text, x, y);
+			}
+			
+			public void mouseEntered(MouseEvent e) {
+				timer.start();
+			}
+			public void mouseExited(MouseEvent e) {
+				timer.stop();
+			}
+			public void mouseClicked(MouseEvent e) { 
+				openEditPanel(theRecipe);
+			}
+			public void mousePressed(MouseEvent e) {}
+			public void mouseReleased(MouseEvent e) {}
+		}
 		private class GlazePreviewPanel extends JPanel implements ActionListener, MouseListener
 		{
 			private GlazeRecipe[] allRecipes;
@@ -268,7 +443,6 @@ public class GlazeGUI extends JFrame
 			public void mouseExited(MouseEvent e) {}
 			public void mouseClicked(MouseEvent e) { 
 				timer.stop();
-				System.out.println("Opening an Edit Panel ... ");
 				openEditPanel(allRecipes[imagePos]);
 				timer.start();
 			}

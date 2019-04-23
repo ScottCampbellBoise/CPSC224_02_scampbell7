@@ -13,7 +13,7 @@ import javax.swing.border.TitledBorder;
 
 public class GlazeSearchPanel extends JPanel
 {
-	final private int NUM_ATTRIBUTES = 15;
+	final private int NUM_ATTRIBUTES = 8;
 	private GlazeAttribute[] attributes = new GlazeAttribute[NUM_ATTRIBUTES];
 		
 	private JPanel attributesPanel;

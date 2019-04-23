@@ -34,3 +34,7 @@
 /GlazeGUI$MainPanel.class
 /GlazeGUI$MainPanel$GlazePreviewPanel.class
 /GlazeGUI$MainPanel$ImagePanel.class
+/GlazeGUI$MainPanel$RecentGlazePanel.class
+/GlazeGUI$MainPanel$RecentGlazePanel$GlazeViewerPanel.class
+/GlazeGUI$MainPanel$GlazeViewerPanel.class
+/GlazeGUI$MainPanel$SuggestedGlazePanel.class

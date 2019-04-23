@@ -16,7 +16,11 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -111,6 +115,7 @@ public class GlazeEditPanel extends JPanel
 	}
 	public GlazeEditPanel(GlazeRecipe recipe) { // Edit an existing recipe
 		this.recipe = recipe;
+		updateViewLog();
 		setUIFont(new javax.swing.plaf.FontUIResource("Helvetica",Font.PLAIN, 12));
 		createPanel();
 		validate();
@@ -715,6 +720,37 @@ public class GlazeEditPanel extends JPanel
 		attributesPanel.add(lowerPanel, BorderLayout.CENTER);
 		validate();
 		repaint();
+	}
+	private void updateViewLog()
+	{
+		try {
+			String fileContents = new String(Files.readAllBytes(Paths.get("view_log.txt")));
+			String updatedContents = "";
+			String[] glazeInfo = fileContents.split("@");
+			boolean alreadyExists = false;
+			for(String info : glazeInfo) {
+				String[] viewInfo = info.trim().split("~");
+				String name = viewInfo[0].toLowerCase().trim();
+				if(!alreadyExists && name.equals(recipe.getName().toLowerCase().trim())) {
+					alreadyExists = true;
+					int numViews = Integer.parseInt(viewInfo[1].trim());
+					numViews++;
+					updatedContents = viewInfo[0].trim() + " ~ " + numViews + "@\n" + updatedContents;
+				} else if (!info.trim().equals("")){
+					updatedContents += info.trim() + "@\n";
+				}
+			}
+			
+			if(!alreadyExists) {
+				updatedContents = recipe.getName().trim() + " ~ " + "1@\n" + updatedContents;
+			}
+			PrintWriter output = new PrintWriter("view_log.txt");
+			output.print(updatedContents);
+			output.close();
+		} catch(Exception e) {
+			System.out.println("Error reading/writing view_log.txt");
+			e.printStackTrace();
+		}
 	}
 	
 	private class MessagePanel extends JPanel
