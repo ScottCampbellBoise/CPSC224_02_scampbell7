@@ -98,7 +98,9 @@ public class GlazeEditPanel extends JPanel
 	private final String[] ILLEGAL_CHARACTERS = { ".", "/", "\n", "\r", "\t", "\0", "\f", "`", "?", "*", "\\", "<", ">", "|", "\"", ":" };
 
 	private PDF_Generator_v2 pdf_generator = new PDF_Generator_v2();
-
+	
+	private Font sectionFont = new Font("Helvetica",Font.BOLD, 15);
+	
 	public GlazeEditPanel() // new glaze constructor
 	{	
 		this.recipe = new GlazeRecipe();
@@ -173,7 +175,8 @@ public class GlazeEditPanel extends JPanel
 		});
 		
 		firingPanel = new JPanel();
-		firingPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder("Firing Types")));
+		TitledBorder firingBorder = new TitledBorder("Firing Types"); firingBorder.setTitleFont(sectionFont);
+		firingPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), firingBorder));
 		firingContents = parseFiring();
 		firingPanel.add(firingContents);
 		
@@ -185,7 +188,8 @@ public class GlazeEditPanel extends JPanel
 		coneSelectPanel.add(lowerConeComboBox);
 		coneSelectPanel.add(coneLabel);
 		coneSelectPanel.add(upperConeComboBox);
-		coneSelectPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder("Cone Range")));
+		TitledBorder coneSelectBorder = new TitledBorder("Cone Range"); coneSelectBorder.setTitleFont(sectionFont);
+		coneSelectPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 5), coneSelectBorder));
 		
 		JPanel coneAndFiringPanel = new JPanel();
 		coneAndFiringPanel.setBackground(backgroundColor);
@@ -207,7 +211,8 @@ public class GlazeEditPanel extends JPanel
 		
 		componentPanel = new JPanel();
 		componentPanel.setBackground(backgroundColor);
-		componentPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Components")));
+		TitledBorder componentsBorder = new TitledBorder("Components"); componentsBorder.setTitleFont(sectionFont);
+		componentPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), componentsBorder));
 		components = parseComponents(recipe.getComponents(), false);
 		if(components == null){
 			componentPanel.setLayout(new GridLayout(5,1));
@@ -233,7 +238,8 @@ public class GlazeEditPanel extends JPanel
 		
 		addPanel = new JPanel();
 		addPanel.setBackground(backgroundColor);
-		addPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), new TitledBorder("Add")));
+		TitledBorder addsBorder = new TitledBorder("Adds"); addsBorder.setTitleFont(sectionFont);
+		addPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 15, 5, 10), addsBorder));
 		adds = parseComponents(recipe.getAdds(), true);
 		if(adds == null) {
 			addPanel.setLayout(new GridLayout(3,1));
@@ -266,7 +272,8 @@ public class GlazeEditPanel extends JPanel
 		commentsPanel = new JPanel();
 		commentsPanel.setBackground(backgroundColor);
 		commentsPanel.setLayout(new BorderLayout());
-		commentsPanel.setBorder(BorderFactory.createCompoundBorder(new TitledBorder("Comments"), new EmptyBorder(5, 5, 5, 5)));
+		TitledBorder commentsBorder = new TitledBorder("Comments"); commentsBorder.setTitleFont(sectionFont);
+		commentsPanel.setBorder(BorderFactory.createCompoundBorder(commentsBorder, new EmptyBorder(5, 5, 5, 5)));
 		commentsTextArea = new JTextArea(4,60);
 		commentsTextArea.setMargin(new Insets(10,10,10,10));
 		commentsTextArea.setBorder(new EmptyBorder(5,5,5,5));
@@ -276,7 +283,8 @@ public class GlazeEditPanel extends JPanel
 		
 	    attributesPanel = new JPanel();
 	    attributesPanel.setBackground(backgroundColor);
-	    attributesPanel.setBorder(new TitledBorder("Glaze Attributes"));
+	    TitledBorder attributesBorder = new TitledBorder("Glaze Attributes"); attributesBorder.setTitleFont(sectionFont);
+	    attributesPanel.setBorder(attributesBorder);
 	    addAttributeButton = new JButton("Add New Attribute");
 	    addAttributeButton.setPreferredSize(new Dimension(50,20));
 	    addAttributeButton.addActionListener(new ActionListener(){
@@ -691,7 +699,8 @@ public class GlazeEditPanel extends JPanel
 	{
 		attributesPanel.removeAll();
 		
-		attributesPanel.setBorder(new TitledBorder("Glaze Attributes"));
+		TitledBorder attributesBorder = new TitledBorder("Glaze Attributes"); attributesBorder.setTitleFont(sectionFont);
+		attributesPanel.setBorder(attributesBorder);
 	    attributesPanel.setLayout(new BorderLayout());
 	    
 		JPanel lowerPanel = new JPanel();
@@ -1062,8 +1071,8 @@ public class GlazeEditPanel extends JPanel
 		{
 			this.originalPhotos = originalPhotos;
 			this.photoPosition = 0;
-			
-			setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 15), new TitledBorder(null, "Glaze Photos", TitledBorder.CENTER,TitledBorder.TOP)));
+			TitledBorder photosBorder = new TitledBorder(null, "Glaze Photos", TitledBorder.CENTER,TitledBorder.TOP); photosBorder.setTitleFont(sectionFont);
+			setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(5, 5, 5, 15), photosBorder));
 			
 			prevPhotoButton = new JButton("<");
 			prevPhotoButton.setPreferredSize(new Dimension(30,30));

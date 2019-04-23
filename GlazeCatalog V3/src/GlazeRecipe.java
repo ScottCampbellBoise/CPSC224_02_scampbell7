@@ -12,6 +12,8 @@ public class GlazeRecipe
 {
 		private String filePath; // this is the folder that holds the txt file and image files
 	
+		public static BufferedImage NULL_IMAGE;
+		
 		private String name = "Glaze Name";
 		private GlazeComponent[] glazeComponents = { new GlazeComponent("Comp 1." , 0.0) };
 		private GlazeComponent[] glazeAdds = {new GlazeComponent("Add. 1" , 0.0) };
@@ -34,6 +36,8 @@ public class GlazeRecipe
 			File theFile = new File(filePath);
 			try
 			{
+				NULL_IMAGE = ImageIO.read(new File("null_image.png"));
+				
 				String fileContents = new String(Files.readAllBytes( Paths.get(filePath + "/" + theFile.getName() + ".txt" )));
 				String[] lines = fileContents.split("@");
 				if(lines.length >= 14)

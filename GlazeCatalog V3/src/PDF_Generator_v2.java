@@ -50,7 +50,7 @@ public class PDF_Generator_v2 {
 	public PDF_Generator_v2()
 	{
 		//createCatalog(ALPHABETICAL_ATTRIBUTE);
-		createCatalog(CONE_ATTRIBUTE);
+		createCatalog(CONE_ATTRIBUTE, ALPHABETICAL_ATTRIBUTE);
 		//generateTestPage();
 	}
 	
@@ -135,6 +135,10 @@ public class PDF_Generator_v2 {
 				SortedRecipeSet srs2_2 = sortAlphabetically(srs1.getSet(1));
 				SortedRecipeSet srs2_3 = sortAlphabetically(srs1.getSet(2));
 				//Create Glaze Page
+				ContentsSection cs = new ContentsSection("Low Fire Glazes", srs2_1.getSet(0), ContentsSection.PRIMARY_SECTION, 
+						new ContentsSection("Mid Range Glazes", srs2_2.getSet(0), ContentsSection.PRIMARY_SECTION,
+								new ContentsSection("High Fire Glazes", srs2_3.getSet(0), ContentsSection.PRIMARY_SECTION, null)));
+				generatePDF(merge(srs2_1, srs2_2, srs2_3), cs, null);
 				return true;
 			} else if(secondaryAttribute.equals(FIRING_ATTRIBUTE)) {
 				SortedRecipeSet srs2_1 = sortByFiring(srs1.getSet(0));
@@ -166,6 +170,21 @@ public class PDF_Generator_v2 {
 		return false;
 	}
 	
+	private GlazeRecipe[] merge(SortedRecipeSet... allRecipes)
+	{
+		ArrayList<GlazeRecipe> recipeList = new ArrayList<GlazeRecipe>();
+		for(int k = 0; k < allRecipes.length; k++) {
+			for(int j = 0; j < allRecipes[k].getLength(); j++ ) {
+				GlazeRecipe[] contents = allRecipes[k].getSet(j);
+				for(GlazeRecipe gr : contents) {
+					recipeList.add(gr);
+				}
+			}
+		}
+		GlazeRecipe[] ordered = new GlazeRecipe[recipeList.size()];
+		ordered = recipeList.toArray(ordered);
+		return ordered;
+	}
 	private GlazeRecipe[] uploadRecipes()
 	{
 		File directory = new File("Glaze Recipes/");
@@ -281,10 +300,9 @@ public class PDF_Generator_v2 {
 		    	} else {
 		    		new GlazePage(document, writer, orderedRecipes[k], orderedRecipes[k+1]);
 		    	}
+		    	new GlazePageFooter(writer, "", "Gonzaga Ceramics Glaze Catalog", "Page " + (k + 1));
 		    	document.newPage();
-
 		    }
-		    
 		    document.close();
 		     
 		} catch(Exception e) {

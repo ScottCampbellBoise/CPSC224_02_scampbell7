@@ -23,6 +23,8 @@ public class GlazeSearchPanel extends JPanel
 	
 	public GlazeSearchPanel()
 	{	
+		setBorder(new EmptyBorder(30,30,30,30));
+		
 		resultsPanel = new JPanel();
 		TitledBorder resultsBorder = new TitledBorder("Search Results");
 		resultsBorder.setTitleJustification(TitledBorder.CENTER);
@@ -32,7 +34,7 @@ public class GlazeSearchPanel extends JPanel
 		
 		attributesPanel = new JPanel();
 	    infoLabel = new JLabel("Click 'x' to remove from search");
-	    infoLabel.setBorder(new EmptyBorder(5,5,15,5)); //Pad the JLabel (top,left,bottom,right)
+	    infoLabel.setBorder(new EmptyBorder(5,5,15,5));
 		updateAttributes();
 		
 		
