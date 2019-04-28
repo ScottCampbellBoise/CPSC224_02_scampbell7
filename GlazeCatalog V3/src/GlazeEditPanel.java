@@ -2,8 +2,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
@@ -22,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -29,6 +32,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -41,6 +45,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 
 /**
  * TO DO:
@@ -344,14 +352,23 @@ public class GlazeEditPanel extends JPanel
 				exportGlaze();
 			}
 		});
+		
+		JButton printPreviewButton = new JButton("Print Preview");
+		printPreviewButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				displayPreview();
+			}
+		});
 	
 		//Create a panel to hold the save, duplicate, and print buttons
 		JPanel modifyButtonsPanel = new JPanel();
 		modifyButtonsPanel.setBackground(backgroundColor);
-		modifyButtonsPanel.setLayout(new GridLayout(1,3));
-		modifyButtonsPanel.add( saveButton );
+		modifyButtonsPanel.setLayout(new GridLayout(1,4));
 		modifyButtonsPanel.add( duplicateButton );
 		modifyButtonsPanel.add( exportButton );
+		modifyButtonsPanel.add( printPreviewButton );
+		modifyButtonsPanel.add( saveButton );
 		
 		JPanel modifyAndMessagePanel = new JPanel();
 		modifyAndMessagePanel.setBackground(backgroundColor);
@@ -363,25 +380,77 @@ public class GlazeEditPanel extends JPanel
 		add(allRecipePanel, BorderLayout.CENTER);
 		add(modifyAndMessagePanel, BorderLayout.SOUTH);
 	}
-	
+
+	private void displayPreview()
+	{
+		JFrame previewFrame = new JFrame("Print Preview: " + recipe.getName());
+		previewFrame.setSize(600, 800);
+		previewFrame.setResizable(false);
+		previewFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		BufferedImage theImage = GlazeRecipe.NULL_IMAGE;
+		
+		try{
+			pdf_generator.saveRecipeAsPDF(recipe, "temp_pdf.pdf");
+			
+			PDDocument document = PDDocument.load(new File("temp_pdf.pdf"));
+			PDFRenderer pdfRenderer = new PDFRenderer(document);
+			theImage = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
+			document.close();
+			
+		} catch(Exception e) {
+			System.out.println("Error reading the temporary PDF file...");
+			e.printStackTrace();
+		}
+		
+		class MyImagePanel extends JPanel{ 
+			private BufferedImage img;
+			private int w, h;
+			public MyImagePanel(BufferedImage img, int w, int h) { this.img = img; this.w = w; this.h = h; }
+			
+		    public void paintComponent(Graphics g){
+		        super.paintComponent(g);
+		            g.drawImage(img, 0, 0, w, h, null);
+		    }
+		}
+		
+		previewFrame.add(new MyImagePanel(theImage, previewFrame.getWidth(), previewFrame.getHeight()));
+		previewFrame.setVisible(true);
+	}
 	private void exportGlaze()
 	{
 		if (JOptionPane.showConfirmDialog(null, "Do you want to save changes?", "Warning",
 		        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 		    saveChanges();
 		}
-		
-		JFileChooser chooser = new JFileChooser();
+	
+		String userDir = System.getProperty("user.home");
+		JFileChooser chooser = new JFileChooser(userDir +"/Desktop");
 		chooser.setFileFilter(new FileNameExtensionFilter("pdf file","pdf"));
 	    int returnVal = chooser.showSaveDialog(null);
+	    
 	    if(returnVal == JFileChooser.APPROVE_OPTION) {
-	    	boolean isSaved = pdf_generator.saveRecipeAsPDF(recipe, chooser.getSelectedFile().getAbsolutePath());
-	    	if(!isSaved)
-	    	{
-	    		messagePanel.displayMsg("Could not save the recipe to the specified file...", MessagePanel.ERROR_MESSAGE);
+	    	File theFile = new File(chooser.getSelectedFile().getAbsolutePath() + ".pdf");
+	    	
+	    	if(theFile.exists()) {
+	    		int reply = JOptionPane.showConfirmDialog(null, "The File name is already in use. Do you want to over-write the file?", "Warning!", JOptionPane.YES_NO_OPTION);
+	            
+	    		if (reply == JOptionPane.YES_OPTION) {
+	            	boolean isSaved = pdf_generator.createCatalog(PDF_Generator_v2.CONE_ATTRIBUTE, PDF_Generator_v2.ALPHABETICAL_ATTRIBUTE, theFile.getAbsolutePath());
+			    	if(!isSaved) {
+			    		System.out.println("Could not save the recipe to the specified file...");
+			    	}
+	            } else {
+		    		exportGlaze();
+	            }
+	    	} else {
+	    		boolean isSaved = pdf_generator.createCatalog(PDF_Generator_v2.CONE_ATTRIBUTE, PDF_Generator_v2.ALPHABETICAL_ATTRIBUTE, theFile.getAbsolutePath());
+		    	
+	    		if(!isSaved) {
+		    		System.out.println("Could not save the recipe to the specified file...");
+		    	}
 	    	}
 	    }
-		
 	}
 	private void duplicateGlaze()
 	{
@@ -452,7 +521,7 @@ public class GlazeEditPanel extends JPanel
 	/**
 	 * UPDATE TO BE MORE CAREFUL AND FOOLPROOF
 	 */
-	private void saveChanges()
+	public void saveChanges()
 	{
 		//Push all the changes into the GlazeRecipe object and then save that to a file
 		String rawName = nameField.getText();

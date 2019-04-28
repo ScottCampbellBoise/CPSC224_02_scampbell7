@@ -40,19 +40,14 @@ public class PDF_Generator_v2 {
 	
 	public ContentsSection left, right;
 	
-	
 	public static void main(String[] args)
 	{
-		new PDF_Generator_v2();
+		PDF_Generator_v2 pdfg = new PDF_Generator_v2();
+		pdfg.createCatalog(ALPHABETICAL_ATTRIBUTE, "/Users/ScottCampbell/Desktop/Test PDF/testPDF.pdf");
 		System.out.println("Finished v2...");
 	}
 	
-	public PDF_Generator_v2()
-	{
-		//createCatalog(ALPHABETICAL_ATTRIBUTE);
-		createCatalog(CONE_ATTRIBUTE, ALPHABETICAL_ATTRIBUTE);
-		//generateTestPage();
-	}
+	public PDF_Generator_v2() { }
 	
 	/**
 	 * Returns whether or not a single recipe export was successful
@@ -80,16 +75,17 @@ public class PDF_Generator_v2 {
 	/**
 	 * UPDATE TO BE MORE CAREFUL ABOUT THE NUMBER OF RECIPES AND FITTING ON 1 OR 2 ... PAGES
 	 */
-	public boolean createCatalog(String primaryAttribute)
+	public boolean createCatalog(String primaryAttribute, String filePath)
 	{
 		//upload all the GlazeRecipes into a single array
 		GlazeRecipe[] allRecipes = uploadRecipes();
 		if(primaryAttribute.equals(FIRING_ATTRIBUTE))
 		{
 			SortedRecipeSet srs = sortByFiring(allRecipes);
-			//Create Catalog
-			
-			
+			ContentsSection cs = new ContentsSection("Oxidation", srs.getSet(0), ContentsSection.PRIMARY_SECTION, 
+					new ContentsSection("Reduction", srs.getSet(1), ContentsSection.PRIMARY_SECTION,
+							new ContentsSection("Other", srs.getSet(2), ContentsSection.PRIMARY_SECTION, null)));
+			generatePDF(filePath, srs.getAllInOrder(), cs, null);
 			return true;
 		} else if(primaryAttribute.equals(CONE_ATTRIBUTE)) {
 			SortedRecipeSet srs = sortByCone(allRecipes);
@@ -97,34 +93,31 @@ public class PDF_Generator_v2 {
 			ContentsSection cs = new ContentsSection("Low Fire Glazes", srs.getSet(0), ContentsSection.PRIMARY_SECTION, 
 					new ContentsSection("Mid Range Glazes", srs.getSet(1), ContentsSection.PRIMARY_SECTION,
 							new ContentsSection("High Fire Glazes", srs.getSet(2), ContentsSection.PRIMARY_SECTION, null)));
-			generatePDF(srs.getAllInOrder(), cs, null);
+			generatePDF(filePath, srs.getAllInOrder(), cs, null);
 			return true;
 		} else if (primaryAttribute.equals(ALPHABETICAL_ATTRIBUTE)) {
 			SortedRecipeSet srs = sortAlphabetically(allRecipes);
-			//Create Catalog
-			
+			ContentsSection cs = new ContentsSection("", srs.getSet(0), ContentsSection.NORMAL_TEXT, null);	
+			generatePDF(filePath, srs.getAllInOrder(), cs, null);
 			return true;
 		}
 		return false;
 	}
-	public boolean createCatalog(String primaryAttribute, String secondaryAttribute)
+	public boolean createCatalog(String primaryAttribute, String secondaryAttribute, String filePath)
 	{
 		//upload all the GlazeRecipes into a single array
 		GlazeRecipe[] allRecipes = uploadRecipes();
 		
 		if(primaryAttribute.equals(FIRING_ATTRIBUTE)) {
 			SortedRecipeSet srs1 = sortByFiring(allRecipes);
-			if(secondaryAttribute.equals(CONE_ATTRIBUTE)) {
-				SortedRecipeSet srs2_1 = sortByCone(srs1.getSet(0));
-				SortedRecipeSet srs2_2 = sortByCone(srs1.getSet(1));
-				SortedRecipeSet srs2_3 = sortByCone(srs1.getSet(2));
-				//Create Glaze Page
-				return true;
-			} else if(secondaryAttribute.equals(ALPHABETICAL_ATTRIBUTE)) { 
+			if(secondaryAttribute.equals(ALPHABETICAL_ATTRIBUTE)) { 
 				SortedRecipeSet srs2_1 = sortAlphabetically(srs1.getSet(0));
 				SortedRecipeSet srs2_2 = sortAlphabetically(srs1.getSet(1));
 				SortedRecipeSet srs2_3 = sortAlphabetically(srs1.getSet(2));
-				//Create Glaze Page
+				ContentsSection cs = new ContentsSection("Oxidation", srs2_1.getSet(0), ContentsSection.PRIMARY_SECTION, 
+						new ContentsSection("Reduction", srs2_2.getSet(0), ContentsSection.PRIMARY_SECTION,
+								new ContentsSection("Other", srs2_3.getSet(0), ContentsSection.PRIMARY_SECTION, null)));
+				generatePDF(filePath, merge(srs2_1, srs2_2, srs2_3), cs, cs);
 				return true;
 			} 
 		} else if(primaryAttribute.equals(CONE_ATTRIBUTE)) {
@@ -134,39 +127,13 @@ public class PDF_Generator_v2 {
 				SortedRecipeSet srs2_1 = sortAlphabetically(srs1.getSet(0));
 				SortedRecipeSet srs2_2 = sortAlphabetically(srs1.getSet(1));
 				SortedRecipeSet srs2_3 = sortAlphabetically(srs1.getSet(2));
-				//Create Glaze Page
 				ContentsSection cs = new ContentsSection("Low Fire Glazes", srs2_1.getSet(0), ContentsSection.PRIMARY_SECTION, 
 						new ContentsSection("Mid Range Glazes", srs2_2.getSet(0), ContentsSection.PRIMARY_SECTION,
 								new ContentsSection("High Fire Glazes", srs2_3.getSet(0), ContentsSection.PRIMARY_SECTION, null)));
-				generatePDF(merge(srs2_1, srs2_2, srs2_3), cs, null);
+				generatePDF(filePath, merge(srs2_1, srs2_2, srs2_3), cs, cs);
 				return true;
-			} else if(secondaryAttribute.equals(FIRING_ATTRIBUTE)) {
-				SortedRecipeSet srs2_1 = sortByFiring(srs1.getSet(0));
-				SortedRecipeSet srs2_2 = sortByFiring(srs1.getSet(1));
-				SortedRecipeSet srs2_3 = sortByFiring(srs1.getSet(2));
-				//Create Glaze Page
-				return true;
-			}
-		} else if (primaryAttribute.equals(ALPHABETICAL_ATTRIBUTE)) {
-			SortedRecipeSet srs1 = sortAlphabetically(allRecipes);
-			
-			if(secondaryAttribute.equals(CONE_ATTRIBUTE)) {
-				SortedRecipeSet srs2_1 = sortByCone(srs1.getSet(0));
-				//Create Glaze Page
-				return true;
-			} else if(secondaryAttribute.equals(FIRING_ATTRIBUTE)) {
-				SortedRecipeSet srs2_1 = sortByFiring(srs1.getSet(0));
-				//Create Glaze Page
-				return true;
-			}
+			} 
 		}
-		return false;
-	}
-	/**
-	 * IMPLEMENT
-	 */
-	public boolean createCatalog(String primaryAttribute, String secondaryAttribute, String tertiaryAttribute)
-	{
 		return false;
 	}
 	
@@ -278,11 +245,11 @@ public class PDF_Generator_v2 {
 		return srs;
 	}
 	
-	private void generatePDF(GlazeRecipe[] orderedRecipes, ContentsSection left, ContentsSection right)
+	private void generatePDF(String filePath, GlazeRecipe[] orderedRecipes, ContentsSection left, ContentsSection right)
 	{
 		try{
 			Document document = new Document();
-		    File file = new File("/Users/ScottCampbell/Desktop/Test PDF/testPDF.pdf");
+			File file = new File(filePath);
 		    file.createNewFile();
 		    FileOutputStream fop = new FileOutputStream(file);
 		    PdfWriter writer = PdfWriter.getInstance(document, fop);
@@ -294,14 +261,16 @@ public class PDF_Generator_v2 {
 		    new TableOfContents(document, writer, orderedRecipes.length, left, right);
 		    document.newPage();
 		    
+		    int count = 1;
 		    for(int k = 0; k < orderedRecipes.length; k += 2) {
 		    	if(k + 1 >= orderedRecipes.length) {
 		    		new GlazePage(document, writer, orderedRecipes[k]);
 		    	} else {
 		    		new GlazePage(document, writer, orderedRecipes[k], orderedRecipes[k+1]);
 		    	}
-		    	new GlazePageFooter(writer, "", "Gonzaga Ceramics Glaze Catalog", "Page " + (k + 1));
+		    	new GlazePageFooter(writer, "", "Gonzaga Ceramics Glaze Catalog", "Page " + count);
 		    	document.newPage();
+		    	count++;
 		    }
 		    document.close();
 		     
@@ -468,13 +437,13 @@ public class PDF_Generator_v2 {
 				if(left.getSectionType() == ContentsSection.PRIMARY_SECTION) { 
 					names.setFont(primarySectionFont); numbers.setFont(primarySectionFont);
 					names.add(left.getSectionName().toUpperCase() + "\n\n");
-					numbers.add(" \n\n");
+					numbers.add("\n\n");
 				} else if(left.getSectionType() == ContentsSection.SECONDARY_SECTION) { 
 					names.setFont(secondarySectionFont); numbers.setFont(secondarySectionFont);
 				} else if(left.getSectionType() == ContentsSection.TERTIARY_SECTION) { 
 					names.setFont(tertiarySectionFont); numbers.setFont(tertiarySectionFont);
 					names.add(left.getSectionName().toUpperCase() + "\n\n");
-					numbers.add(" \n\n");
+					numbers.add("\n\n");
 				}
 				
 				//print recipe contents
@@ -489,8 +458,8 @@ public class PDF_Generator_v2 {
 					parsedNums += "" + (int)curNum + "\n";
 					curNum += 0.5;
 				}
-				Chunk nameContentChunk = new Chunk(parsedNames);
-				Chunk numContentChunk = new Chunk(parsedNums);
+				Chunk nameContentChunk = new Chunk(parsedNames + "\n");
+				Chunk numContentChunk = new Chunk(parsedNums + "\n");
 				nameContentChunk.setLineHeight(18); // This should be the same as commentsFont's size + spacing!
 				numContentChunk.setLineHeight(18); // This should be the same as commentsFont's size + spacing!
 				names.add(nameContentChunk);
@@ -527,8 +496,8 @@ public class PDF_Generator_v2 {
 					parsedNums += "" + (int)curNum + "\n";
 					curNum += 0.5;
 				}
-				Chunk nameContentChunkRight = new Chunk(parsedNames);
-				Chunk numContentChunkRight = new Chunk(parsedNums);
+				Chunk nameContentChunkRight = new Chunk(parsedNames + "\n");
+				Chunk numContentChunkRight = new Chunk(parsedNums + "\n");
 				nameContentChunkRight.setLineHeight(18); // This should be the same as commentsFont's size + spacing!
 				numContentChunkRight.setLineHeight(18); // This should be the same as commentsFont's size + spacing!
 				namesRight.add(nameContentChunkRight);

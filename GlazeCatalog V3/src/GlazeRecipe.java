@@ -112,6 +112,20 @@ public class GlazeRecipe
 		public String getComments() { return comments; }
 		public GlazePhoto[] getPhotos() {return photos; }
 		public int getNumPhotos() { return photos.length; }
+		public int getLowerConeInt() {
+			try { 
+				return Integer.parseInt(lowerCone);
+			} catch(Exception e) {
+				return 0;
+			}
+		}
+		public int getUpperConeInt() {
+			try { 
+				return Integer.parseInt(upperCone);
+			} catch(Exception e) {
+				return 0;
+			}
+		}
 		
 		public void removeComponent(GlazeComponent comp) 
 		{

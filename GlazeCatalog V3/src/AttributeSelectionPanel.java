@@ -17,8 +17,8 @@ public class AttributeSelectionPanel extends JPanel
 	String[] colorArray = {"Black","White","Tan","Red","Orange","Yellow","Green","Blue","Purple","Other"};
 	String[] lowerConeArray = {"010-","09","08","07","06","05","04","03","02","01","1","2","3","4","5","6","7","8","9","10","11"};
 	String[] upperConeArray = {"09","08","07","06","05","04","03","02","01","1","2","3","4","5","6","7","8","9","10","11","12+"};
-	String[] firingArray = {"Ox.", "Red.", "Salt", "Soda", "Wood", "Other"};
-	String[] finishArray = {"Matte", "Glossy", "Other"};
+	String[] firingArray = {"Unknown", "Ox.", "Red.", "Salt", "Soda", "Wood", "Other"};
+	String[] finishArray = {"Unknown", "Matte", "Glossy", "Other"};
 	String[] reliabilityArray = {"Unknown","1 - Unreliable","2","3","4","5","6","7","8","9","10 - Very Reliable"};
 	String[] functionalityArray = {"Unknown","Decorative", "Food Safe", "General", "Toxic","Textured","Other"};
 	String[] stabilityArray = {"Unknown","1 - Unstable","2","3","4","5","6","7","8","9","10 - Very Stable"};
@@ -48,7 +48,7 @@ public class AttributeSelectionPanel extends JPanel
 		createPanel();
 	}
 	
-	public void createPanel()
+	private void createPanel()
 	{
 		colorLabel = new JLabel("Glaze Color: ");
 		colorComboBox = new JComboBox<String>(colorArray);
@@ -90,7 +90,7 @@ public class AttributeSelectionPanel extends JPanel
 		
 		finishLabel = new JLabel("Glaze Finish: ");
 		finishComboBox = new JComboBox<String>(finishArray);
-		finishComboBox.setSelectedIndex(1);
+		finishComboBox.setSelectedIndex(0);
 		finishAddButton = new JButton("Add");
 		finishAddButton.addActionListener(new AttributeListener());
 		finishAddButton.setPreferredSize(new Dimension(BUTTON_WIDTH,20));
@@ -106,7 +106,7 @@ public class AttributeSelectionPanel extends JPanel
 		
 		reliabilityLabel = new JLabel("Reliability: ");
 		reliabilityComboBox = new JComboBox<String>(reliabilityArray);
-		reliabilityComboBox.setSelectedIndex(9);
+		reliabilityComboBox.setSelectedIndex(0);
 		reliabilityAddButton = new JButton("Add");
 		reliabilityAddButton.addActionListener(new AttributeListener());
 		reliabilityAddButton.setPreferredSize(new Dimension(BUTTON_WIDTH,20));
@@ -122,7 +122,7 @@ public class AttributeSelectionPanel extends JPanel
 		
 		functionalityLabel = new JLabel("Functionality: ");
 		functionalityComboBox = new JComboBox<String>(functionalityArray);
-		functionalityComboBox.setSelectedIndex(2);
+		functionalityComboBox.setSelectedIndex(0);
 		functionalityAddButton = new JButton("Add");
 		functionalityAddButton.addActionListener(new AttributeListener());
 		functionalityAddButton.setPreferredSize(new Dimension(BUTTON_WIDTH,20));
@@ -138,7 +138,7 @@ public class AttributeSelectionPanel extends JPanel
 		
 		stabilityLabel = new JLabel("Stability: ");
 		stabilityComboBox = new JComboBox<String>(stabilityArray);
-		stabilityComboBox.setSelectedIndex(9);
+		stabilityComboBox.setSelectedIndex(0);
 		stabilityAddButton = new JButton("Add");
 		stabilityAddButton.addActionListener(new AttributeListener());
 		stabilityAddButton.setPreferredSize(new Dimension(BUTTON_WIDTH,20));
@@ -197,7 +197,7 @@ public class AttributeSelectionPanel extends JPanel
 		add(stabilityPanel);
 		add(combinationPanel);
 	}
-	
+
 	public class AttributeListener implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
