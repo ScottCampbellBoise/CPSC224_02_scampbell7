@@ -2,6 +2,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -114,6 +115,9 @@ public class GlazeRecipe
 		public int getNumPhotos() { return photos.length; }
 		public int getLowerConeInt() {
 			try { 
+				if(lowerCone.trim().substring(0,1).equals("0")) {
+					return Integer.parseInt("-" + lowerCone.trim().substring(1,lowerCone.length()));
+				}
 				return Integer.parseInt(lowerCone);
 			} catch(Exception e) {
 				return 0;
@@ -121,6 +125,9 @@ public class GlazeRecipe
 		}
 		public int getUpperConeInt() {
 			try { 
+				if(upperCone.trim().substring(0,1).equals("0")) {
+					return Integer.parseInt("-" + upperCone.trim().substring(1,upperCone.length()));
+				}
 				return Integer.parseInt(upperCone);
 			} catch(Exception e) {
 				return 0;
@@ -213,7 +220,6 @@ public class GlazeRecipe
 				}
 				photos = temp;
 			}
-			
 		}
 		
 		public void setViews(int numViews) { this.numViews = numViews; }
@@ -234,7 +240,6 @@ public class GlazeRecipe
 						isDuplicate = true; break; 
 					}
 				}
-				
 				//check if there is a component with the same name already. if so, replace it with the new component
 				boolean isUpdate = false;
 				for(int k = 0; k < glazeComponents.length; k++) { 
@@ -246,7 +251,6 @@ public class GlazeRecipe
 						break;
 					}
 				}
-				
 				//If it isn't a duplicate, and if it wasn't updated, add to the array
 				if(!isDuplicate && !isUpdate)
 				{
@@ -273,7 +277,6 @@ public class GlazeRecipe
 						isDuplicate = true; break; 
 					}
 				}
-				
 				//check if there is a component with the same name already. if so, replace it with the new component
 				boolean isUpdate = false;
 				for(int k = 0; k < glazeAdds.length; k++) { 
@@ -285,7 +288,6 @@ public class GlazeRecipe
 						break;
 					}
 				}
-				
 				//If it isn't a duplicate, and if it wasn't updated, add to the array
 				if(!isDuplicate && !isUpdate)
 				{
@@ -296,14 +298,14 @@ public class GlazeRecipe
 				}
 			}
 		}
-		public void setComponents(GlazeComponent[] newComps) {this.glazeComponents = newComps;}
-		public void setAdds(GlazeComponent[] newAdds) {this.glazeAdds = newAdds;}
+		public void setComponents(GlazeComponent[] newComps) { this.glazeComponents = newComps; }
+		public void setAdds(GlazeComponent[] newAdds) { this.glazeAdds = newAdds; }
 		public void setColor(String[] newColor) { colors = newColor; }
 		public void setFiring(String[] newFiring) { firing = newFiring; }
-		public void setConeRange(String newLowerCone, String newUpperCone) {lowerCone = newLowerCone; upperCone = newUpperCone; }
+		public void setConeRange(String newLowerCone, String newUpperCone) { lowerCone = newLowerCone; upperCone = newUpperCone; }
 		public void setFinish(String[] newFinish) { finishes = newFinish; }
 		public void setReliability(String newReliability) { reliability = newReliability; }
-		public void setFunctionality(String[] newFunctionality) { functionality = newFunctionality; }
+		public void setFunctionality(String[] newFunctionality) { functionality = newFunctionality;	}
 		public void setStability(String newStability) { stability = newStability; }
 		public void setCombination(String[] newCombo) { combination = newCombo; }
 		public void setComment(String newComment) { comments = newComment; }
@@ -341,22 +343,40 @@ public class GlazeRecipe
 			 * If so, save the entire file to a new directory with updated name, and delete the old
 			 */
 			
-			File origFile = new File(filePath);
+			/**
+			 * CHECK THAT THE NAME IS NOT ALREADY TAKEN!
+			 */
+			File origFile;
+			if(filePath == null) {
+				try {				
+					String newName = getNewVersionString();
+					name = newName;
+					filePath = "Glaze Recipes/" + newName.trim();
+					origFile = new File(filePath);
+					origFile.mkdir();
+					PrintWriter writer = new PrintWriter(filePath.trim() + "/" + origFile.getName().trim() + ".txt", "UTF-8");
+					writer.println("");
+					writer.close();
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			} 
+			
+			origFile = new File(filePath);
 			
 			if(origFile.getName().trim().equals(name.trim())) { // same name - just update the text file
-				updateRecipeFile(filePath + "/" + origFile.getName() + ".txt");
+				updateRecipeFile(filePath.trim() + "/" + origFile.getName().trim() + ".txt");
 				return true;
-			} else { // different name update to different directory, then destroy the original
+			} else { // different name: update to different directory, then destroy the original
 				boolean isDuplicated = duplicateRecipe();
-				if(isDuplicated)
-				{
+				if(isDuplicated) {
 					deleteDirectory(origFile.getAbsoluteFile());
 					filePath = "Glaze Recipes/"+name;
 					return true;
 				} else {
 					return false;
 				}
-			}
+			}	
 		}
 
 		private void updateRecipeFile(String otherPath)
@@ -420,9 +440,16 @@ public class GlazeRecipe
 	            
 	            // photos
 	            String photoString = "";
-	            for(GlazePhoto gp : this.photos)
+	            for(int k = 0; k < this.photos.length; k++)
 	            {
-	            	photoString += (gp.getPath() + " ; " + gp.getDesc().trim() + " ~ ");
+	            	GlazePhoto gp  = photos[k];
+	            	if(gp.getPhoto() == NULL_IMAGE) {
+	            		String newPath = "null_image.png";
+		            	photoString += (newPath + " ; " + gp.getDesc().trim() + " ~ ");
+	            	} else {
+	            		String newPath = otherPath.substring(0,otherPath.lastIndexOf("/")) + "/glaze " + (k+1) + ".png";
+		            	photoString += (newPath + " ; " + gp.getDesc().trim() + " ~ ");
+	            	}
 	            }
 	            photoString = photoString.substring(0, photoString.length() - 3).trim() + "@\n"; 
 	            writer.write(photoString);
@@ -448,8 +475,7 @@ public class GlazeRecipe
 				}
 			}
 		}
-		public boolean duplicateRecipe()
-		{
+		private String getNewVersionString() {
 			String newFileName = name.trim();
 			int lastSpaceIndex = newFileName.lastIndexOf(" ");
 			if(newFileName.substring(lastSpaceIndex, newFileName.length()).contains("v")) // already has a v extension
@@ -463,6 +489,12 @@ public class GlazeRecipe
 			    while(new File("Glaze Recipes/" + newFileName + " v" + num).exists()) { num++; }
 			    newFileName += " v" + num;
 			}
+			
+			return newFileName;
+		}
+		public boolean duplicateRecipe()
+		{
+			String newFileName = getNewVersionString();
 		    
 		    File newDir = new File("Glaze Recipes/" + newFileName);
 		    try {
@@ -476,6 +508,11 @@ public class GlazeRecipe
 		    } catch(Exception e) {
 		    	return false;
 		    }
+		}
+		public boolean deleteRecipe()
+		{
+			File rootDir = new File(filePath);
+			return deleteDirectory(rootDir);
 		}
 		private boolean deleteDirectory(File directory) {
 		    if(directory.exists()){

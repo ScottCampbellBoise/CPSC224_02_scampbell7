@@ -64,12 +64,9 @@ import org.apache.pdfbox.rendering.PDFRenderer;
  */
 public class GlazeEditPanel extends JPanel
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	private GlazeRecipe recipe;
+	private GlazeGUI masterGUI;
+	private JFrame masterFrame;
 	
 	private Color backgroundColor = UIManager.getColor("Panel.background");
 		
@@ -113,15 +110,19 @@ public class GlazeEditPanel extends JPanel
 	
 	private Font sectionFont = new Font("Helvetica",Font.BOLD, 15);
 	
-	public GlazeEditPanel() // new glaze constructor
+	public GlazeEditPanel(GlazeGUI theGUI, JFrame masterFrame) // new glaze constructor
 	{	
+		this.masterGUI = theGUI;
+		this.masterFrame = masterFrame;
 		this.recipe = new GlazeRecipe();
 		setUIFont(new javax.swing.plaf.FontUIResource("Times",Font.BOLD, 12));
 		createPanel();
 		validate();
 		repaint();
 	}
-	public GlazeEditPanel(GlazeRecipe recipe) { // Edit an existing recipe
+	public GlazeEditPanel(GlazeGUI theGUI, JFrame masterFrame, GlazeRecipe recipe) { // Edit an existing recipe
+		this.masterGUI = theGUI;
+		this.masterFrame = masterFrame;
 		this.recipe = recipe;
 		updateViewLog();
 		setUIFont(new javax.swing.plaf.FontUIResource("Helvetica",Font.PLAIN, 12));
@@ -151,16 +152,18 @@ public class GlazeEditPanel extends JPanel
 		nameField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
             	int length = nameField.getText().length();
-                String lastChar = nameField.getText().substring(length-1,length);
-                for(String c : ILLEGAL_CHARACTERS)
-                {
-                	if(lastChar.equals(c)) {
-                		//remove from field, display error message
-                		nameField.setText(nameField.getText().substring(0, length-1));
-                		messagePanel.displayMsg("Illegal Character! Please choose a valid character", MessagePanel.ERROR_MESSAGE);
-                		break;
-                	}
-                }
+            	if(length > 1) {
+	                String lastChar = nameField.getText().substring(length-1,length);
+	                for(String c : ILLEGAL_CHARACTERS)
+	                {
+	                	if(lastChar.equals(c)) {
+	                		//remove from field, display error message
+	                		nameField.setText(nameField.getText().substring(0, length-1));
+	                		messagePanel.displayMsg("Illegal Character! Please choose a valid character", MessagePanel.ERROR_MESSAGE);
+	                		break;
+	                	}
+	                }
+            	}
             }
         });
 		
@@ -361,14 +364,23 @@ public class GlazeEditPanel extends JPanel
 			}
 		});
 	
+		JButton removeRecipeButton = new JButton("Delete Glaze");
+		removeRecipeButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				deleteRecipe();
+			}
+		});
+		
 		//Create a panel to hold the save, duplicate, and print buttons
 		JPanel modifyButtonsPanel = new JPanel();
 		modifyButtonsPanel.setBackground(backgroundColor);
-		modifyButtonsPanel.setLayout(new GridLayout(1,4));
+		modifyButtonsPanel.setLayout(new GridLayout(1,5));
 		modifyButtonsPanel.add( duplicateButton );
 		modifyButtonsPanel.add( exportButton );
 		modifyButtonsPanel.add( printPreviewButton );
 		modifyButtonsPanel.add( saveButton );
+		modifyButtonsPanel.add( removeRecipeButton );
 		
 		JPanel modifyAndMessagePanel = new JPanel();
 		modifyAndMessagePanel.setBackground(backgroundColor);
@@ -457,6 +469,8 @@ public class GlazeEditPanel extends JPanel
 		if (JOptionPane.showConfirmDialog(null, "Do you want to save changes?", "Warning",
 		        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 		    saveChanges();
+		} else {
+			masterGUI.updateMainPanel();
 		}
 		
 		boolean isDuplicated = recipe.duplicateRecipe();
@@ -511,10 +525,20 @@ public class GlazeEditPanel extends JPanel
 					@Override
 					public void windowDeactivated(WindowEvent e) {}
 			    });
+				masterGUI.updateMainPanel();
 			} catch(Exception e) {
 				messagePanel.displayMsg("Error reading the selected image file ...", MessagePanel.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
+		}
+	}
+	private void deleteRecipe()
+	{
+		if (JOptionPane.showConfirmDialog(null, "This will permanently delete the recipe. Are you sure?", "Warning",
+		        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			masterFrame.dispose();
+			boolean isDeleted = recipe.deleteRecipe();
+			masterGUI.updateMainPanel();	
 		}
 	}
 	
@@ -579,6 +603,9 @@ public class GlazeEditPanel extends JPanel
 		//photos are added automatically
 		
 		recipe.updateFile();
+		masterGUI.updateMainPanel();
+		
+		nameField.setText(recipe.getName());
 		
 		messagePanel.displayMsg("All changes are saved!", MessagePanel.GENERAL_MESSAGE);
 	}

@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
 		public GlazePhoto()
 		{
 			try {
-				this.photo = ImageIO.read(new File("null_image.png"));
+				this.photo = GlazeRecipe.NULL_IMAGE;
 				this.desc = "No Desc";
 				this.path = "null_image.png";
 			} catch(Exception e) {

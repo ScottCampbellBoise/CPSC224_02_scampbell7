@@ -40,6 +40,10 @@ public class GlazeGUI extends JFrame
 	 * Clean up all the code!!!
 	 * Comment add the Classes!!!
 	 * 
+	 * ERROR WHEN NAME IS CHANGED AND TRY TO SAVE!!!
+	 * 		Image file paths are not changed
+	 * 
+	 * 
 	 * Make a Panel to display/add Glaze Layering Tests - IF TIME!!!
 	 * 		Allow user to choose which glazes they want to see layered
 	 * 		Allow print/export image file
@@ -50,30 +54,40 @@ public class GlazeGUI extends JFrame
 
 	 * Make a 'main page' 
 	 * 		has a sign in option that allows the user to edit the recipes - IF TIME!!!
-	 * 		has a search bar to find a glaze
-	 * 		has a export button to open a Panel with different export options
-	 * 			select glazes, organization, etc...
 	 */
 	
 	private boolean hasEditPrivlages = true;
+	public MainPanel mainPanel;
+	private GlazeGUI masterGUI;
 	
 	public static void main(String[] args)
-	{			
+	{		
 		new GlazeGUI();
 	}
 	
 	public GlazeGUI()
 	{	
+		masterGUI = this;
+		
 		setTitle("Glaze Catalog - Search for a Glaze");
 		setSize(850,730);
-		setResizable(true);
+		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		MainPanel mp = new MainPanel();
-		add(mp);
+		mainPanel = new MainPanel();
+		add(mainPanel);
 		
-		//pack();
 		setVisible(true);
+	}
+	
+	public void updateMainPanel() 
+	{
+		remove(mainPanel);
+		validate();
+		mainPanel = new MainPanel();
+		add(mainPanel);
+		validate();
+		repaint();
 	}
 	
 	private class MainPanel extends JPanel
@@ -90,6 +104,7 @@ public class GlazeGUI extends JFrame
 		
 		private ArrayList<GlazeEditPanel> allEditPanels;
 		private JButton exportButton;
+		private JButton newButton;
 		private JComboBox<String> searchBox;
 		
 		private final Color highlightColor = new Color(0, 153, 255, 190);
@@ -117,7 +132,7 @@ public class GlazeGUI extends JFrame
 				}
 			});
 			
-			exportButton = new JButton("Export Catalog");
+			exportButton = new JButton("Export Catalog as a PDF");
 			exportButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
 					JFrame saveFrame = new JFrame("Export Glaze Catalog");
@@ -129,9 +144,22 @@ public class GlazeGUI extends JFrame
 					saveFrame.setVisible(true);
 				}
 			}); 
-			JPanel exportButtonPanel = new JPanel();
-			exportButtonPanel.setLayout(new BorderLayout());
-			exportButtonPanel.add(exportButton, BorderLayout.EAST);
+			
+			newButton = new JButton("Create a New Recipe");
+			newButton.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e) {
+					openEditPanel(new GlazeRecipe());
+				}
+			});
+			
+			JPanel exportAndNewButtonPanel = new JPanel();
+			exportAndNewButtonPanel.setBorder(new EmptyBorder(0,0,20,20));
+			exportAndNewButtonPanel.setLayout(new BorderLayout());
+			JPanel internalPanel = new JPanel();
+			internalPanel.setLayout(new GridLayout(1,2));
+			internalPanel.add(exportButton);
+			internalPanel.add(newButton);
+			exportAndNewButtonPanel.add(internalPanel, BorderLayout.EAST);
 			
 			JPanel mainPanel = new JPanel();
 			mainPanel.setLayout(new BorderLayout());
@@ -145,7 +173,7 @@ public class GlazeGUI extends JFrame
 			setLayout(new BorderLayout());
 			add(searchBar, BorderLayout.NORTH);
 			add(mainPanel, BorderLayout.CENTER);
-			add(exportButtonPanel, BorderLayout.SOUTH);
+			add(exportAndNewButtonPanel, BorderLayout.SOUTH);
 			
 			validate();
 			repaint();
@@ -159,7 +187,7 @@ public class GlazeGUI extends JFrame
 			editFrame.setResizable(true);
 			editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			
-			GlazeEditPanel ep = new GlazeEditPanel(theRecipe);
+			GlazeEditPanel ep = new GlazeEditPanel(masterGUI, editFrame, theRecipe);
 			allEditPanels.add(ep);
 			editFrame.add(ep);
 			
@@ -203,7 +231,7 @@ public class GlazeGUI extends JFrame
 					String[] vals = glazeInfo[k].split("~");
 					String glazeName = vals[0].trim();
 					File glazeFile = new File("Glaze Recipes/"+glazeName);
-					if(!glazeName.trim().equals("") && glazeFile.exists()) {
+					if(!glazeName.trim().equals("") && glazeFile.isDirectory()) {
 						count++;
 					}
 				}
@@ -212,13 +240,13 @@ public class GlazeGUI extends JFrame
 				for(int k = 0; k < glazeInfo.length; k++) {
 					String[] vals = glazeInfo[k].split("~");
 					String glazeName = vals[0].trim();
-					if(!glazeName.trim().equals("")) {
+					File glazeFile = new File("Glaze Recipes/"+glazeName);
+					if(!glazeName.trim().equals("") && glazeFile.isDirectory()) {
 						recentRecipes[count] = new GlazeRecipe("Glaze Recipes/" + glazeName);
 						recentRecipes[count].setViews(Integer.parseInt(vals[1].trim()));
 						count++;
 					}
 				}
-
 			} catch(Exception e) {
 				System.out.println("Error reading from view_log.txt in GlazeGUI");
 				e.printStackTrace();
@@ -270,7 +298,7 @@ public class GlazeGUI extends JFrame
 			{	
 				suggestedResults = null;
 				
-				setBorder(new EmptyBorder(0,20,0,20));
+				setBorder(new EmptyBorder(10,20,15,20));
 				resultsPanel = new JPanel();
 				resultsPanel.setBorder(new EmptyBorder(0,0,0,150));
 				resultsPanel.setLayout(new GridLayout(5,1));
@@ -283,7 +311,7 @@ public class GlazeGUI extends JFrame
 						advFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 						advFrame.setSize(800, 800);
 						advFrame.setResizable(true);
-						advFrame.add(new GlazeSearchPanel());
+						advFrame.add(new GlazeSearchPanel(masterGUI));
 						advFrame.setVisible(true);
 					}
 				});
@@ -291,9 +319,8 @@ public class GlazeGUI extends JFrame
 				searchField = new JTextField(20);
 				searchField.setEditable(true);
 				searchField.addFocusListener(this);
-					
 				searchField.addKeyListener(new KeyAdapter() {
-		            public void keyTyped(KeyEvent ke) {
+		            public void keyReleased(KeyEvent ke) {
 		            	if(!panelAdded) { add(resultsPanel); validate(); repaint(); panelAdded = true; }
 		            	
 		            	//check for new suggestions
@@ -310,11 +337,10 @@ public class GlazeGUI extends JFrame
 				            	}
 				            	resultsPanel.validate();
 				            	resultsPanel.repaint();
-				            	System.out.println("Finished Updating");
-		            		}
-			            	
+				            	validate();
+				            	repaint();
+		            		}			            	
 		            	}
-		            	
 		            }
 		        });
 				

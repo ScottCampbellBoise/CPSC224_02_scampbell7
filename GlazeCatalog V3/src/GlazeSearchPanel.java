@@ -26,10 +26,11 @@ import javax.swing.border.TitledBorder;
 
 public class GlazeSearchPanel extends JPanel
 {
+	private GlazeGUI masterGUI;
+	
 	final private int NUM_ATTRIBUTES = 8;
 	private GlazeAttribute[] attributes = new GlazeAttribute[NUM_ATTRIBUTES];
 	private GlazeRecipe[] allRecipes;	
-	private ArrayList<GlazeRecipe> resultsArrayList;
 	
 	private JPanel attributesPanel;
 	private JPanel attributeSearchPanel;
@@ -39,13 +40,10 @@ public class GlazeSearchPanel extends JPanel
 	
 	private final Font sectionFont = new Font("Helvetica", Font.BOLD, 14);
 	
-	public GlazeSearchPanel()
+	public GlazeSearchPanel(GlazeGUI theGUI)
 	{	
+		this.masterGUI = theGUI;
 		allRecipes = uploadRecipes();
-		resultsArrayList = new ArrayList<GlazeRecipe>();
-		for(int k = 0; k < allRecipes.length; k++){
-			resultsArrayList.add(allRecipes[k]);
-		}
 		
 		setBorder(new EmptyBorder(20,20,20,20));
 		
@@ -87,7 +85,11 @@ public class GlazeSearchPanel extends JPanel
 	private void updateResults()
 	{
 		//get attributes from searchPanel
-		ArrayList<GlazeRecipe> resultSet = resultsArrayList;
+		ArrayList<GlazeRecipe> resultSet = new ArrayList<GlazeRecipe>();
+		resultSet = new ArrayList<GlazeRecipe>();
+		for(int k = 0; k < allRecipes.length; k++){
+			resultSet.add(allRecipes[k]);
+		}
 		
 		for(GlazeAttribute attr  : attributes) {
 			if(attr != null) {
@@ -233,6 +235,7 @@ public class GlazeSearchPanel extends JPanel
 		attributeSearchPanel.add(attributesPanel, BorderLayout.EAST);
 		attributeSearchPanel.validate();
 		attributeSearchPanel.repaint();
+		updateResults();
 	}
 	private void openEditPanel(GlazeRecipe theRecipe)
 	{
@@ -241,7 +244,7 @@ public class GlazeSearchPanel extends JPanel
 		editFrame.setResizable(true);
 		editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
-		GlazeEditPanel ep = new GlazeEditPanel(theRecipe);
+		GlazeEditPanel ep = new GlazeEditPanel(masterGUI, editFrame, theRecipe);
 		editFrame.add(ep);
 		
 		editFrame.pack();
