@@ -190,6 +190,7 @@ public class ParallaxGUI extends JFrame{
 		    //@param MouseEvent e - action of mouse being moved
 		    public void mouseMoved(MouseEvent e)
 		    {
+		    	/**
 		    	int mouse_dx = e.getX() - mouseX;
 		    	int mouse_dy = e.getY() - mouseY;
 		    	
@@ -222,6 +223,7 @@ public class ParallaxGUI extends JFrame{
 				y5 -= mouse_dy*dy5;
 				
 				repaint();
+				*/
 		    }
 		}
 		
