@@ -33,6 +33,14 @@ public class GlazeGUI extends JFrame
 	/**
 	 * V3
 	 * 
+	 * Memory Usage:
+	 * 		Open Main window - 1.2 GB
+	 * 		Open Edit panel - 1.25 GB
+	 * 		Save Glaze #1 - 1.5 GB
+	 * 		Save Glaze #2 - 1.85 GB
+	 * 		Save Glaze #3 - 2.1 GB
+	 * Appears there is a memory leak when saving the recipe ... 
+	 * 
 	 * ADD GARBAGE COLLECTION STATEMENTS TO ALL METHODS AND CLASSES WHERE APPLICABLE!
 	 * 
 	 * Memory Leak issue - after opening ~7 panels, runs out of memory ... Fix?
@@ -78,12 +86,7 @@ public class GlazeGUI extends JFrame
 	
 	public void updateMainPanel() 
 	{
-		remove(mainPanel);
-		validate();
-		mainPanel = new MainPanel();
-		add(mainPanel);
-		validate();
-		repaint();
+		mainPanel.update();
 		
 	}
 	
@@ -176,7 +179,14 @@ public class GlazeGUI extends JFrame
 			repaint();
 			
 		}
-		
+		public void update()
+		{
+			allRecipes = uploadRecipes();
+			recipeNames = parseNames(allRecipes);
+			uploadRecentRecipes();
+			sortByViews();
+			findTopRecentRecipes();
+		}
 		//Finds up to the top 5 recent recipes
 		private void openEditPanel(GlazeRecipe theRecipe)
 		{

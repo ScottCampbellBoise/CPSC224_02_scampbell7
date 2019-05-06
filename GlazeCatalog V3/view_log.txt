@@ -1,6 +1,7 @@
-Pinnell Seafoam ~ 14@
+Z Glaze ~ 1@
+Glaze Name ~ 31@
+Pinnell Seafoam ~ 15@
 Test Recipe ~ 1@
-Glaze Name ~ 30@
 Yoder's Multi-Blue ~ 1@
 Yellow Brown Opal ~ 8@
 Enchanted Forest ~ 12@
